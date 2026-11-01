@@ -25,7 +25,7 @@ THERMALSCOPE_SIGN_IDENTITY=- THERMALSCOPE_APP_GROUP= bash "$ROOT/scripts/build.s
 codesign --verify --deep --strict "$APP"
 for executable in "$APP/Contents/MacOS/ThermalScope" "$APP/Contents/Helpers/ThermalScopeHelper" "$APP/Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget"; do
     test -x "$executable"
-    lipo -verify_arch x86_64 "$executable"
+    lipo "$executable" -verify_arch x86_64
 done
 "$APP/Contents/MacOS/ThermalScope" --hidden-view-update-check > "$OUT/hidden-view-check.log"
 "$APP/Contents/MacOS/ThermalScope" --localization-check > "$OUT/localization-check.log"
