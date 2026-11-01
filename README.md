@@ -1,27 +1,99 @@
 # 温控台 · ThermalScope
 
+<img src="Resources/AppIcon.png" width="96" alt="温控台应用图标">
+
 Intel Mac 的温度、CPU、风扇和性能诊断工具。当前应用版本为 **1.16 / build 260**，包含后续 Dock 交互、图标和压测修复。
 
-## 使用行为
+## 功能
 
-启动后先在状态栏监测；状态栏左键打开温度、CPU 和风扇曲线面板，右键打开操作菜单。点击 Dock 图标打开完整控制台；关闭主窗口后隐藏 Dock 图标，状态栏继续监测。再次从面板打开控制台时恢复 Dock 图标。
+- 状态栏显示温度、CPU 使用率和风扇转速，左键打开多组趋势曲线。
+- 控制台查看实时指标、传感器、CPU/内存/磁盘进程活动和性能诊断依据。
+- 系统自动、节能、性能、静音模式，以及可编辑的温度—风扇转速曲线。
+- 独立 Intel 睿频控制、操作记录和采样导出。
+- 系统/浅色/深色主题、多语言、状态栏自定义和 WidgetKit 小组件。
+- 固定随机种子的模拟压测、性能预算、原始采样和基线回归比较。
 
-监测默认只读。风扇、睿频和系统电源调整通过显式操作及系统授权执行。睿频控制复用本机已安装的 `com.rugarciap.DisableTurboBoost` 扩展，不随工程提供新的内核驱动。
+## 截图
+
+以下为开发过程中保存的实机截图，数值代表拍摄时的状态。
+
+### 状态栏曲线面板
+
+左键点击状态栏即可查看温度、CPU 和风扇趋势，并进入控制台。
+
+<img src="docs/screenshots/status-panel.png" width="420" alt="温控台状态栏面板：CPU 温度、CPU 使用率与风扇转速曲线">
+
+### 温度与风扇控制
+
+先编辑曲线草稿，再显式应用；进入编辑页不会改变当前风扇状态。
+
+![温度控制：运行模式、风扇曲线和 Intel 睿频](docs/screenshots/thermal-control.png)
+
+### CPU 历史与指标详情
+
+支持时间范围、固定/自动刻度、线条/面积以及暂停图表。
+
+![CPU 历史：使用率、采样趋势和统计](docs/screenshots/cpu-history.png)
+
+截图版本与来源见 [截图记录](docs/screenshots/README.txt)。
+
+## 安装与首次启动
+
+当前以源码构建方式使用，需要 Intel Mac、macOS 13+、支持 Swift 5.9+ 的 Xcode Command Line Tools、Git 和 Python 3。当前验证机器为 Intel MacBookPro16,1；其他机型及 Apple Silicon 尚未完成能力验证。
+
+如果尚未安装命令行工具，先运行并完成系统安装提示：
+
+```sh
+xcode-select --install
+```
+
+访问此私有仓库需要 GitHub 账号已有权限。完成认证后：
+
+```sh
+git clone https://github.com/Jackkakaya/ThermalScope.git
+cd ThermalScope
+make build
+open build/ThermalScope.app
+```
+
+`make build` 会生成主程序、辅助程序和 WidgetKit 扩展，并进行签名校验；当前使用本地 ad-hoc 签名。正式分发所需的 Developer ID 签名、公证与权限配置仍待完成。
+
+## 使用方式
+
+1. **打开监测**：启动后先在状态栏监测，不自动弹出控制台。监测默认只读，不需要管理员密码。
+2. **查看曲线**：左键点击状态栏图标，打开温度、CPU 使用率和风扇转速面板；右键打开操作菜单。
+3. **打开控制台**：点击面板的“打开温控台”，或点击 Dock 图标。选择“实时监测”“性能诊断”“进程活动”等页面查看详情。
+4. **调整散热**：在“温度控制”选择模式，或打开“编辑温度曲线”，检查草稿后显式应用。硬件操作需要系统管理员授权。
+5. **恢复自动**：使用“恢复系统自动”将风扇控制交回系统，并查看操作结果是否确认。
+6. **后台运行**：关闭主窗口后隐藏 Dock 图标，状态栏继续监测；再次打开控制台时恢复 Dock 图标。彻底退出请使用应用菜单或状态栏的“退出温控台”。
+
+### 温控与睿频依赖
+
+风扇能力取决于本机 AppleSMC 接口。实际控制前先退出 Macs Fan Control 等其他风扇控制软件，避免同时控制。
+
+睿频控制复用本机已安装且获系统批准的 `com.rugarciap.DisableTurboBoost` 扩展（例如已有 Turbo Boost Switcher 安装）。工程不附带新内核驱动，也不会自动下载驱动或绕过系统安全设置。没有该扩展时，睿频控制可能不可用，仍可使用可读的监测功能。使用睿频控制前先退出其他睿频控制器，避免规则互相覆盖。
+
+CPU 使用率、系统性能限制和睿频状态是不同指标；传感器与历史缺失保持缺失，不补造零读数。
 
 ## 工程位置
 
 开发仓库位于 `~/codejk/ThermalScope`。源码、测试和 `.git` 均在此目录，历史构建交付物保留在原聊天输出目录。
 
-## 构建
+## 开发构建
 
-需要 macOS 13+ 和支持 Swift 5.9+ 的 Xcode Command Line Tools。当前验证机器为 Intel MacBookPro16,1，未完成其他机型的能力验证。没有第三方 Swift 包依赖。
+没有第三方 Swift 包依赖。在仓库目录中运行：
 
 ```sh
 make build
-open build/ThermalScope.app
 ```
 
-也可以直接运行 `bash scripts/build.sh "$PWD/build/ThermalScope.app"`。构建包含主程序、辅助程序和 WidgetKit 扩展，并进行签名校验；默认是本地 ad-hoc 签名。正式分发所需的签名、公证与权限配置仍待完成。
+也可指定输出位置：
+
+```sh
+make build APP="$PWD/build/ThermalScope.app"
+# 或直接调用构建脚本
+bash scripts/build.sh "$PWD/build/ThermalScope.app"
+```
 
 ## 检查与压测
 
@@ -71,4 +143,4 @@ SwiftPM 递归发现各 target 内的源码，目录整理不改变 target 名�
 - [历次计划](docs/plans/) / [发布记录](docs/releases/)
 - [整理前的完整使用说明（历史资料）](docs/archive/README-1.16.md)
 
-本地 Git 仓库使用 `main` 分支，整理前的原始快照已单独提交。编译缓存、应用包、性能原始输出、编辑器状态和本地签名材料不纳入版本管理。当前尚未配置远程仓库。
+本地 Git 仓库使用 `main` 分支，整理前的原始快照已单独提交。编译缓存、应用包、性能原始输出、编辑器状态和本地签名材料不纳入版本管理。GitHub 远程仓库为 `Jackkakaya/ThermalScope`，初始可见性为 **Private**。
