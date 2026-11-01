@@ -1,0 +1,36 @@
+ThermalScope 1.16.0 — Apple Silicon arm64 实验版 / Experimental Build
+macOS 13+ · build 260 · ad-hoc signed · not notarized
+
+简体中文
+1. 登录有私有仓库权限的 GitHub 账号，从 v1.16.0 Release 下载 ThermalScope-1.16.0-macOS-arm64.zip。
+2. 解压，将 ThermalScope.app 拖到“应用程序”后打开。仅用于 Apple Silicon Mac。
+3. 点击顶部状态栏图标，从面板打开控制台；在“设置 → 语言”选择简体中文或 English。
+4. 本版仅用于实验性监测，风扇、睿频和电源设置控制均已禁用。Intel Turbo Boost 不适用于 Apple Silicon。
+5. CPU/内存/进程/电池等可用读数依赖系统接口；温度和风扇传感器可能不可用，缺失值保持缺失。
+
+本包在 Intel Mac 上交叉编译，尚未在 Apple Silicon 真机运行和验证。
+已检查主程序、辅助程序及小组件均为 arm64，签名与归档解压完整性通过；这不能替代 ARM 真机功能和性能验证。
+当前为 ad-hoc 签名，未经 Apple 公证，macOS 可能提示无法验证开发者。
+与 Intel 版共用应用标识，安装时替换同名应用；不要同时运行两个版本。
+完整下载本架构四个附件后运行：shasum -a 256 -c SHA256SUMS-arm64.txt。
+
+English
+1. Sign in with repository access and download ThermalScope-1.16.0-macOS-arm64.zip from the v1.16.0 release.
+2. Extract it and drag ThermalScope.app into Applications. This package is for Apple Silicon Macs.
+3. Click the menu bar item and open the console from its panel. Select English or Simplified Chinese in Settings → Language.
+4. This is an experimental monitoring-only build. Fan, Turbo and power-setting control are disabled. Intel Turbo Boost does not apply to Apple Silicon.
+5. Available CPU, memory, process and battery readings depend on system interfaces. Temperature and fan sensors may be unavailable; missing readings stay missing.
+
+Cross-compiled on an Intel Mac; it has not been launched or validated on Apple Silicon hardware.
+Architecture checks confirm arm64 host, helper and widget binaries. Signatures and archive extraction integrity were checked; these do not establish ARM runtime functionality or performance.
+The package is ad-hoc signed and not notarized. macOS may report that the developer cannot be verified.
+It shares the Intel build's application identifier; replace the existing app rather than running both versions.
+Download all four arm64 assets into one folder and run: shasum -a 256 -c SHA256SUMS-arm64.txt.
+
+Assets / 附件
+ThermalScope-1.16.0-macOS-arm64.zip
+INSTALL-arm64.txt
+release-manifest-arm64.json
+SHA256SUMS-arm64.txt
+
+https://github.com/Jackkakaya/ThermalScope/releases/tag/v1.16.0

@@ -4,7 +4,7 @@
 
 <img src="Resources/AppIcon.png" width="96" alt="温控台应用图标">
 
-Intel Mac 的温度、CPU、风扇和性能诊断工具。当前应用版本为 **1.16 / build 260**，包含后续 Dock 交互、图标和压测修复。
+macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 Apple Silicon 监测版。当前应用版本为 **1.16 / build 260**，包含后续 Dock 交互、图标和压测修复。
 
 ## 功能
 
@@ -44,13 +44,13 @@ Intel Mac 的温度、CPU、风扇和性能诊断工具。当前应用版本为 
 ### 下载应用包（无需编译）
 
 1. 登录有此私有仓库访问权限的 GitHub 账号，打开 [Releases](https://github.com/Jackkakaya/ThermalScope/releases)。
-2. 下载 `v1.16.0` 的 **`ThermalScope-1.16.0-macOS-x86_64.zip`**，解压后将 `ThermalScope.app` 拖到“应用程序”。
+2. 按芯片选择 `v1.16.0` 的 **`ThermalScope-1.16.0-macOS-x86_64.zip`**（Intel）或 **`ThermalScope-1.16.0-macOS-arm64.zip`**（Apple Silicon 实验版），解压后将 `ThermalScope.app` 拖到“应用程序”。
 3. 打开应用，点击顶部状态栏图标开始使用。预编译应用不需要安装 Xcode、Swift 或 Python。
 4. 在“设置 → 语言”切换简体中文或 English。应用还支持繁体中文、日语、韩语、德语、法语和西班牙语。
 
-应用包面向 **Intel Mac（x86_64），最低 macOS 13**。当前实测机型为 Intel MacBookPro16,1；Apple Silicon 原生版尚未提供。当前为本地 **ad-hoc 签名、未经公证**的开发构建，macOS 可能提示无法验证开发者。Developer ID 签名与公证仍待完成。
+两个应用包最低均为 **macOS 13**。Intel 版当前实测机型为 MacBookPro16,1。**arm64 为 Intel 机器交叉编译的实验性监测版，未做 Apple Silicon 真机验证；风扇、睿频和电源设置控制已禁用，温度和风扇读数可能不可用。**当前为本地 **ad-hoc 签名、未经公证**的开发构建，macOS 可能提示无法验证开发者。Developer ID 签名与公证仍待完成。
 
-Release 同时提供双语 `INSTALL.txt`、`release-manifest.json` 和 `SHA256SUMS.txt`。将四个附件下载到同一目录后，可运行 `shasum -a 256 -c SHA256SUMS.txt` 验证文件完整性。
+Release 为每个架构提供独立的双语安装指南、构建清单和校验值。Intel 版为 `INSTALL.txt`、`release-manifest.json`、`SHA256SUMS.txt`；ARM 版为 `INSTALL-arm64.txt`、`release-manifest-arm64.json`、`SHA256SUMS-arm64.txt`。下载所选架构的四个附件后，运行 `shasum -a 256 -c SHA256SUMS.txt`（Intel）或 `shasum -a 256 -c SHA256SUMS-arm64.txt`（ARM）。
 
 ### 从源码构建
 
@@ -117,7 +117,13 @@ bash scripts/build.sh "$PWD/build/ThermalScope.app"
 bash scripts/package-release.sh "$PWD/build/releases/v1.16.0"
 ```
 
-目标目录必须不存在；脚本要求 Git 工作区干净，并验证 ZIP 解压后的签名与执行权限。
+目标目录必须不存在；脚本要求 Git 工作区干净，并验证 ZIP 解压后的签名与执行权限。交叉编译 ARM 包：
+
+```sh
+THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh "$PWD/build/releases/v1.16.0-arm64"
+```
+
+主程序、辅助程序和小组件统一为 arm64；跨架构时不运行目标二进制，清单明确标记运行时检查未执行。ARM 对应的源码提交由 `v1.16.0-arm64` 标签与其独立清单记录；原 Intel 发布标签和附件保持原样。
 
 ## 检查与压测
 

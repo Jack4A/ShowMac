@@ -5,13 +5,15 @@ APP="${1:?app bundle path required}"
 BIN="${2:?Swift build output required}"
 IDENTITY="${THERMALSCOPE_SIGN_IDENTITY:--}"
 GROUP="${THERMALSCOPE_APP_GROUP:-}"
+ARCH="${THERMALSCOPE_ARCH:-$(uname -m)}"
+case "$ARCH" in x86_64|arm64) ;; *) echo "Unsupported architecture: $ARCH" >&2; exit 1;; esac
 if [[ -n "$GROUP" && "$IDENTITY" == "-" ]]; then
     echo 'App Groups require a real signing identity; no Team ID is invented.' >&2
     exit 1
 fi
 EXT="$APP/Contents/PlugIns/ThermalScopeWidget.appex"
 mkdir -p "$EXT/Contents/MacOS" "$EXT/Contents/Resources"
-xcrun swiftc -parse-as-library -application-extension -O -target x86_64-apple-macosx13.0 -I "$BIN/Modules" -L "$BIN" -lWidgetUI -lWidgetShared -framework SwiftUI -framework WidgetKit -Xlinker -e -Xlinker _NSExtensionMain "$ROOT/Widgets/ThermalScopeWidget.swift" -o "$EXT/Contents/MacOS/ThermalScopeWidget"
+xcrun swiftc -parse-as-library -application-extension -O -target "$ARCH-apple-macosx13.0" -sdk "$(xcrun --sdk macosx --show-sdk-path)" -I "$BIN/Modules" -L "$BIN" -lWidgetUI -lWidgetShared -framework SwiftUI -framework WidgetKit -Xlinker -e -Xlinker _NSExtensionMain "$ROOT/Widgets/ThermalScopeWidget.swift" -o "$EXT/Contents/MacOS/ThermalScopeWidget"
 python3 - "$APP" "$EXT" "$GROUP" "$BIN" <<'PY'
 import plistlib,sys
 from pathlib import Path

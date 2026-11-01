@@ -72,6 +72,12 @@ func profile(_ args:[String]) throws {
 }
 
 let args=CommandLine.arguments
+#if arch(arm64)
+// Refuse every write-capable entry point, including the persistent serve protocol.
+if args.dropFirst().first != "probe" {
+    fail("Apple Silicon 实验版仅支持监测，硬件控制尚未支持 / Experimental Apple Silicon build: monitoring only; hardware control is unavailable.")
+}
+#endif
 if args.count==4 && args[1]=="serve" {
     do { try runControlSession(args) } catch { fail(error.localizedDescription) }
     exit(0)
@@ -85,9 +91,6 @@ if args.count==2 && args[1]=="probe" {
     exit(0)
 }
 guard geteuid()==0 else { fail("硬件控制需要管理员授权；监测不需要管理员权限。") }
-#if !arch(x86_64)
-fail("第一版硬件控制仅支持 Intel Mac。")
-#endif
 do {
     switch args.dropFirst().first {
     case "cooling": try cooling(args)

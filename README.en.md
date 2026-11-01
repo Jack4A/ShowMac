@@ -4,7 +4,7 @@
 
 <img src="Resources/AppIcon.png" width="96" alt="ThermalScope application icon">
 
-A native temperature, CPU, fan and performance diagnostics utility for Intel Macs. Current application version: **1.16 / build 260**, including the subsequent Dock behavior, icon and stress-test fixes.
+A native macOS temperature, CPU, fan and performance diagnostics utility, with an Intel build and an experimental Apple Silicon monitoring build. Current application version: **1.16 / build 260**, including the subsequent Dock behavior, icon and stress-test fixes.
 
 ## Features
 
@@ -44,13 +44,13 @@ The popover and thermal-control captures are from 1.16; the CPU-detail capture i
 ### Prebuilt app — no compilation required
 
 1. Sign in to a GitHub account with access to this private repository and open [Releases](https://github.com/Jackkakaya/ThermalScope/releases).
-2. Download **`ThermalScope-1.16.0-macOS-x86_64.zip`** from `v1.16.0`, extract it and drag `ThermalScope.app` into Applications.
+2. Choose **`ThermalScope-1.16.0-macOS-x86_64.zip`** for Intel or **`ThermalScope-1.16.0-macOS-arm64.zip`** for experimental Apple Silicon monitoring from `v1.16.0`. Extract it and drag `ThermalScope.app` into Applications.
 3. Launch the app, then click its item in the top menu bar. The prebuilt app does not require Xcode, Swift or Python.
 4. Select English or Simplified Chinese in Settings → Language. Traditional Chinese, Japanese, Korean, German, French and Spanish are also available.
 
-The package targets **Intel Macs (x86_64), macOS 13 or later**. The validated machine is an Intel MacBookPro16,1. A native Apple Silicon build is not provided. This development build uses **ad-hoc signing and is not notarized**; macOS may report that the developer cannot be verified. Developer ID signing and notarization remain pending.
+Both packages require **macOS 13 or later**. The Intel build is validated on MacBookPro16,1. **The arm64 archive is an experimental monitoring-only build cross-compiled on Intel, without Apple Silicon runtime validation. Fan, Turbo and power-setting control are disabled; temperature and fan readings may be unavailable.** This development build uses **ad-hoc signing and is not notarized**; macOS may report that the developer cannot be verified. Developer ID signing and notarization remain pending.
 
-The release also includes bilingual `INSTALL.txt`, `release-manifest.json` and `SHA256SUMS.txt`. Download all four assets into one directory and run `shasum -a 256 -c SHA256SUMS.txt` to verify their integrity.
+The release provides per-architecture install notes, manifests and checksums. Intel uses `INSTALL.txt`, `release-manifest.json` and `SHA256SUMS.txt`; ARM uses `INSTALL-arm64.txt`, `release-manifest-arm64.json` and `SHA256SUMS-arm64.txt`. Download the four assets for your architecture into one directory, then run `shasum -a 256 -c SHA256SUMS.txt` (Intel) or `shasum -a 256 -c SHA256SUMS-arm64.txt` (ARM).
 
 ### Build from source
 
@@ -115,7 +115,13 @@ For a fresh release archive, manifest, bilingual install notes and checksums:
 bash scripts/package-release.sh "$PWD/build/releases/v1.16.0"
 ```
 
-The destination must not already exist. The packaging script verifies the extracted archive as well as the original app bundle.
+The destination must not already exist. The packaging script verifies the extracted archive as well as the original app bundle. To cross-compile the ARM package:
+
+```sh
+THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh "$PWD/build/releases/v1.16.0-arm64"
+```
+
+The host app, helper and widget all target arm64. Cross-architecture runtime checks are skipped and explicitly marked as unexecuted in the manifest. The ARM source is identified by `v1.16.0-arm64` and its independent manifest; the original Intel release tag and assets are preserved.
 
 ## Checks and stress tests
 

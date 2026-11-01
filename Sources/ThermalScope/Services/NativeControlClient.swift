@@ -30,6 +30,9 @@ final class NativeControlClient {
     }
     private func perform(_ request:ControlRequest,allowAuthorization:Bool) throws ->ControlReply {
         try request.validate()
+        #if arch(arm64)
+        throw ScopeError.message("Apple Silicon 实验版仅支持监测，硬件控制尚未支持 / Experimental Apple Silicon build: monitoring only; hardware control is unavailable.")
+        #else
         if channel==nil {
             guard allowAuthorization else {throw ScopeError.message("原生控制会话尚未连接")}
             let helper=Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/ThermalScopeHelper").path
@@ -48,6 +51,7 @@ final class NativeControlClient {
             if let channel {close(channel.fd)}
             channel=nil;ready=false;throw error
         }
+        #endif
     }
     func shutdown() {
         queue.async { [self] in
