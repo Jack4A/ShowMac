@@ -1,0 +1,32 @@
+温控台 1.10：原生材质与可观测曲线
+2026-10-30
+
+目标
+轻量、清晰、能从读数追到历史和控制证据。借鉴 Apple Music 的层次、圆角、柔和色彩与原生导航；借鉴 iStat Menus 的菜单栏图形配置和逐层展开。以“模式/睿频事件 + 真实曲线 + 诊断/可恢复操作”的连接形成自身特色，不以主观视觉调整宣称全面超越成熟产品。
+
+调研（官方来源）
+https://bjango.com/mac/istatmenus/
+https://bjango.com/help/istatmenus7/welcome/
+https://bjango.com/help/istatmenus7/menus/
+https://bjango.com/help/istatmenus7/combined/
+https://www.apple.com/apple-music/
+https://support.apple.com/en-ca/guide/music/mus0cec331d6/mac
+https://developer.apple.com/design/human-interface-guidelines/materials
+https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass
+
+取舍
+- 原生 NavigationSplitView/List、NSMenu、Picker、Toggle、Button、DisclosureGroup 与 Swift Charts 保留。
+- 隐藏应用内滚动指示器，保留触控板/滚轮/键盘滚动和原生可访问内容；不修改系统全局滚动条设置。
+- 图表不以模糊层覆盖数据；采用实体表面、细描边、柔和色彩与静态环境渐变。减少透明度时回退实体背景，不新增持续动画或额外轮询。
+- 菜单栏曲线支持真实来源选择、线/面积/柱形与宽度；只绘制已有采样，保持纵轴口径可解释。
+- 首页六项读数增加短历史，详情支持实时/暂停查看、实际采样时间和值、固定/自动刻度；保持采样断档与模式/睿频标记。
+- 不伪造一小时/一天历史，不把 CPU 活动推断为耗电瓦数；历史仍为本机最近 30 分钟。
+
+本轮 TODO
+[x] V01 隐藏内容、侧栏和弹窗中的滚动指示器。
+[x] V02 统一立体表面、环境渐变、描边、数字层级，并支持减少透明度。
+[x] V03 首页真实短历史曲线，点击仍进入详情。
+[x] V04 菜单栏图形来源、线/面积/柱形、宽度配置及一致预览。
+[x] V05 详情图暂停/继续、真实时间和值、固定/自动刻度、保峰谷降采样。
+[x] V06 多语言、新数据边界检查、release 构建及原生界面验收。
+[x] V07 更新文档和交付包；避免重启正在运行的风扇控制会话。

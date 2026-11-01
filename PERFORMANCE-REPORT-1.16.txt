@@ -1,0 +1,42 @@
+温控台 1.16 性能观察报告 — 2026-10-31（解锁后补测）
+
+后台静置、状态弹层和设置页的首轮平均 CPU 分别为 0.95%、4.86%、1.51%（按单核计），在目前观察目标内。不同时间和主题下的短样本不能作为严格 A/B 或节能比例。
+原生曲线入口、编辑、滚动、关闭已验证；仅改动并恢复测试草稿，没有写硬件。
+被动主循环记录仍有长跨度，原因尚未完全定位，不能宣称流畅性通过。真实功耗、动画帧卡顿、长时和多供电正式门禁仍待测。完整原始数据和技术范围如下。
+
+Scope: release main process, macOS26.7.1/25G241, Intel, 12 logical CPUs, AC/100% battery, 5-second sampling, default menu. Helpers and WidgetKit excluded. No hardware writes or artificial CPU stress.
+Earlier baseline/visible runs used dark theme. Follow-up settings showed light theme, hours later and with a longer-lived process. Configuration was read after capture, not continuously logged. These are single short observations, NOT controlled causal A/B or energy savings.
+
+Scene | CPU mean (one core=100%) | peak footprint MiB | interrupt wakeups/s | seconds
+baseline-background | 2.400% | 73.36 | 2.990 | 30.1
+baseline-metrics | 1.800% | 73.45 | 2.991 | 30.1
+candidate-background | 0.953% | 124.33 | 1.263 | 30.1
+candidate-interaction | 17.264% | 156.45 | 5.650 | 45.1
+candidate-metrics | 0.889% | 60.07 | 2.027 | 30.1
+candidate-popover | 4.858% | 150.04 | 3.123 | 30.1
+candidate-settings | 1.513% | 133.53 | 1.595 | 30.1
+
+Static follow-up: background0.953%, popover4.858%, settings1.513%. Within provisional static targets (1%/5%/5% respectively); popover is close to its target. Earlier visible metrics0.889%.
+Background wakeup target <=20/s. Each assessment keeps formal_regression_pass=false. Old baseline labels lack Bxx codes, so budgets are mapped manually, not inferred for unknown scenarios.
+Different process ages and previously visited views affect footprint peaks; cross-scene peaks alone do not establish leaks. Interactive mean CPU17.264% includes accessibility queries/UI actions and idle gaps, with no static CPU budget.
+
+Curve interaction: native editor entry/open, six slider increment/decrement actions, scrolling and Done. Test draft restored to10%; no Apply/Restore/Mode/Turbo operation. Hardware status remained system automatic.
+Passive main-loop observation:72.27s,6392 spans; p95=0.365ms,p99=33.383ms,max=2340.479ms;78 spans>16.7ms,50>100ms. Raw loop JSON retained. Do NOT call this a smoothness pass.
+Long spans remain unresolved. Wake-to-wait wall time can include modal/menu-loop waits, scheduling and automation overhead. It is NOT rendered frame time. No timeline correlation establishes the cause of every long span.
+A separate12-second sample of similar editing found906/1099 main-thread samples in CFRunLoop mach_msg wait (~82%); accessibility hierarchy/SwiftUI/Charts paths also appear. This is a different time window, insufficient to attribute the original maximum. See performance-1.16/diagnostics/curve-sample.txt.
+The response proxy has long spans; actual smoothness gate remains unverified, pending Instruments/frame timeline.
+
+Microbenchmarks:20 warm-ups,200 native menu image draws,p95=1.857ms;900-sample CPU classification p95=0.474ms. CPU-side work only; excludes GPU/WindowServer and is NOT FPS.
+Checks:75 domain checks,8 performance-tool checks,120 hidden samples retained without view notifications and caught up when visible,126 native image combinations,CPU warning pixels,534 localization keys.
+
+Coverage gaps: kernel rusage-v6 energy counter returns zero, recorded unavailable. No joules/watts measured; no zero-energy or power-saving claim. powermetrics requires root; no additional authorization requested.
+Only Command Line Tools available, no xctrace/Instruments. Actual FPS, animation hitches and GPU/compositor cost UNMEASURED.
+Formal gates still pending: >=120s x3 alternating versions,30-minute background/visible memory trends,multiple power states/sleep recovery,actual energy/frame hitches and long-span attribution. Several hours of uncontrolled app lifetime do not replace fixed-scene long tests.
+B01/B02/B03/B04 and automated B05 first observations/UI checks are complete; formal performance acceptance has NOT passed.
+
+Typography: system font was already used but8-11pt overrides were too small. New status/fan UI uses body (13pt here),caption (11pt),headline/title2 system semantic styles.
+Apple font: https://developer.apple.com/documentation/appkit/nsfont/systemfontsize
+Apple energy: https://developer.apple.com/library/archive/documentation/Performance/Conceptual/power_efficiency_guidelines_osx/MonitoringEnergyUsage.html
+Apple Power Profiler: https://developer.apple.com/videos/play/wwdc2025/226/
+
+Production verification: isolated preview exited; complete1.16 opened with its helper present and no performance-observer menu. Status popover has fixed CPU temperature and readable semantic fonts; navigation reaches new fan editor entry. Existing user curve retained, hardware remains automatic. Screenshot: fan-entry-final-1.16.png.

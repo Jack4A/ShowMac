@@ -1,0 +1,12 @@
+温控台 1.16 — 可读性、风扇曲线入口与性能测试集
+2026-10-31
+[x] R01 弹层温度选择器替换为固定 CPU 温度标题；系统正文字体层级及布局。
+[x] R02 风扇控制用曲线预览与显式编辑入口，编辑页提供三步说明，保留草稿/应用边界。
+[x] R03 可重复外部进程采样：CPU、内存、唤醒、I/O、可用的内核能耗计数；输出原始样本和摘要。
+[x] R04 测试专用主循环观察及离屏绘制基准，建立后台/窗口/弹层/曲线交互场景与对照。
+[x] R05 实测及性能预算，区分代理指标、实际能耗和真实帧卡顿覆盖；构建、UI验收、文档/交付。
+没有 Xcode/xctrace 时不声称测得真实合成帧率或动画 hitch；主循环占用只作为响应代理。能耗计数为零/不可用不当成零瓦。测试不写硬件或结束用户进程。
+
+
+Follow-up after unlock: B01-B05 first observations completed; background0.953%,popover4.858%,settings1.513%. Different time/theme, not controlled A/B.
+[ ] R06 Actual energy/frame hitches, long-span attribution,120s x3 alternating runs,30-minute trends,power/sleep gates remain pending.

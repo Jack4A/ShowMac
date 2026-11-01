@@ -1,0 +1,15 @@
+温控台 1.13 — iStat Menus 风格的状态栏
+2026-10-30
+[x] M01 菜单栏双行标签/数值、紧凑留白、系统 template 颜色适配；设置共用绘制器。
+[x] M02 原生弹层收紧为 360pt，分区细描边、小标题、右对齐读数和短历史。
+[x] M03 温度来源/时间范围、模式/睿频、逐风扇状态及末尾前三 CPU 来源；保留详情入口。
+[x] M04 系统材质、减少透明度回退、深浅主题、多语言；没有额外轮询。
+[x] M05 编译与现有检查、隔离原生预览验收、打包，保留当前硬件控制会话。
+
+参考官方视觉和交互，独立实现，不使用其品牌、资源或代码。
+https://bjango.com/mac/istatmenus/
+https://bjango.com/help/istatmenus7/welcome/
+https://bjango.com/help/istatmenus7/menus/
+只使用已有温度、负载、风扇和控制状态，不伪造未采集的核心、功率或频率数据。
+
+验收：72 项检查零失败，500 个本地化键齐全；最终 release、deep/strict 签名和原生菜单只读检查通过。隔离预览使用不同 bundle ID、移走特权辅助程序及组件，不重启/连接当前 1.11 控制者。最终布局实测中文浅/深色、英语深色、GPU 来源、2/5 分钟、设置和 CPU 详情跳转；截图 status-panel-1.13-light.png、status-panel-1.13-dark.png、status-panel-1.13-en-dark.png、status-settings-1.13.png。当前工具不能单独捕获系统顶栏像素，双行绘制在设置中以同一 renderer 实查，不宣称完成所有显示器的菜单栏像素验收。

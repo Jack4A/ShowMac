@@ -1,0 +1,61 @@
+ThermalScope 自动性能指标与压测系统
+2026-11-01
+
+入口
+python3 scripts/perf_suite.py --profile smoke --out /absolute/path/new-results
+必须在工程目录执行，输出目录必须不存在，以免覆盖证据。无需额外 Python 包、管理员权限或完整 Xcode。
+默认构建 release；使用 --binary /absolute/path/ThermalScope 可测试指定已有二进制。
+测试二进制必须包含 --stress-check 入口。程序不创建 AppModel、不调用采样硬件或控制辅助程序，不会关闭正在使用的应用实例。测试子进程以 nice 10 单线程运行，结束或中断只清理自己创建的进程组。
+
+档位
+smoke：hidden / visible / mixed 三场景，每场景两个固定随机种子，每次8秒外部采样，内部负载至少10秒。适合提交前检查。
+standard：三场景、三个种子，每次120秒采样，至少122秒负载；全轮约19分钟。适合正式性能回归。
+soak：三场景、单种子，每次30分钟采样。用于持续负载与内存趋势调查，全轮约90分钟。
+standard 和 soak 都会给出内存增长斜率。斜率排除前20%采样，OLS拟合 MiB/分钟；这只是泄漏线索，不能据此确诊泄漏。
+
+场景与异常注入
+hidden：连续高频输入，不通知视图，结束时一次追上最新数据。
+visible：可见数据更新，历史和时间线重建。
+mixed：每200条数据切换可见状态，反复通知、恢复与重建。
+三场景均执行真实历史、CPU分级、降采样和原生菜单图像生成代码；随机流含缺失值/NaN、模式切换、CPU阶跃，seed可重现。时间推进是模拟时间，不需等待30分钟就可覆盖历史淘汰。
+独立前置探针覆盖：过期时间戳、重复时间戳、无效时间戳、1kHz输入的保留上限。
+所有断言失败、子进程崩溃、超时、采样失败、预算超标均使总报告 failed，命令返回非零。功能和性能分开汇报。
+
+指标
+每200条数据处理耗时 p50/p95/p99/max；历史处理+菜单图像生成 p50/p95/p99/max；样本吞吐量；模拟输入/视图通知/切换次数；不变量失败。
+外部每秒采集主进程CPU时间、CPU p50/p95/p99/峰值、footprint峰值与变化、唤醒、I/O、进程身份、可用内核能耗计数。计数器倒退、PID复用和非有限数值使采样失败。
+耗时缓冲最多10000批，超出后移除最旧5000批；长期分位数表示保留窗口，不假称全程分位数。总吞吐量仍覆盖整个负载阶段。
+JSON里的 fixture_data / hardware_writes / scope 明确测试范围。
+
+初始预算（产品调查目标，可在 scripts/perf_suite.py 的 DEFAULT_BUDGETS 审查调整）
+200条采样批处理 p95 <=250ms；历史+菜单图像生成 p95 <=16.7ms；footprint峰值 <=512MiB；>=120秒采样的内存斜率 <=5MiB/分钟。
+合成饱和负载会主动用满一个CPU核心，不用后台静置1%预算判断它。
+原有 scripts/perf_capture.py 与 perf_assess.py 继续用于真实应用B01-B04场景的CPU/唤醒预算。
+
+回归比较
+python3 scripts/perf_suite.py --profile smoke --out /absolute/new-results --baseline /absolute/old-results/report.json
+只比较同系统版本、硬件机型/架构/核心数、档位、场景和预算的通过基线。每场景各轮p95取中位数，增长>25%且绝对增加>0.5ms标记regressed；不兼容或失败的基线不判通过。
+二进制SHA256用于追溯。比较不能消除其他后台负载、供电、热状态等混杂因素；正式A/B须交替顺序并固定这些条件。
+
+输出
+report.json：机器可读指标、预算、功能检查结果、失败列表与可选回归比较。
+report.md：可审查的摘要表。
+每场景 fixture.json、capture.json、samples.csv、process.log、sampler.log；另有功能测试和构建日志、render-metrics.json。
+对所有输出保留原始证据；不自动覆盖旧目录、不静默更新基线。
+
+本轮发现并修复
+1. MetricHistoryStore在接收旧采样时end倒退；改为只推进有效时间。
+2. TemperatureTimelineStore接收乱序/重复/非法时间戳；改为拒绝。
+3. TemperatureTimelineStore只有30分钟时间窗口、无样本数量上限；增加1000样本硬上限。
+压测前置探针固定复现这些问题。MetricHistory原有1000样本上限保持。
+
+边界
+此套件验证数据路径、CPU侧绘图、功能故障恢复及进程资源；不等于真实鼠标/键盘UI压测。
+真实窗口动画、Dock/状态栏交互、GPU/WindowServer帧卡顿、睡眠恢复、真实风扇/睿频控制和整机功耗仍需独立真机/Instruments检查。未测项以null或覆盖限制标记，不将其算成通过。
+短测不证明不存在长期泄漏；任何单轮通过也不能证明软件没有bug。
+
+定向调查
+可用 --scenario hidden / visible / mixed 限定场景，--seed 2026 限定随机种子，参数均可重复。
+例如只调查后台持续负载与内存：
+python3 scripts/perf_suite.py --profile standard --scenario hidden --seed 2026 --out /absolute/new-memory-results
+定向结果仅代表选定场景，不当成完整standard档全部通过；报告workloads明确记录覆盖范围。

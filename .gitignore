@@ -1,0 +1,31 @@
+# SwiftPM and compiler output
+.build/
+.swiftpm/
+
+# Local build, performance capture and export directories
+build/
+work/
+outputs/
+performance-results/
+*.app/
+*.dSYM/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Editor / macOS local state
+.DS_Store
+*.xcuserstate
+xcuserdata/
+.idea/
+.vscode/
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.mobileprovision
+*.provisionprofile

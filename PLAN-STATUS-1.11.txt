@@ -1,0 +1,16 @@
+温控台 1.11 — 状态栏图形概览
+2026-10-30
+
+[x] S01 左键点击打开原生 NSPopover，以 NSStatusBarButton.bounds 为系统定位锚点；点击外部收起，重复点击切换。
+[x] S02 温度、全机 CPU 负载、风扇最高转速三张真实历史图；2/5/10 分钟范围。
+[x] S03 CPU/GPU/硬盘温度来源切换；逐风扇 RPM、额定容量指示及自动/手动状态。
+[x] S04 明确运行模式、睿频状态及主要 CPU 来源，保留详情、温控、设置入口。
+[x] S05 右键保留原生快捷菜单，取消弃用的 NSStatusItem.popUpMenu 调用。
+[x] S06 关闭弹层后释放图表视图订阅，复用既有历史和采样；多语言和短屏滚动。
+[x] S07 release、领域检查、签名、原生点击/定位/详情/收起验证及交付包。
+
+技术依据
+https://developer.apple.com/documentation/appkit/nspopover/show(relativeto:of:preferrededge:)
+https://developer.apple.com/documentation/appkit/nsstatusbarbutton
+
+所有曲线使用本机已有时间戳；不插入演示数据，不把历史断档当成零。弹层中的入口负责导航，不直接写入硬件。
