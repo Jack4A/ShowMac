@@ -8,6 +8,10 @@ Intel Mac 的温度、CPU、风扇和性能诊断工具。当前应用版本为 
 
 监测默认只读。风扇、睿频和系统电源调整通过显式操作及系统授权执行。睿频控制复用本机已安装的 `com.rugarciap.DisableTurboBoost` 扩展，不随工程提供新的内核驱动。
 
+## 工程位置
+
+开发仓库位于 `~/codejk/ThermalScope`。源码、测试和 `.git` 均在此目录，历史构建交付物保留在原聊天输出目录。
+
 ## 构建
 
 需要 macOS 13+ 和支持 Swift 5.9+ 的 Xcode Command Line Tools。当前验证机器为 Intel MacBookPro16,1，未完成其他机型的能力验证。没有第三方 Swift 包依赖。
