@@ -1,0 +1,33 @@
+ThermalScope 开发与 Git 约定
+
+仓库位置
+/Users/jack/codex/2026-10-29/zhi/outputs/ThermalScope
+此目录就是仓库根目录。main为初始分支；没有配置远程，也没有上传到GitHub。
+提交身份仅在此仓库设置：ThermalScope Local <thermalscope@localhost>，不修改全局Git身份。
+
+日常命令
+查看状态：git status
+查看改动：git diff
+检查空白问题：git diff --check
+运行检查：make check
+打包本地应用：make build
+快速性能压测：make perf-smoke
+
+APP与PERF_OUT可覆盖，例如：
+make build APP=/absolute/path/ThermalScope.app
+make perf-smoke PERF_OUT=/absolute/path/new-run
+压测目标会追加-smoke/-standard/-soak，目录必须不存在，避免覆盖证据。
+
+提交原则
+将功能、修复和纯目录整理分开提交。提交前运行相关检查，确认git status没有误收编译缓存、证书或性能采样输出。
+根目录README说明当前行为。计划放docs/plans，发布说明放docs/releases，性能说明放docs/performance，验证记录放docs/validation。
+docs/archive/README-1.16.md保留历史说明，其中版本号、旧路径及旧验证状态只代表当时记录。
+
+源码边界
+Application负责入口和生命周期；State管理可观察数据；Services负责外部交互；MenuBar负责顶栏和弹层；Views负责控制台；Diagnostics只提供显式诊断入口。
+ThermalCore保留独立领域逻辑，CSMC保留原生接口。硬件写入只通过受限辅助程序；性能测试使用模拟输入。
+本次目录整理只移动文件、归档资料和增加开发入口，不改变Dock/状态栏交互或硬件控制行为。
+
+待办验证
+完整standard多场景回归、30分钟soak、真实UI帧卡顿、睡眠恢复、硬件控制及正式签名仍需各自验收。
+不要将短时压测或CPU侧绘图计时当成全部发布门禁通过。
