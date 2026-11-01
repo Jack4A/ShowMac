@@ -1,5 +1,7 @@
 # 温控台 · ThermalScope
 
+**简体中文** | [English](README.en.md)
+
 <img src="Resources/AppIcon.png" width="96" alt="温控台应用图标">
 
 Intel Mac 的温度、CPU、风扇和性能诊断工具。当前应用版本为 **1.16 / build 260**，包含后续 Dock 交互、图标和压测修复。
@@ -39,7 +41,20 @@ Intel Mac 的温度、CPU、风扇和性能诊断工具。当前应用版本为 
 
 ## 安装与首次启动
 
-当前以源码构建方式使用，需要 Intel Mac、macOS 13+、支持 Swift 5.9+ 的 Xcode Command Line Tools、Git 和 Python 3。当前验证机器为 Intel MacBookPro16,1；其他机型及 Apple Silicon 尚未完成能力验证。
+### 下载应用包（无需编译）
+
+1. 登录有此私有仓库访问权限的 GitHub 账号，打开 [Releases](https://github.com/Jackkakaya/ThermalScope/releases)。
+2. 下载 `v1.16.0` 的 **`ThermalScope-1.16.0-macOS-x86_64.zip`**，解压后将 `ThermalScope.app` 拖到“应用程序”。
+3. 打开应用，点击顶部状态栏图标开始使用。预编译应用不需要安装 Xcode、Swift 或 Python。
+4. 在“设置 → 语言”切换简体中文或 English。应用还支持繁体中文、日语、韩语、德语、法语和西班牙语。
+
+应用包面向 **Intel Mac（x86_64），最低 macOS 13**。当前实测机型为 Intel MacBookPro16,1；Apple Silicon 原生版尚未提供。当前为本地 **ad-hoc 签名、未经公证**的开发构建，macOS 可能提示无法验证开发者。Developer ID 签名与公证仍待完成。
+
+Release 同时提供双语 `INSTALL.txt`、`release-manifest.json` 和 `SHA256SUMS.txt`。将四个附件下载到同一目录后，可运行 `shasum -a 256 -c SHA256SUMS.txt` 验证文件完整性。
+
+### 从源码构建
+
+源码构建需要 macOS 13+、支持 Swift 5.9+ 的 Xcode Command Line Tools、Git 和 Python 3。其他机型尚未完成能力验证。
 
 如果尚未安装命令行工具，先运行并完成系统安装提示：
 
@@ -66,6 +81,7 @@ open build/ThermalScope.app
 4. **调整散热**：在“温度控制”选择模式，或打开“编辑温度曲线”，检查草稿后显式应用。硬件操作需要系统管理员授权。
 5. **恢复自动**：使用“恢复系统自动”将风扇控制交回系统，并查看操作结果是否确认。
 6. **后台运行**：关闭主窗口后隐藏 Dock 图标，状态栏继续监测；再次打开控制台时恢复 Dock 图标。彻底退出请使用应用菜单或状态栏的“退出温控台”。
+7. **语言切换**：在“设置 → 语言”选择简体中文、English 或跟随系统；不需要修改系统语言。
 
 ### 温控与睿频依赖
 
@@ -94,6 +110,14 @@ make build APP="$PWD/build/ThermalScope.app"
 # 或直接调用构建脚本
 bash scripts/build.sh "$PWD/build/ThermalScope.app"
 ```
+
+需要生成新的应用 ZIP、清单、双语安装说明与校验值时：
+
+```sh
+bash scripts/package-release.sh "$PWD/build/releases/v1.16.0"
+```
+
+目标目录必须不存在；脚本要求 Git 工作区干净，并验证 ZIP 解压后的签名与执行权限。
 
 ## 检查与压测
 
@@ -135,6 +159,8 @@ standard 为每场景三个种子、每轮 120 秒采样；soak 为每场景 30 
 SwiftPM 递归发现各 target 内的源码，目录整理不改变 target 名称或运行逻辑。
 
 ## 文档与版本管理
+
+当前使用说明提供 [简体中文](README.md) / [English](README.en.md)，[发布安装指南](docs/INSTALL.txt) 与 Release 说明为双语；历史计划和验证日志保留原文。
 
 - [开发与 Git 约定](docs/DEVELOPMENT.txt)
 - [性能场景与人工验收](docs/performance/SCENARIOS.txt)

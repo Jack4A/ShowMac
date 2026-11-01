@@ -1,0 +1,41 @@
+ThermalScope 1.16.0 — 安装 / Installation
+Intel Mac (x86_64) · macOS 13+ · build 260
+
+简体中文
+1. 登录有私有仓库权限的 GitHub 账号，从 Releases 下载 ThermalScope-1.16.0-macOS-x86_64.zip。
+2. 解压，将 ThermalScope.app 拖到“应用程序”，然后打开。
+3. 点击顶部状态栏图标查看曲线；从面板打开完整控制台，或点击 Dock 图标。
+4. 关闭主窗口会隐藏 Dock 图标，状态栏仍监测；从应用菜单或状态栏菜单选择退出才能彻底退出。
+5. 在“设置 → 语言”选择简体中文、English 或跟随系统。
+6. 温度控制先编辑/审阅，再显式应用；硬件操作需要 macOS 管理员授权。
+
+这是 Intel x86_64 构建，不提供 Apple Silicon 原生版本。最低系统 macOS 13，实际验证机型 Intel MacBookPro16,1。
+当前为 ad-hoc 签名、未经公证的开发构建，macOS 可能提示无法验证开发者。正式签名、公证和更多机型验证仍待完成。
+安装预编译应用不需要 Xcode、Swift 或 Python。
+风扇控制依赖本机 AppleSMC 能力；应用控制前应退出其他风扇控制器。
+睿频控制复用本机已经安装并获系统批准的 com.rugarciap.DisableTurboBoost 扩展；安装包不包含这个内核驱动。
+
+English
+1. Sign in with a GitHub account that can access the private repository. Download ThermalScope-1.16.0-macOS-x86_64.zip from Releases.
+2. Extract the archive, drag ThermalScope.app into Applications, then launch it.
+3. Click the top menu bar item for graphs. Open the console from that panel, or click the Dock icon.
+4. Closing the main window hides the Dock icon while monitoring continues in the menu bar. Choose Quit from the app or menu bar menu to fully exit.
+5. Select English, Simplified Chinese or Follow System under Settings → Language.
+6. Review fan curves and modes before explicitly applying them. Hardware control requires macOS administrator authorization.
+
+This build targets Intel x86_64, not native Apple Silicon. Minimum macOS version: 13. Validated machine: Intel MacBookPro16,1.
+This is an ad-hoc signed, non-notarized development build. macOS may report that the developer cannot be verified. Developer ID signing, notarization and wider hardware validation remain pending.
+The prebuilt app does not require Xcode, Swift or Python.
+Fan control depends on the machine's AppleSMC capabilities; quit other fan controllers before applying control.
+Turbo Boost control reuses an already installed and macOS-approved com.rugarciap.DisableTurboBoost extension. That kernel driver is not included.
+
+完整性 / Integrity
+将全部四个 Release 附件放在同一目录后运行：
+Download all four release assets into one directory, then run:
+  shasum -a 256 -c SHA256SUMS.txt
+
+仓库 / Repository
+https://github.com/Jackkakaya/ThermalScope
+使用说明 / Usage
+https://github.com/Jackkakaya/ThermalScope/blob/main/README.md
+https://github.com/Jackkakaya/ThermalScope/blob/main/README.en.md

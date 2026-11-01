@@ -32,3 +32,7 @@ ThermalCore保留独立领域逻辑，CSMC保留原生接口。硬件写入只�
 待办验证
 完整standard多场景回归、30分钟soak、真实UI帧卡顿、睡眠恢复、硬件控制及正式签名仍需各自验收。
 不要将短时压测或CPU侧绘图计时当成全部发布门禁通过。
+
+发布打包：bash scripts/package-release.sh /absolute/new-release-dir
+需先提交源码；脚本创建全新目录，校验签名/架构/归档解压及本地化，输出ZIP、双语安装说明、manifest和SHA256SUMS。
+中文README.md与英文README.en.md均为当前使用说明；发布说明和docs/INSTALL.txt为双语。
