@@ -8,11 +8,9 @@ let package = Package(
         .library(name:"WidgetShared",type:.static,targets:["WidgetShared"]),
         .library(name:"WidgetUI",type:.static,targets:["WidgetUI"]),
         .executable(name: "ThermalScope", targets: ["ThermalScope"]),
-        .executable(name: "ThermalScopeHelper", targets: ["ThermalScopeHelper"]),
-        .executable(name: "ShowMacStore", targets: ["ShowMacStore"])
+        .executable(name: "ThermalScopeHelper", targets: ["ThermalScopeHelper"])
     ],
     targets: [
-        .executableTarget(name: "ShowMacStore", dependencies: [], linkerSettings: [.linkedFramework("IOKit")]),
         .target(name:"WidgetShared",path:"WidgetSupport/Shared"),
         .target(name:"WidgetUI",dependencies:["WidgetShared"],path:"WidgetSupport/UI"),
         .target(name: "CSMC", linkerSettings: [.linkedFramework("IOKit"), .linkedFramework("CoreFoundation"), .linkedFramework("Security")]),
