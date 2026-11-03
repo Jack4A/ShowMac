@@ -8,13 +8,13 @@
 
 **当前版本：[v1.18.0 · build 266](https://github.com/Jackkakaya/ThermalScope/releases/tag/v1.18.0)** · **macOS 11+** · **Intel 与 Apple Silicon**
 
-<img src="docs/screenshots/v1.17.4/en/overview-dark.png" width="1000" alt="ShowMac 1.18.0 深色实时监测界面，展示 CPU 温度、风扇转速、CPU 使用率与真实温度趋势">
+<img src="docs/screenshots/v1.18.0/en/overview-dark.png" width="1000" alt="ShowMac 1.18.0 深色实时监测界面，展示 CPU 温度、风扇转速、CPU 使用率与真实温度趋势">
 
 本文截图来自最新版的英文界面；应用内可在“设置 → 界面语言”切换中文。仓库默认首页使用英文。
 
 ## 下载与启动
 
-1. 打开 [Releases](https://github.com/Jackkakaya/ThermalScope/releases)。仓库目前为私有，请登录有访问权限的 GitHub 账号。
+1. 打开 [ShowMac 官网](http://101.37.211.18/showmac/#download)，按本机芯片下载。协作者也可使用私有仓库的 [GitHub Releases](https://github.com/Jackkakaya/ThermalScope/releases)。
 2. 下载适合本机芯片的 ZIP，解压后将 **ShowMac.app** 拖到“应用程序”。
 3. 打开应用，点击顶部菜单栏项目。启动后先在菜单栏监测，不自动弹出主窗口。
 
@@ -49,7 +49,7 @@ ShowMac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 随时选择“自动”即可将控制交回 macOS。接管持续 30 分钟，到期恢复自动，高温保护始终有效；页面顶部显示控制状态与剩余时间。“风扇测试…”会先确认，再进行 5 秒满速测试。
 
-<img src="docs/screenshots/v1.17.4/en/thermal-control.png" width="1000" alt="最新版温度控制界面：五个等宽档位与可拖动的温度—RPM 曲线，当前选择系统自动">
+<img src="docs/screenshots/v1.18.0/en/thermal-control.png" width="1000" alt="最新版温度控制界面：五个等宽档位与可拖动的温度—RPM 曲线，当前选择系统自动">
 
 实际控制前请退出其他风扇控制软件，避免同时下发命令。Intel 睿频控制复用本机已安装、获 macOS 批准的 `com.rugarciap.DisableTurboBoost` 扩展；项目不附带或下载该驱动。
 
@@ -66,9 +66,9 @@ ShowMac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 顶部菜单栏组件与弹窗卡片分别配置。下图展示五张卡片，并开启风扇控制与进程排行。
 
-<img src="docs/screenshots/v1.17.4/en/status-panel.png" width="390" alt="最新菜单栏弹窗：五张可配置卡片、风扇档位与 CPU 进程排行">
+<img src="docs/screenshots/v1.18.0/en/status-panel.png" width="390" alt="最新菜单栏弹窗：五张可配置卡片、风扇档位与 CPU 进程排行">
 
-<img src="docs/screenshots/v1.17.4/en/settings.png" width="1000" alt="新版设置页：可拖动的菜单栏组合，以及添加、排序、删除弹窗卡片的控件">
+<img src="docs/screenshots/v1.18.0/en/settings.png" width="1000" alt="新版设置页：可拖动的菜单栏组合，以及添加、排序、删除弹窗卡片的控件">
 
 ### 主题、语言与小组件
 
@@ -83,21 +83,21 @@ ShowMac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 <details>
 <summary>浅色主题</summary>
 
-<img src="docs/screenshots/v1.17.4/en/overview-light.png" width="1000" alt="浅色主题的实时指标与温度趋势">
+<img src="docs/screenshots/v1.18.0/en/overview-light.png" width="1000" alt="浅色主题的实时指标与温度趋势">
 
 </details>
 
 <details>
 <summary>可读传感器名称与近期趋势</summary>
 
-<img src="docs/screenshots/v1.17.4/en/sensors.png" width="1000" alt="常用传感器的可读名称、真实历史趋势、搜索和全部读数入口">
+<img src="docs/screenshots/v1.18.0/en/sensors.png" width="1000" alt="常用传感器的可读名称、真实历史趋势、搜索和全部读数入口">
 
 </details>
 
 <details>
 <summary>CPU 历史与图表操作</summary>
 
-<img src="docs/screenshots/v1.17.4/en/cpu-history.png" width="1000" alt="CPU 使用率详情：时间范围、暂停、纵轴刻度、线条/面积与真实采样统计">
+<img src="docs/screenshots/v1.18.0/en/cpu-history.png" width="1000" alt="CPU 使用率详情：时间范围、暂停、纵轴刻度、线条/面积与真实采样统计">
 
 </details>
 

@@ -1,0 +1,14 @@
+/var/log/showmac/*.log {
+    daily
+    rotate 13
+    maxage 14
+    missingok
+    compress
+    delaycompress
+    notifempty
+    create 0640 www-data adm
+    sharedscripts
+    postrotate
+        invoke-rc.d nginx rotate >/dev/null 2>&1
+    endscript
+}

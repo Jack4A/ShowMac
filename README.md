@@ -8,11 +8,11 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 
 **Current release: [v1.18.0 · build 266](https://github.com/Jackkakaya/ThermalScope/releases/tag/v1.18.0)** · **macOS 11+** · **Intel & Apple Silicon**
 
-<img src="docs/screenshots/v1.17.4/en/overview-dark.png" width="1000" alt="ShowMac 1.18.0 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
+<img src="docs/screenshots/v1.18.0/en/overview-dark.png" width="1000" alt="ShowMac 1.18.0 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
 ## Download and launch
 
-1. Open [Releases](https://github.com/Jackkakaya/ThermalScope/releases). This repository is private; sign in with an account that has access.
+1. Open the [ShowMac website](http://101.37.211.18/showmac/#download) and choose your Mac’s chip. [GitHub Releases](https://github.com/Jackkakaya/ThermalScope/releases) is a private repository mirror for collaborators.
 2. Download the ZIP for your Mac, extract it, and move **ShowMac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
@@ -47,7 +47,7 @@ Open **Thermal control**, then choose **Auto**, **Quiet**, **Balanced**, **Boost
 
 Choose **Auto** to return control to macOS at any time. A control session lasts 30 minutes, then returns to automatic; thermal protection remains active. The page shows control state and remaining time. **Fan test…** asks for confirmation before a five-second maximum-speed test.
 
-<img src="docs/screenshots/v1.17.4/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
+<img src="docs/screenshots/v1.18.0/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
 
 Before applying control, quit other fan controllers to avoid competing commands. On Intel, Turbo Boost control reuses an already installed, macOS-approved `com.rugarciap.DisableTurboBoost` extension. ShowMac does not bundle or download that driver.
 
@@ -64,9 +64,9 @@ Open **Settings → Popover cards → Add card**, or click **Edit** in the menu 
 
 Menu bar components and popover cards are configured separately. The screenshot below shows a five-card example with both optional sections enabled.
 
-<img src="docs/screenshots/v1.17.4/en/status-panel.png" width="390" alt="Menu bar popover with five configurable cards, fan presets and top CPU processes">
+<img src="docs/screenshots/v1.18.0/en/status-panel.png" width="390" alt="Menu bar popover with five configurable cards, fan presets and top CPU processes">
 
-<img src="docs/screenshots/v1.17.4/en/settings.png" width="1000" alt="Settings with a draggable menu bar composition and controls to add, reorder or remove popover cards">
+<img src="docs/screenshots/v1.18.0/en/settings.png" width="1000" alt="Settings with a draggable menu bar composition and controls to add, reorder or remove popover cards">
 
 ### Appearance, language and widgets
 
@@ -81,21 +81,21 @@ Captured from the installed **v1.18.0 / build 266** app on macOS 27, using its E
 <details>
 <summary>Light appearance</summary>
 
-<img src="docs/screenshots/v1.17.4/en/overview-light.png" width="1000" alt="Live metrics and temperature history in the light appearance">
+<img src="docs/screenshots/v1.18.0/en/overview-light.png" width="1000" alt="Live metrics and temperature history in the light appearance">
 
 </details>
 
 <details>
 <summary>Readable sensors and recent trends</summary>
 
-<img src="docs/screenshots/v1.17.4/en/sensors.png" width="1000" alt="Sensors overview with readable labels, recent history, a search field and a link to all sensor readings">
+<img src="docs/screenshots/v1.18.0/en/sensors.png" width="1000" alt="Sensors overview with readable labels, recent history, a search field and a link to all sensor readings">
 
 </details>
 
 <details>
 <summary>CPU history and chart controls</summary>
 
-<img src="docs/screenshots/v1.17.4/en/cpu-history.png" width="1000" alt="CPU detail with time range, pause, scale, line/area controls and sampled statistics">
+<img src="docs/screenshots/v1.18.0/en/cpu-history.png" width="1000" alt="CPU detail with time range, pause, scale, line/area controls and sampled statistics">
 
 </details>
 
