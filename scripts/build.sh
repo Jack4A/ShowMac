@@ -30,9 +30,15 @@ cp "$BIN/ThermalScopeHelper" "$APP/Contents/Helpers/ThermalScopeHelper"
 cp "$ROOT/Resources/Info.plist" "$APP/Contents/Info.plist"
 cp "$ROOT/Resources/Localization.json" "$APP/Contents/Resources/Localization.json"
 cp "$ROOT/Resources/SMCKit-LICENSE.txt" "$APP/Contents/Resources/SMCKit-LICENSE.txt"
-xcrun actool "$ROOT/Resources/Appearance.xcassets" --compile "$APP/Contents/Resources" \
-    --platform macosx --minimum-deployment-target 13.0 --target-device mac \
-    --accent-color AccentColor --output-partial-info-plist "$BIN/Appearance-Info.plist" >/dev/null
+# actool ships only with full Xcode; without it the appearance assets are skipped and
+# Color.accentColor falls back to the system accent color at runtime.
+if xcrun --find actool >/dev/null 2>&1; then
+    xcrun actool "$ROOT/Resources/Appearance.xcassets" --compile "$APP/Contents/Resources" \
+        --platform macosx --minimum-deployment-target 13.0 --target-device mac \
+        --accent-color AccentColor --output-partial-info-plist "$BIN/Appearance-Info.plist" >/dev/null
+else
+    echo "warning: actool not found; skipping appearance assets, accent color falls back to system" >&2
+fi
 if [ -f "$ROOT/Resources/AppIcon.icns" ]; then
     cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 fi

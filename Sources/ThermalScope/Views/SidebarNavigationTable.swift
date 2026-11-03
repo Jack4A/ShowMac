@@ -142,7 +142,12 @@ private final class SidebarMaterialRow:NSTableRowView {
             let view=NSGlassEffectView()
             view.style = .regular;view.cornerRadius=14
             view.contentView=NSView()
+            // effectIsInteractive ships in the macOS 27 SDK (Swift 6.4 toolchain); guard at
+            // compile time so builds against the macOS 26 SDK still pass. Rebuild with the
+            // macOS 27 SDK to enable the direct API.
+#if compiler(>=6.4)
             if #available(macOS 27,*) {view.effectIsInteractive=true}
+#endif
             return view
         }
         let view=NSVisualEffectView()

@@ -43,14 +43,15 @@ struct MetricSummaryCard:View {
     private var displayDetail:String {localizedDetail ? detail:L(detail)}
     private var tone:Color {trendKind.map{MonitorAppearance.metric($0)} ?? .secondary}
     var body:some View {
-        Button(action:action) {
-            VStack(alignment:.leading,spacing:8) {
-                header
-                valueRow
-                Text(displayDetail).font(.system(size:12)).foregroundStyle(Palette.secondaryText).lineLimit(2).frame(minHeight:28,alignment:.topLeading)
-            }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel(padding:18).contentShape(Rectangle())
-        }.buttonStyle(.plain).help(L("指标详情"))
-            .accessibilityLabel(L(title)+" · "+value+" "+unit+" · "+displayDetail)
+        let button=Button(action:action) {cardContent}.buttonStyle(.plain)
+        return button.help(L("指标详情")).accessibilityLabel(L(title)+" · "+value+" "+unit+" · "+displayDetail)
+    }
+    private var cardContent:some View {
+        VStack(alignment:.leading,spacing:8) {
+            header
+            valueRow
+            Text(displayDetail).font(.system(size:12)).foregroundStyle(Palette.secondaryText).lineLimit(2).frame(minHeight:28,alignment:.topLeading)
+        }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel(padding:18).contentShape(Rectangle())
     }
     private var header:some View {
         HStack {
