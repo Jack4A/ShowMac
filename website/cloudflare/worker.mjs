@@ -16,7 +16,7 @@ export default {
     const language=chooseLanguage(request);
     const headers={'Cache-Control':'private, no-store','Vary':'Cookie, Accept-Language','X-Content-Type-Options':'nosniff'};
     if(url.pathname==='/locale.json')return Response.json({language,country:request.cf?.country||''},{headers});
-    if(['/', '/support/', '/privacy/'].includes(url.pathname)) {
+    if(['/', '/support/', '/privacy/', '/purchase/'].includes(url.pathname)) {
       url.pathname='/'+language+url.pathname;
       return new Response(null,{status:302,headers:{...headers,Location:url.toString()}});
     }

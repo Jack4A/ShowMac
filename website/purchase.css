@@ -1,0 +1,41 @@
+.purchase-page {
+  padding-block: 85px 90px;
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 64px;
+  align-items: start;
+  max-width: 1000px;
+}
+.purchase-intro h1 { font-size: clamp(40px,4.4vw,60px); line-height: 1.12; margin: 22px 0; }
+.purchase-intro > p { max-width: 430px; font-size: 17px; }
+.purchase-features { list-style: none; padding: 0; margin: 30px 0; }
+.purchase-features li { padding: 10px 0 10px 22px; position: relative; line-height: 1.6; font-size: 14px; color: var(--muted); }
+.purchase-features li:before { content: '✓'; position: absolute; left: 0; color: var(--accent); }
+.purchase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 32px; box-shadow: 0 20px 70px var(--shadow); }
+.purchase-product { display: flex; gap: 15px; align-items: center; }
+.purchase-product h2 { font-size: 24px; letter-spacing: -.03em; margin: 0 0 4px; }
+.purchase-product p { margin: 0; font-size: 12px; }
+.purchase-price { display: flex; flex-direction: column; gap: 8px; margin: 30px 0 0; }
+.purchase-price > span { font-size: 54px; letter-spacing: -.05em; font-weight: 620; line-height: 1.1; }
+.purchase-price small { font-size: 13px; color: var(--muted); }
+.purchase-license { font-size: 13px; margin: 20px 0 25px; }
+.purchase-card .button { width: 100%; }
+.purchase-card .button:disabled { cursor: default; opacity: .58; box-shadow: none; transform: none; }
+.purchase-status { font-size: 12px; line-height: 1.7; margin: 16px 0 24px; }
+.purchase-preview { display: flex; flex-direction: column; gap: 9px; border-top: 1px solid var(--border); padding-top: 23px; font-size: 12px; color: var(--muted); }
+.purchase-preview .text-link { font-size: 13px; }
+.purchase-platform { font-size: 11px; margin: 24px 0 0; }
+.purchase-help { grid-column: 1/-1; border-top: 1px solid var(--border); padding-top: 25px; }
+.purchase-help > h2 { font-size: 24px; letter-spacing: -.03em; }
+.purchase-help > div { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; }
+.purchase-help h3 { font-size: 16px; }
+.purchase-help p, .purchase-help a { font-size: 13px; }
+.purchase-help p { line-height: 1.8; }
+@media(max-width: 700px) {
+  .purchase-page { grid-template-columns: 1fr; padding-top: 48px; gap: 35px; }
+  .purchase-intro h1 { font-size: 42px; }
+  .purchase-intro > p { font-size: 15px; }
+  .purchase-card { padding: 27px; }
+  .purchase-help > div { grid-template-columns: 1fr; gap: 9px; }
+  .purchase-price > span { font-size: 48px; }
+}

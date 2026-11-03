@@ -11,11 +11,11 @@ subprocess.run(['python3',str(ROOT/'scripts/verify-release-assets.py'),str(relea
 dist=SITE/'dist'
 if dist.exists():shutil.rmtree(dist)
 dist.mkdir()
-for name in ['style.css','app.js']:shutil.copy2(SITE/name,dist/name)
+for name in ['style.css','purchase.css','app.js']:shutil.copy2(SITE/name,dist/name)
 credit='<p class="geo-credit"><a href="https://db-ip.com">IP Geolocation by DB-IP</a></p>' if args.hosting=='nginx' else ''
 translation=re.compile(r'<([a-z0-9]+)([^>]*\bdata-en="([^"]*)"[^>]*\bdata-zh="([^"]*)"[^>]*)>.*?</\1>',re.S)
 for lang in ['en','zh']:
- for page in ['', 'support', 'privacy']:
+ for page in ['', 'support', 'privacy', 'purchase']:
   source=SITE/(page+'/index.html' if page else 'index.html');text=source.read_text()
   if args.hosting=='cloudflare':
    text=text.replace('our server looks up your IP address in a local DB-IP country database','Cloudflare processes your IP address and provides an approximate country or region').replace('This lookup does not send your IP to DB-IP.','The website and downloads are hosted on Cloudflare. Requests pass through its network; we do not use analytics or send app sensor readings to it.').replace('服务器使用本地 DB-IP 国家或地区数据库判断访问 IP','Cloudflare 处理访问 IP 并提供大致国家或地区').replace('查询不会将 IP 发送给 DB-IP。','官网与下载由 Cloudflare 托管，请求会经过其网络；我们不启用网站分析，也不会向其发送应用传感器读数。')
@@ -33,19 +33,19 @@ for lang in ['en','zh']:
    while value.startswith('../'):value=value[3:]
    if value.startswith('./'):value=value[2:]
    if value=='' or value.startswith('#'):value=f'{lang}/'+value
-   elif value.startswith(('support/','privacy/')):value=f'{lang}/'+value
+   elif value.startswith(('support/','privacy/','purchase/')):value=f'{lang}/'+value
    return f'{attr}="{prefix}{value}"'
   text=re.sub(r'(href|src)="([^"]*)"',url,text)
   text=text.replace('assets/en/','assets/'+lang+'/')
   if lang=='zh':
-   text=text.replace('Skip to content','跳至正文').replace('showmac — A clearer view of your Mac','showmac — 你的 Mac，就在状态栏').replace('Support — showmac','支持 — showmac').replace('Privacy policy — showmac','隐私政策 — showmac')
+   text=text.replace('Skip to content','跳至正文').replace('showmac — A clearer view of your Mac','showmac — 你的 Mac，就在状态栏').replace('Support — showmac','支持 — showmac').replace('Privacy policy — showmac','隐私政策 — showmac').replace('Buy showmac','购买 showmac')
   canonical='https://show-mac.cc/'+lang+'/'+(page+'/' if page else '')
   seo=f'<link rel="canonical" href="{canonical}"><link rel="alternate" hreflang="en" href="https://show-mac.cc/en/{page+"/" if page else ""}"><link rel="alternate" hreflang="zh-CN" href="https://show-mac.cc/zh/{page+"/" if page else ""}">'
   text=text.replace('</head>',seo+'</head>').replace('</body>',credit+'</body>')
   target=dist/lang/page;target.mkdir(parents=True,exist_ok=True);(target/'index.html').write_text(text)
 # Static previews have the same default-location mechanism as production, with browser language fallback.
 (dist/'index.html').write_text('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>showmac</title><script src="app.js" defer></script></head><body><p><a href="en/">English</a> · <a href="zh/">中文</a></p></body></html>')
-for page in ['support','privacy']:
+for page in ['support','privacy','purchase']:
  target=dist/page;target.mkdir();(target/'index.html').write_text('<!doctype html><html lang="en"><head><meta charset="utf-8"><script src="../app.js" defer></script><title>showmac</title></head><body><a href="../en/'+page+'/">English</a> · <a href="../zh/'+page+'/">中文</a></body></html>')
 assets=dist/'assets';assets.mkdir();shutil.copy2(ROOT/'Resources/AppIcon.png',assets/'app-icon.png')
 for lang in ['en','zh']:
@@ -62,7 +62,7 @@ for manifest in [arm,intel]:
 metadata={'version':arm['version'],'build':arm['build'],'minimumMacOS':arm['minimum_macos'],'sourceCommit':arm['source_commit'],'siteCommit':subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip(),'signing':arm['signing'],'notarized':arm['notarized'],'builds':builds}
 (dist/'release.json').write_text(json.dumps(metadata,indent=2)+'\n')
 (dist/'robots.txt').write_text('User-agent: *\nAllow: /\nSitemap: https://show-mac.cc/sitemap.xml\n')
-urls=[f'https://show-mac.cc/{lang}/{page}' for lang in ['en','zh'] for page in ['','support/','privacy/']]
+urls=[f'https://show-mac.cc/{lang}/{page}' for lang in ['en','zh'] for page in ['','support/','privacy/','purchase/']]
 (dist/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+''.join('<url><loc>'+u+'</loc></url>' for u in urls)+'</urlset>')
 if args.hosting=='cloudflare':
  shutil.copy2(SITE/'cloudflare/worker.mjs',dist/'_worker.js')

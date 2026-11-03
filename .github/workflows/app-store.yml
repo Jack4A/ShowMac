@@ -1,11 +1,7 @@
 name: App Store Archive
 on:
+  # Store submission is paused. Keep archival available only when explicitly requested.
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['AppStore/**', 'Sources/**', 'WidgetSupport/**', 'Widgets/**', 'Resources/**', 'scripts/verify-app-store.py', 'Tests/AppStore/**', '.github/workflows/app-store.yml']
-  pull_request:
-    paths: ['AppStore/**', 'Sources/**', 'WidgetSupport/**', 'Widgets/**', 'Resources/**', 'scripts/verify-app-store.py', 'Tests/AppStore/**', '.github/workflows/app-store.yml']
 permissions:
   contents: read
 concurrency:

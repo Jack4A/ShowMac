@@ -2,7 +2,9 @@
 
 ## Current decision — November 4, 2026
 
-The user approved prioritizing App Store submission while retaining the original UI, menu bar customization, readable sensors, recent history and dashboard. Only privileged fan/turbo/system-power modifications are disabled in the Store channel. The website continues to distribute the complete desktop app. The previously rejected independent simplified frontend remains reverted.
+App Store submission is paused at the user's request. The priority is direct sales of the complete desktop app at <https://show-mac.cc/>. No Store upload or submission is planned. The Store archive workflow is now manual-only; its source and earlier verification are retained for possible future work.
+
+The earlier Store scope retained the original UI, menu bar customization, readable sensors, recent history and dashboard, with privileged fan/turbo/system-power modifications disabled only in the Store channel. Website builds retain those controls. The previously rejected independent simplified frontend remains reverted.
 
 `AppStore/project.yml` builds the original sources with the compile-time `APP_STORE` flag. It uses the separate registered bundle ID `com.jackjohn.showmac`, Team Jack John (`35PQA6NV57`), the shared group `group.com.jackjohn.showmac`, and `showmac-store` widget links. Desktop identity, controls and existing preferences remain unchanged. The Store bundle excludes the root helper; C-level fan writes and authorization launches are blocked, not hidden by a runtime/reviewer switch.
 
@@ -26,7 +28,7 @@ The Store host requests that documented exception and user-selected file access 
 
 Before submission, register/assign the widget App ID and shared App Group, create matching distribution profiles, sign/export the universal archive, verify the signed app in its sandbox, upload the build, complete accurate metadata/privacy/review details, and submit. No upload or approval is claimed until the corresponding portal state confirms it. The existing Apple Distribution identity is available; an installer distribution identity/profile may still be needed for Mac App Store export. Do not place signing credentials in Git or CI logs.
 
-Website and downloads: <https://showmac.pages.dev/>. Domain migration to Cloudflare is in progress. The website full build remains an ad-hoc signed developer preview, not notarized. Apple Distribution signing for the Store does not replace Developer ID notarization for website packages.
+Website and downloads: <https://show-mac.cc/>; the root and `www` are attached to Cloudflare Pages with working HTTPS. The website full build remains an ad-hoc signed developer preview, not notarized. Apple Distribution signing for the Store does not replace Developer ID notarization for website packages.
 
 ## Primary references
 
