@@ -18,7 +18,7 @@ struct FanCurveEditor:View {
     var body:some View {
         VStack(alignment:.leading,spacing:12) {
             HStack {
-                Text(L("温度曲线")+" · RPM").font(AppTypography.section)
+                Text(L(automatic && !AppDistribution.isAppStore ? "自定义曲线 · 未启用":"温度曲线")+" · RPM").font(AppTypography.section)
                 Spacer()
                 Picker(L("温度来源"),selection:Binding(get:{curve.sensor},set:{curve.sensor=$0;onApply()})) {
                     Text(L("自动选择温度")).tag(CurveSensor.hottest)

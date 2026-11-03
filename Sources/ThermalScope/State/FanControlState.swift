@@ -23,7 +23,7 @@ enum FanStrategy:String,CaseIterable,Identifiable {
     }
     var explanation:String {
         switch self {
-        case .system:return "交由 macOS 按需调节"
+        case .system:return "由 macOS 决定转速，不使用应用曲线"
         case .quiet:return "优先降低风扇噪声"
         case .balanced:return "兼顾温度与噪声"
         case .cooling:return "提前提高风扇转速"
@@ -51,6 +51,9 @@ enum FanStrategy:String,CaseIterable,Identifiable {
 extension AppModel {
     var systemFansAutomatic:Bool {
         coolingToken==nil && snapshot.map{!$0.fans.isEmpty && $0.fans.allSatisfy{$0.manual==false}}==true
+    }
+    var systemFanHeatWarning:Bool {
+        systemFansAutomatic && snapshot.map{CurvePolicy.highTemperatureWithLowFanSpeed($0)}==true
     }
     var activeFanStrategy:FanStrategy? {
         if systemFansAutomatic {return .system}

@@ -73,6 +73,16 @@ public enum ThermalProfile:String,CaseIterable,Identifiable {
     }
 }
 public enum CurvePolicy {
+    /// Observation only: never take control away from macOS in response to a label.
+    /// All fan ranges/readings must be known before describing cooling as low.
+    public static func highTemperatureWithLowFanSpeed(_ sample:Snapshot)->Bool {
+        guard requiresMaximum(sample),!sample.fans.isEmpty else{return false}
+        return sample.fans.allSatisfy {fan in
+            guard let rpm=fan.rpm,let low=fan.minimum,let high=fan.maximum,
+                  rpm.isFinite,low.isFinite,high.isFinite,rpm>=0,low>=0,high>low else{return false}
+            return rpm<=low+(high-low)*0.1
+        }
+    }
     public static func percent(rpm:Double,minimum:Double,maximum:Double)->Double {
         guard rpm.isFinite,minimum.isFinite,maximum.isFinite,maximum>minimum else{return 0}
         return min(100,max(0,(rpm-minimum)/(maximum-minimum)*100))

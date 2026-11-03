@@ -2,6 +2,24 @@ import Foundation
 import ThermalCore
 
 final class FanTelemetryTests {
+    func testHighTemperatureAndLowFanObservationRequiresEvidence() {
+        func reading(_ temperature:Double?,_ fans:[FanReading])->Snapshot {
+            let base=CurveTests().snapshot(temperature)
+            return Snapshot(date:base.date,cpuUsage:base.cpuUsage,sensors:base.sensors,fans:fans,speedLimit:100,schedulerLimit:100,availableCPUs:12,totalCPUs:12,thermalState:0,thermalWarning:nil,turbo:base.turbo,acPower:true,lowPower:false,smcAvailable:true)
+        }
+        func fan(_ rpm:Double?,_ maximum:Double?=4900)->FanReading {
+            FanReading(id:0,rpm:rpm,minimum:1000,maximum:maximum,manual:false,controllable:true)
+        }
+        expectTrue(CurvePolicy.highTemperatureWithLowFanSpeed(reading(100,[fan(1000)])))
+        expectFalse(CurvePolicy.highTemperatureWithLowFanSpeed(reading(70,[fan(1000)])))
+        expectFalse(CurvePolicy.highTemperatureWithLowFanSpeed(reading(100,[fan(3000)])))
+        expectFalse(CurvePolicy.highTemperatureWithLowFanSpeed(reading(nil,[fan(1000)])))
+        expectFalse(CurvePolicy.highTemperatureWithLowFanSpeed(reading(100,[fan(nil)])))
+        expectFalse(CurvePolicy.highTemperatureWithLowFanSpeed(reading(100,[fan(1000,nil)])))
+        expectFalse(CurvePolicy.highTemperatureWithLowFanSpeed(reading(100,[fan(.nan)])))
+        expectFalse(CurvePolicy.highTemperatureWithLowFanSpeed(reading(100,[])))
+        expectFalse(CurvePolicy.highTemperatureWithLowFanSpeed(reading(100,[fan(1000),fan(3000)])))
+    }
     func testProgressFollowsVerifiedTargetsAndProtection() throws {
         let fans=FakeFans();var clock=0.0;var updates:[FanControlProgress]=[]
         try CurveLease.run(hardware:fans,curve:.balanced,duration:4,sample:{CurveTests().snapshot(clock<2 ? 60:95)},now:{clock},isCancelled:{false},wait:{clock+=2},onUpdate:{progress in

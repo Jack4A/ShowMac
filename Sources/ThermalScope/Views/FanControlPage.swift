@@ -19,9 +19,13 @@ struct FanControlPage:View {
         VStack(alignment:.leading,spacing:16) {
             statusLine
             FanStrategySelector(selected:selected,busy:model.busy,available:ControlAvailability.fansAvailable(readings.snapshot),onSelect:choose)
+            if model.systemFanHeatWarning {
+                Label(L("温度较高，风扇仍接近最低转速。当前由 macOS 控制，可选择“均衡”或“强劲”主动散热。"),systemImage:AppSymbols.resolve("exclamationmark.triangle"))
+                    .font(.system(size:12)).foregroundColor(.orange).fixedSize(horizontal:false,vertical:true)
+            }
             FanCurveEditor(curve:$curve,sample:readings.snapshot,automatic:selected == .system || selected==nil,busy:model.busy,onApply:applyCurve)
             HStack(alignment:.top,spacing:12) {
-                Text(L(AppDistribution.isAppStore ? AppDistribution.monitoringOnlyMessage:"接管 30 分钟，到期恢复自动；高温保护始终有效。")).font(.system(size:12)).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+                Text(L(AppDistribution.isAppStore ? AppDistribution.monitoringOnlyMessage:(model.systemFansAutomatic ? "系统自动由 macOS 调速，下方曲线尚未启用。":"应用接管期间启用高温保护；30 分钟后交回 macOS。"))).font(.system(size:12)).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
                 Spacer(minLength:8)
                 HStack(spacing:14) {
                     Button {navigation.page = .sensors} label:{Label(L("查看传感器"),systemImage:AppSymbols.resolve("sensor"))}

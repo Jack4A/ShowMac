@@ -53,13 +53,18 @@ public final class SMC {
     public func fans() -> [FanReading] {
         guard let count=number("FNum"), count>=0, count<=10 else { return [] }
         let globalMode=number("FS! ")
+        #if arch(arm64)
+        let handoff=number("Ftst")
+        #else
+        let handoff:Double?=nil
+        #endif
         return (0..<Int(count)).map { id in
             #if arch(arm64)
             let localMode=armFans.modeKey(id).flatMap {number($0)}
             #else
             let localMode=number("F\(id)Md")
             #endif
-            let manual: Bool?=SMCVerification.manualState(local:localMode,flags:globalMode,id:id)
+            let manual: Bool?=SMCVerification.manualState(local:localMode,flags:globalMode,id:id,handoff:handoff)
             let maxRPM=number("F\(id)Mx")
             return FanReading(id:id,rpm:number("F\(id)Ac"),minimum:number("F\(id)Mn"),maximum:maxRPM,manual:manual,
                 controllable:manual != nil && number("F\(id)Tg") != nil && maxRPM.map { $0>0 && $0<=12000 } == true)

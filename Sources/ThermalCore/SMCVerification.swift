@@ -17,13 +17,20 @@ public enum SMCVerification {
         }
         return false
     }
-    public static func manualState(local:Double?,flags:Double?,id:Int)->Bool? {
+    public static func manualState(local:Double?,flags:Double?,id:Int,handoff:Double?=nil)->Bool? {
         if let local {
             if local==1 { return true }
-            if local==0 || local==3 { return false }
+            // A per-fan automatic byte does not prove the system owns cooling
+            // while the Apple Silicon diagnostic handoff is still asserted.
+            if local==0 || local==3 {
+                if let handoff,handoff != 0 {return nil}
+                return false
+            }
             return nil
         }
         guard (0..<10).contains(id),let flags,flags.isFinite,(0...65535).contains(flags) else { return nil }
-        return Int(flags)&(1<<id) != 0
+        if Int(flags)&(1<<id) != 0 {return true}
+        if let handoff,handoff != 0 {return nil}
+        return false
     }
 }

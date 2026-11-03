@@ -45,7 +45,7 @@ Recent history is kept in memory for the current session, up to 30 minutes, and 
 
 Open **Thermal control**, then choose **Auto**, **Quiet**, **Balanced**, **Boost** or **Custom**. Presets apply immediately. Drag a curve point to change temperature and RPM; release it to apply. Arrow keys fine-tune the selected point. The temperature-source selector chooses which reading drives the curve.
 
-Choose **Auto** to return control to macOS at any time. A control session lasts 30 minutes, then returns to automatic; thermal protection remains active. The page shows control state and remaining time. **Fan test…** asks for confirmation before a five-second maximum-speed test.
+Choose **Auto** to return control to macOS at any time. macOS then decides fan speed; the app's curve and temperature thresholds are inactive. App-controlled sessions apply thermal protection and last up to 30 minutes before returning control to macOS. The page shows control state and remaining time, and flags high temperature with fans near minimum speed without silently taking control. **Fan test…** asks for confirmation before a five-second maximum-speed test.
 
 <img src="docs/screenshots/v1.18.1/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
 

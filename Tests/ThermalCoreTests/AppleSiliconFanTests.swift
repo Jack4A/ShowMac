@@ -71,6 +71,28 @@ final class AppleSiliconFanTests {
         expectThrows(try control.setManual(0,false));expectEqual(io.values["Ftst"],1)
         io.failRelease=false;try control.setManual(0,false);expectEqual(io.values["Ftst"],0)
     }
+    func testFailedRestoreRetainsOriginalForRetry() throws {
+        let io=FakeFanRegisters(),control=io.controller()
+        try control.setManual(1,true)
+        io.failModeRestore=true
+        expectThrows(try control.setManual(1,false))
+        expectEqual(io.values["F1Md"],1)
+        io.failModeRestore=false
+        try control.setManual(1,false)
+        expectEqual(io.values["F1Md"],3)
+    }
+    func testHandoffCannotMasqueradeAsSystemAutomatic() {
+        for mode in [0.0,3.0] {
+            expectNil(SMCVerification.manualState(local:mode,flags:nil,id:0,handoff:1))
+            expectEqual(SMCVerification.manualState(local:mode,flags:nil,id:0,handoff:0),false)
+        }
+        expectEqual(SMCVerification.manualState(local:1,flags:nil,id:0,handoff:1),true)
+        expectNil(SMCVerification.manualState(local:nil,flags:0,id:0,handoff:1))
+        expectEqual(SMCVerification.manualState(local:nil,flags:1,id:0,handoff:1),true)
+        let io=FakeFanRegisters();io.values["Ftst"]=1
+        expectThrows(try io.controller().setManual(0,false))
+        expectEqual(io.values["Ftst"],1)
+    }
     func testLowercaseAndNoHandoffFirmware() throws {
         let io=FakeFanRegisters();io.values=["F0md":0];let control=io.controller()
         try control.setManual(0,true);try control.setManual(0,false)

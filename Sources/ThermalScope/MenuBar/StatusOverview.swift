@@ -126,6 +126,9 @@ struct StatusOverview:View {
     }
     var fanControls:some View {
         VStack(spacing:6) {
+            if model.systemFanHeatWarning {
+                Text(L("温度较高，系统风扇仍接近最低转速")).font(.system(size:11)).foregroundColor(.orange).frame(maxWidth:.infinity,alignment:.leading)
+            }
             if model.busy {
                 HStack {ProgressView().appControlSize(.mini);Text(L("正在应用…"));Spacer()}.font(.system(size:11)).foregroundColor(.secondary)
             } else if control.status?.protectionActive==true {

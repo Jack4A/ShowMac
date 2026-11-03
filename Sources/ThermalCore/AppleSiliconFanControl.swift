@@ -52,16 +52,20 @@ public final class AppleSiliconFanControl {
         }
     }
     private func restore(_ id:Int,key:String) throws {
-        let original=originals.removeValue(forKey:id)?.1 ?? 0
+        let original=originals[id]?.1 ?? 0
         var failure:Error?
         do {try write(key,original)} catch {failure=error}
         // Release the global handoff even when the per-fan write failed.
-        if originals.isEmpty,let unlock=unlockOriginal {
+        if originals.keys.allSatisfy({$0==id}),let unlock=unlockOriginal {
             do {try write("Ftst",unlock);unlockOriginal=nil} catch {failure=error}
         }
-        guard SMCVerification.manualState(local:read(key),flags:nil,id:id)==false,unlockOriginal==nil || !originals.isEmpty else {
+        // Other owned fans may still legitimately need the shared handoff.
+        let hasOtherFans=originals.keys.contains{$0 != id}
+        guard SMCVerification.manualState(local:read(key),flags:nil,id:id,handoff:hasOtherFans ? nil:read("Ftst"))==false,
+              unlockOriginal==nil || hasOtherFans else {
             throw failure ?? ScopeError.message("未能确认风扇恢复系统自动")
         }
+        originals.removeValue(forKey:id)
     }
 }
 

@@ -1,4 +1,22 @@
 {
+  "由 macOS 决定转速，不使用应用曲线": {
+    "en": "macOS decides the fan speed; app curves are not applied"
+  },
+  "温度较高，风扇仍接近最低转速。当前由 macOS 控制，可选择“均衡”或“强劲”主动散热。": {
+    "en": "Temperature is high while fans remain near minimum speed. macOS is in control; choose Balanced or Boost for active cooling."
+  },
+  "系统自动由 macOS 调速，下方曲线尚未启用。": {
+    "en": "macOS controls fan speed in Auto. The curve below is not active."
+  },
+  "应用接管期间启用高温保护；30 分钟后交回 macOS。": {
+    "en": "Thermal protection applies while the app controls the fans. Control returns to macOS after 30 minutes."
+  },
+  "自定义曲线 · 未启用": {
+    "en": "Custom curve · Inactive"
+  },
+  "温度较高，系统风扇仍接近最低转速": {
+    "en": "High temperature; system fans remain near minimum speed"
+  },
   "%    温度  ": {
     "de": "%    Temperatur  ",
     "en": "%    Temperature  ",
