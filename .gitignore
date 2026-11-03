@@ -29,3 +29,6 @@ xcuserdata/
 *.pfx
 *.mobileprovision
 *.provisionprofile
+
+# Website build output and deployment downloads
+website/dist/

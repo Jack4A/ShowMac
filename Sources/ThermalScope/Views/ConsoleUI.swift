@@ -19,7 +19,7 @@ struct ConsoleShell:View {
                         if model.tab==0,let metric=navigation.metric {
                             Text(L(metric.title)).font(AppTypography.title)
                         }
-                        Text(model.tab==1 ? L("让温控台适合你的使用习惯。"):L(navigation.metric != nil ? "指标详情":(navigation.page == .thermal && ControlAvailability.isAppleSilicon ? "选择档位，或直接拖动曲线调速。":navigation.page.subtitle))).font(.system(size:12)).foregroundColor(Palette.secondaryText)
+                        Text(model.tab==1 ? L("让ShowMac适合你的使用习惯。"):L(navigation.metric != nil ? "指标详情":(navigation.page == .thermal && ControlAvailability.isAppleSilicon ? "选择档位，或直接拖动曲线调速。":navigation.page.subtitle))).font(.system(size:12)).foregroundColor(Palette.secondaryText)
                     }
                     Spacer()
                 }.padding(.horizontal,28).padding(.top,model.tab==0 && navigation.metric != nil ? 25:20).padding(.bottom,model.tab==1 ? 20:14)

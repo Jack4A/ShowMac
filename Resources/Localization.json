@@ -787,13 +787,13 @@
     "ja": "すべてのセンサー",
     "ko": "모든 센서"
   },
-  "关于温控台": {
-    "de": "Über ThermalScope",
-    "en": "About ThermalScope",
-    "es": "Acerca de ThermalScope",
-    "fr": "À propos de ThermalScope",
-    "ja": "ThermalScopeについて",
-    "ko": "ThermalScope 정보"
+  "关于ShowMac": {
+    "de": "Über ShowMac",
+    "en": "About ShowMac",
+    "es": "Acerca de ShowMac",
+    "fr": "À propos de ShowMac",
+    "ja": "ShowMacについて",
+    "ko": "ShowMac 정보"
   },
   "关闭": {
     "de": "Aus",
@@ -1414,13 +1414,13 @@
     "ja": "丸ゴシック",
     "ko": "둥근 글꼴"
   },
-  "在桌面空白处右键，选择“编辑小组件”，搜索“温控台”，选择尺寸后添加。": {
-    "de": "Rechtsklick auf den Schreibtisch, Widgets bearbeiten wählen, ThermalScope suchen, Größe auswählen und hinzufügen.",
-    "en": "Right-click the desktop, choose Edit Widgets, search for ThermalScope, then choose a size and add it.",
-    "es": "Haz clic derecho en el escritorio, elige Editar widgets, busca ThermalScope y selecciona un tamaño para añadirlo.",
-    "fr": "Faites un clic droit sur le bureau, choisissez Modifier les widgets, recherchez ThermalScope, puis choisissez une taille et ajoutez-le.",
-    "ja": "デスクトップを右クリックして「ウィジェットを編集」を選び、ThermalScopeを検索してサイズを選び、追加します。",
-    "ko": "데스크탑을 오른쪽 클릭해 위젯 편집을 선택하고 ThermalScope를 검색한 뒤 크기를 골라 추가하세요."
+  "在桌面空白处右键，选择“编辑小组件”，搜索“ShowMac”，选择尺寸后添加。": {
+    "de": "Rechtsklick auf den Schreibtisch, Widgets bearbeiten wählen, ShowMac suchen, Größe auswählen und hinzufügen.",
+    "en": "Right-click the desktop, choose Edit Widgets, search for ShowMac, then choose a size and add it.",
+    "es": "Haz clic derecho en el escritorio, elige Editar widgets, busca ShowMac y selecciona un tamaño para añadirlo.",
+    "fr": "Faites un clic droit sur le bureau, choisissez Modifier les widgets, recherchez ShowMac, puis choisissez une taille et ajoutez-le.",
+    "ja": "デスクトップを右クリックして「ウィジェットを編集」を選び、ShowMacを検索してサイズを選び、追加します。",
+    "ko": "데스크탑을 오른쪽 클릭해 위젯 편집을 선택하고 ShowMac를 검색한 뒤 크기를 골라 추가하세요."
   },
   "在状态栏显示": {
     "de": "In der Menüleiste anzeigen",
@@ -2441,21 +2441,21 @@
     "ja": "アプリを開く",
     "ko": "앱 열기"
   },
-  "打开温控台": {
-    "de": "ThermalScope öffnen",
-    "en": "Open ThermalScope",
-    "es": "Abrir ThermalScope",
-    "fr": "Ouvrir ThermalScope",
-    "ja": "ThermalScopeを開く",
-    "ko": "ThermalScope 열기"
+  "打开ShowMac": {
+    "de": "ShowMac öffnen",
+    "en": "Open ShowMac",
+    "es": "Abrir ShowMac",
+    "fr": "Ouvrir ShowMac",
+    "ja": "ShowMacを開く",
+    "ko": "ShowMac 열기"
   },
-  "打开温控台开始监测": {
-    "de": "ThermalScope zum Überwachen öffnen",
-    "en": "Open ThermalScope to start monitoring",
-    "es": "Abre ThermalScope para iniciar el monitoreo",
-    "fr": "Ouvrez ThermalScope pour démarrer la surveillance",
-    "ja": "ThermalScopeを開いて監視を開始",
-    "ko": "ThermalScope를 열어 모니터링 시작"
+  "打开ShowMac开始监测": {
+    "de": "ShowMac zum Überwachen öffnen",
+    "en": "Open ShowMac to start monitoring",
+    "es": "Abre ShowMac para iniciar el monitoreo",
+    "fr": "Ouvrez ShowMac pour démarrer la surveillance",
+    "ja": "ShowMacを開いて監視を開始",
+    "ko": "ShowMac를 열어 모니터링 시작"
   },
   "打开系统设置…": {
     "de": "Systemeinstellungen öffnen…",
@@ -3008,13 +3008,13 @@
     "ja": "表示形式",
     "ko": "표시 방식"
   },
-  "显示温控台": {
-    "de": "ThermalScope anzeigen",
-    "en": "Show ThermalScope",
-    "es": "Mostrar ThermalScope",
-    "fr": "Afficher ThermalScope",
-    "ja": "ThermalScopeを表示",
-    "ko": "ThermalScope 표시"
+  "显示ShowMac": {
+    "de": "ShowMac anzeigen",
+    "en": "Show ShowMac",
+    "es": "Mostrar ShowMac",
+    "fr": "Afficher ShowMac",
+    "ja": "ShowMacを表示",
+    "ko": "ShowMac 표시"
   },
   "显示范围": {
     "de": "Anzeigebereich",
@@ -4220,13 +4220,13 @@
     "ja": "温度制御",
     "ko": "온도 제어"
   },
-  "温控台": {
-    "de": "ThermalScope",
-    "en": "ThermalScope",
-    "es": "ThermalScope",
-    "fr": "ThermalScope",
-    "ja": "ThermalScope",
-    "ko": "ThermalScope"
+  "ShowMac": {
+    "de": "ShowMac",
+    "en": "ShowMac",
+    "es": "ShowMac",
+    "fr": "ShowMac",
+    "ja": "ShowMac",
+    "ko": "ShowMac"
   },
   "温控状态": {
     "de": "Temperaturstatus",
@@ -5272,13 +5272,13 @@
     "ja": "温度と負荷を観察し、性能と冷却の問題に対応。",
     "ko": "온도와 부하를 관찰하고 성능·냉각 문제를 처리합니다."
   },
-  "让温控台适合你的使用习惯。": {
-    "de": "ThermalScope an Ihre Arbeitsweise anpassen.",
-    "en": "Make ThermalScope fit the way you work.",
-    "es": "Adapte ThermalScope a su forma de trabajar.",
-    "fr": "Adaptez ThermalScope à votre façon de travailler.",
-    "ja": "ThermalScopeを作業スタイルに合わせる。",
-    "ko": "작업 방식에 맞게 ThermalScope를 설정하세요."
+  "让ShowMac适合你的使用习惯。": {
+    "de": "ShowMac an Ihre Arbeitsweise anpassen.",
+    "en": "Make ShowMac fit the way you work.",
+    "es": "Adapte ShowMac a su forma de trabajar.",
+    "fr": "Adaptez ShowMac à votre façon de travailler.",
+    "ja": "ShowMacを作業スタイルに合わせる。",
+    "ko": "작업 방식에 맞게 ShowMac를 설정하세요."
   },
   "让风扇随温度自动调整。": {
     "de": "Lüfter an die Temperatur anpassen.",
@@ -5726,13 +5726,13 @@
     "ja": "アプリを終了",
     "ko": "앱 종료"
   },
-  "退出温控台": {
-    "de": "ThermalScope beenden",
-    "en": "Quit ThermalScope",
-    "es": "Salir de ThermalScope",
-    "fr": "Quitter ThermalScope",
-    "ja": "ThermalScopeを終了",
-    "ko": "ThermalScope 종료"
+  "退出ShowMac": {
+    "de": "ShowMac beenden",
+    "en": "Quit ShowMac",
+    "es": "Salir de ShowMac",
+    "fr": "Quitter ShowMac",
+    "ja": "ShowMacを終了",
+    "ko": "ShowMac 종료"
   },
   "选择后，点击下方应用": {
     "en": "Choose, then apply below"
@@ -5960,13 +5960,13 @@
     "ja": "性能制限データ不足、状態不明。",
     "ko": "성능 제한 데이터 부족, 상태 알 수 없음."
   },
-  "隐藏温控台": {
-    "de": "ThermalScope ausblenden",
-    "en": "Hide ThermalScope",
-    "es": "Ocultar ThermalScope",
-    "fr": "Masquer ThermalScope",
-    "ja": "ThermalScopeを隠す",
-    "ko": "ThermalScope 가리기"
+  "隐藏ShowMac": {
+    "de": "ShowMac ausblenden",
+    "en": "Hide ShowMac",
+    "es": "Ocultar ShowMac",
+    "fr": "Masquer ShowMac",
+    "ja": "ShowMacを隠す",
+    "ko": "ShowMac 가리기"
   },
   "雾紫": {
     "de": "Sanftes Violett",

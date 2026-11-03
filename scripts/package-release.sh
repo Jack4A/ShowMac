@@ -14,7 +14,7 @@ COMMIT="$(git -C "$ROOT" rev-parse HEAD)"
 mkdir -p "$(dirname "$OUT")"
 mkdir "$OUT"
 OUT="$(cd "$OUT" && pwd)"
-APP="$OUT/staging/ThermalScope.app"
+APP="$OUT/staging/ShowMac.app"
 THERMALSCOPE_ARCH="$ARCH" THERMALSCOPE_SIGN_IDENTITY=- THERMALSCOPE_APP_GROUP= bash "$ROOT/scripts/build.sh" "$APP"
 codesign --verify --deep --strict "$APP"
 python3 "$ROOT/scripts/macos_compatibility.py" "$APP" --arch "$ARCH"
@@ -22,7 +22,7 @@ for executable in "$APP/Contents/MacOS/ThermalScope" "$APP/Contents/Helpers/Ther
     test -x "$executable"
     lipo "$executable" -verify_arch "$ARCH"
 done
-ARCHIVE="$OUT/ThermalScope-$VERSION-macOS-$ARCH.zip"
+ARCHIVE="$OUT/ShowMac-$VERSION-macOS-$ARCH.zip"
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$ARCHIVE"
 cp "$ROOT/docs/INSTALL$SUFFIX.txt" "$OUT/INSTALL$SUFFIX.txt"
 python3 - "$ROOT" "$OUT" "$ARCHIVE" "$COMMIT" "$ARCH" "$SUFFIX" <<'PY'
@@ -35,7 +35,7 @@ source=plistlib.loads((root/'Resources/Info.plist').read_bytes())
 native=platform.machine()==arch
 checks=['deep_strict_signature','target_architecture_all_executables','executable_permissions','zip_extract_signature','static_english_localization','system_only_dynamic_dependencies','minimum_macos_all_executables','weak_linked_new_frameworks','back_deployed_swift_runtime']
 with tempfile.TemporaryDirectory(prefix='thermalscope-release-verify-') as temporary:
-    restored=Path(temporary)/'ThermalScope.app'
+    restored=Path(temporary)/'ShowMac.app'
     subprocess.run(['ditto','-x','-k',str(archive),temporary],check=True)
     subprocess.run(['codesign','--verify','--deep','--strict',str(restored)],check=True)
     subprocess.run([sys.executable,str(root/'scripts/macos_compatibility.py'),str(restored),'--arch',arch],check=True)
@@ -56,9 +56,9 @@ with tempfile.TemporaryDirectory(prefix='thermalscope-release-verify-') as tempo
             result=subprocess.run([str(restored/'Contents/MacOS/ThermalScope'),flag],check=True,capture_output=True,text=True)
             (out/name).write_text(result.stdout+result.stderr)
         checks+=['hidden_view_update','localization_runtime']
-sdk=re.findall(r'^\s*sdk\s+(\S+)',subprocess.check_output(['xcrun','vtool','-show-build',str(out/'staging/ThermalScope.app/Contents/MacOS/ThermalScope')],text=True),re.M)[0]
+sdk=re.findall(r'^\s*sdk\s+(\S+)',subprocess.check_output(['xcrun','vtool','-show-build',str(out/'staging/ShowMac.app/Contents/MacOS/ThermalScope')],text=True),re.M)[0]
 run_url=(os.environ.get('GITHUB_SERVER_URL','https://github.com')+'/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']) if os.environ.get('GITHUB_ACTIONS')=='true' else None
-manifest={'schema':3,'product':'ThermalScope','version':source['CFBundleShortVersionString'],
+manifest={'schema':3,'product':'ShowMac','version':source['CFBundleShortVersionString'],
           'build':source['CFBundleVersion'],'source_commit':commit,'architecture':arch,
           'minimum_macos':source['LSMinimumSystemVersion'],'signing':'ad-hoc','notarized':False,
           'built_local':datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),'build_host_architecture':platform.machine(),
@@ -67,7 +67,7 @@ manifest={'schema':3,'product':'ThermalScope','version':source['CFBundleShortVer
           'apple_silicon_hardware_validation':False,'hardware_control_available':True,'fan_control_requires_capability_probe':True,'turbo_control_available':arch=='x86_64','power_control_available':arch=='x86_64',
           'experimental':arch=='arm64',
           'archive':archive.name,'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
-          'bundled_components':['ThermalScope.app','ThermalScopeHelper','ThermalScopeWidget.appex'],'checks':checks}
+          'bundled_components':['ShowMac.app','ThermalScopeHelper','ThermalScopeWidget.appex'],'checks':checks}
 manifest_path=out/('release-manifest'+suffix+'.json')
 manifest_path.write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+'\n')
 files=[archive,out/('INSTALL'+suffix+'.txt'),manifest_path]

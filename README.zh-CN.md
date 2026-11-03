@@ -1,27 +1,27 @@
-# 温控台 · ThermalScope
+# ShowMac · ShowMac
 
 [English](README.md) | **简体中文**
 
-<img src="Resources/AppIcon.png" width="72" alt="温控台应用图标">
+<img src="Resources/AppIcon.png" width="72" alt="ShowMac应用图标">
 
 原生 macOS 温度、风扇与性能诊断工具。在菜单栏查看读数，进入主窗口观察近期趋势，或直接选择风扇档位、调整温度—转速曲线。
 
-**当前版本：[v1.17.4 · build 265](https://github.com/Jackkakaya/ThermalScope/releases/tag/v1.17.4)** · **macOS 11+** · **Intel 与 Apple Silicon**
+**当前版本：[v1.18.0 · build 266](https://github.com/Jackkakaya/ThermalScope/releases/tag/v1.18.0)** · **macOS 11+** · **Intel 与 Apple Silicon**
 
-<img src="docs/screenshots/v1.17.4/en/overview-dark.png" width="1000" alt="温控台 1.17.4 深色实时监测界面，展示 CPU 温度、风扇转速、CPU 使用率与真实温度趋势">
+<img src="docs/screenshots/v1.17.4/en/overview-dark.png" width="1000" alt="ShowMac 1.18.0 深色实时监测界面，展示 CPU 温度、风扇转速、CPU 使用率与真实温度趋势">
 
 本文截图来自最新版的英文界面；应用内可在“设置 → 界面语言”切换中文。仓库默认首页使用英文。
 
 ## 下载与启动
 
 1. 打开 [Releases](https://github.com/Jackkakaya/ThermalScope/releases)。仓库目前为私有，请登录有访问权限的 GitHub 账号。
-2. 下载适合本机芯片的 ZIP，解压后将 **ThermalScope.app** 拖到“应用程序”。
+2. 下载适合本机芯片的 ZIP，解压后将 **ShowMac.app** 拖到“应用程序”。
 3. 打开应用，点击顶部菜单栏项目。启动后先在菜单栏监测，不自动弹出主窗口。
 
-| Mac 类型 | v1.17.4 安装包 | 控制能力 |
+| Mac 类型 | v1.18.0 安装包 | 控制能力 |
 | --- | --- | --- |
-| Intel | `ThermalScope-1.17.4-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
-| Apple Silicon | `ThermalScope-1.17.4-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
+| Intel | `ShowMac-1.18.0-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
+| Apple Silicon | `ShowMac-1.18.0-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
 
 预编译应用不需要 Xcode、Swift 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
 
@@ -32,14 +32,14 @@
 | 想做什么 | 操作入口 |
 | --- | --- |
 | 快速查看读数和趋势 | 左键点击菜单栏项目；点击卡片进入详情。右键点击菜单栏项目打开操作菜单。 |
-| 打开完整主窗口 | 在弹窗点击“打开温控台”，或点击 Dock 图标。 |
+| 打开完整主窗口 | 在弹窗点击“打开ShowMac”，或点击 Dock 图标。 |
 | 查看历史曲线 | 在“实时监测”点击指标卡片，可选择时间范围、固定/自动刻度、线条/面积；悬停或点击温度曲线查看采样，使用“暂停图表”固定当前历史。 |
 | 查找传感器 | 打开“传感器”，先看“常用读数”；也可切换“全部传感器”，按名称、编号或类型筛选。点击读数查看趋势。 |
 | 排查卡顿或异常 | 在“性能诊断”查看结论与依据，在“进程活动”查看 CPU、内存与磁盘活动。 |
 | 查看或导出记录 | 打开“操作记录”，查看近期操作或导出采样。 |
-| 保持后台监测 | 关闭主窗口后 Dock 图标隐藏，菜单栏继续运行。使用“退出温控台”才能完全退出。 |
+| 保持后台监测 | 关闭主窗口后 Dock 图标隐藏，菜单栏继续运行。使用“退出ShowMac”才能完全退出。 |
 
-温控台处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开主窗口，**⌘Q** 退出。
+ShowMac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开主窗口，**⌘Q** 退出。
 
 近期历史保存在内存中，最多保留本次运行的最近 30 分钟，退出后清空。缺失读数保持缺失；全机 CPU 使用率以全部核心合计 100% 计算，进程排行以单个核心 100% 计算，多线程进程可能超过 100%。
 
@@ -78,7 +78,7 @@
 
 ## 更多截图
 
-截图均来自安装版 **v1.17.4 / build 265**，拍摄于 macOS 27，使用英文界面与真实读数。传感器、数值和进程名称仅代表拍摄时的状态。来源见 [截图记录](docs/screenshots/README.txt)。
+截图均来自安装版 **v1.18.0 / build 266**，拍摄于 macOS 27，使用英文界面与真实读数。传感器、数值和进程名称仅代表拍摄时的状态。来源见 [截图记录](docs/screenshots/README.txt)。
 
 <details>
 <summary>浅色主题</summary>
@@ -110,10 +110,10 @@ export DEVELOPER_DIR=/Applications/Xcode_26.6.app/Contents/Developer
 git clone https://github.com/Jackkakaya/ThermalScope.git
 cd ThermalScope
 make build
-open build/ThermalScope.app
+open build/ShowMac.app
 ```
 
-`make build` 会打包主应用、授权辅助程序和 WidgetKit 扩展，并校验签名。可用 `make build APP="$PWD/build/ThermalScope.app"` 指定输出位置。
+`make build` 会打包主应用、授权辅助程序和 WidgetKit 扩展，并校验签名。可用 `make build APP="$PWD/build/ShowMac.app"` 指定输出位置。
 
 ```sh
 make check

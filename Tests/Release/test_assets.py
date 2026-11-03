@@ -37,6 +37,29 @@ class ReleaseAssetsTests(unittest.TestCase):
             (self.folder / f"release-manifest{suffix}.json").write_text(json.dumps(manifest))
             self.refresh(suffix)
 
+    def rename_product(self, arch, suffix):
+        old = self.folder / f"ThermalScope-{self.version}-macOS-{arch}.zip"
+        new = self.folder / f"ShowMac-{self.version}-macOS-{arch}.zip"
+        with zipfile.ZipFile(old) as source, zipfile.ZipFile(new, "w") as destination:
+            for name in source.namelist():
+                destination.writestr(name.replace("ThermalScope.app/", "ShowMac.app/", 1), source.read(name))
+        old.unlink()
+        path = self.folder / f"release-manifest{suffix}.json"
+        data = json.loads(path.read_text())
+        data.update(product="ShowMac", archive=new.name, archive_sha256=assets.sha256(new))
+        path.write_text(json.dumps(data))
+        self.refresh(suffix)
+
+    def test_showmac_release_pair(self):
+        self.rename_product("arm64", "-arm64")
+        self.rename_product("x86_64", "")
+        self.assertEqual(len(assets.verify(self.folder, self.version, self.commit)), 8)
+
+    def test_mixed_product_names_fail(self):
+        self.rename_product("arm64", "-arm64")
+        with self.assertRaisesRegex(ValueError, "one product name"):
+            assets.verify(self.folder, self.version, self.commit)
+
     @staticmethod
     def binary(arch, minimum=11, commands=()):
         cpu = {"arm64": 0x100000c, "x86_64": 0x1000007}[arch]
@@ -117,7 +140,8 @@ class ReleaseAssetsTests(unittest.TestCase):
 
     def refresh(self, suffix):
         arch = "arm64" if suffix else "x86_64"
-        names = [f"ThermalScope-{self.version}-macOS-{arch}.zip", f"INSTALL{suffix}.txt", f"release-manifest{suffix}.json"]
+        manifest = json.loads((self.folder / f"release-manifest{suffix}.json").read_text())
+        names = [manifest["archive"], f"INSTALL{suffix}.txt", f"release-manifest{suffix}.json"]
         (self.folder / f"SHA256SUMS{suffix}.txt").write_text("".join(assets.sha256(self.folder / name) + "  " + name + "\n" for name in names))
 
     def test_complete_pair(self):

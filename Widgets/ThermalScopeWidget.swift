@@ -26,7 +26,7 @@ struct StatusWidgetView:View {
 @main struct ThermalStatusWidget:Widget {
     var body:some WidgetConfiguration {
         StaticConfiguration(kind:WidgetStorage.kind,provider:StatusProvider()){StatusWidgetView(entry:$0)}
-            .configurationDisplayName("温控台 · ThermalScope")
+            .configurationDisplayName("ShowMac")
             .description(LocalizedStringKey(WidgetStrings.text("查看温度、CPU、风扇与最近模式。",language:"system")))
             .supportedFamilies([.systemSmall,.systemMedium,.systemLarge])
     }

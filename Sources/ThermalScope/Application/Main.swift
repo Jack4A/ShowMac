@@ -20,11 +20,11 @@ import WidgetUI
             }
         }
         model.applyTheme()
-        model.languageChanged={ [weak self] in self?.installMainMenu();self?.window?.title=L("温控台") }
+        model.languageChanged={ [weak self] in self?.installMainMenu();self?.window?.title=L("ShowMac") }
         model.statusMenuRequested={ [weak self] in self?.showStatusMenu() }
         installMainMenu()
         statusItem=NSStatusBar.system.statusItem(withLength:NSStatusItem.variableLength)
-        statusItem.button?.title=L("温控台")
+        statusItem.button?.title=L("ShowMac")
         statusPopover.delegate=self
         statusPopover.behavior = .transient
         statusItem.button?.target=self
@@ -74,11 +74,11 @@ import WidgetUI
                 self.statusItem.button?.image?.accessibilityDescription=L(self.model.menuGraphKind.title)+" · "+L("趋势图")
             }
             self.statusItem.button?.imagePosition = .imageLeading
-            self.statusItem.button?.toolTip=L("温控台")+" · "+L(sample.limitTitle)
+            self.statusItem.button?.toolTip=L("ShowMac")+" · "+L(sample.limitTitle)
         }
         window=NSWindow(contentRect:NSRect(x:0,y:0,width:1060,height:860),styleMask:[.titled,.closable,.miniaturizable,.resizable,.fullSizeContentView],backing:.buffered,defer:false)
         window.delegate=self
-        window.title=L("温控台")
+        window.title=L("ShowMac")
         window.titleVisibility = .hidden
         window.subtitle=""
         window.appearance=nil
@@ -170,7 +170,7 @@ import WidgetUI
             item.target=self;item.representedObject=value;item.isEnabled=enabled;menu.addItem(item)
         }
         menu.autoenablesItems=false
-        info(L("温控台"))
+        info(L("ShowMac"))
         info(L("诊断与控制")+"  "+L(model.diagnostics.report.state.title),"optimization")
         if let snapshot=model.snapshot {
             info(L("运行模式")+"  "+L(model.coolingStatus),"thermal")
@@ -211,10 +211,10 @@ import WidgetUI
         if model.messageIsError { action("⚠ "+L(model.operationIssue.title)+"…",#selector(showIssue)) }
         if model.snapshot?.limited==true { info(L("系统正在限制性能")) }
         menu.addItem(.separator())
-        action(L("打开温控台"),#selector(showWindow))
+        action(L("打开ShowMac"),#selector(showWindow))
         action(L("偏好设置…"),#selector(showPreferences))
         menu.addItem(.separator())
-        action(L("退出温控台"),#selector(quitApp))
+        action(L("退出ShowMac"),#selector(quitApp))
     }
     @objc func openStatusDestination(_ sender:NSMenuItem) {
         navigateStatusDestination(sender.representedObject as? String ?? "metrics")
@@ -250,12 +250,12 @@ import WidgetUI
     @objc func quitApp() { model.shutdown();NSApp.terminate(nil) }
     func installMainMenu() {
         let main=NSMenu()
-        let appItem=NSMenuItem();let appMenu=NSMenu(title:L("温控台"))
-        appMenu.addItem(withTitle:L("关于温控台"),action:#selector(NSApplication.orderFrontStandardAboutPanel(_:)),keyEquivalent:"")
+        let appItem=NSMenuItem();let appMenu=NSMenu(title:L("ShowMac"))
+        appMenu.addItem(withTitle:L("关于ShowMac"),action:#selector(NSApplication.orderFrontStandardAboutPanel(_:)),keyEquivalent:"")
         appMenu.addItem(.separator())
-        appMenu.addItem(withTitle:L("隐藏温控台"),action:#selector(NSApplication.hide(_:)),keyEquivalent:"h")
+        appMenu.addItem(withTitle:L("隐藏ShowMac"),action:#selector(NSApplication.hide(_:)),keyEquivalent:"h")
         appMenu.addItem(.separator())
-        let quit=NSMenuItem(title:L("退出温控台"),action:#selector(quitApp),keyEquivalent:"q");quit.target=self;appMenu.addItem(quit)
+        let quit=NSMenuItem(title:L("退出ShowMac"),action:#selector(quitApp),keyEquivalent:"q");quit.target=self;appMenu.addItem(quit)
         appItem.submenu=appMenu;main.addItem(appItem)
         let editItem=NSMenuItem();let edit=NSMenu(title:L("编辑"))
         edit.addItem(withTitle:L("拷贝"),action:#selector(NSText.copy(_:)),keyEquivalent:"c")
@@ -263,7 +263,7 @@ import WidgetUI
         edit.addItem(withTitle:L("全选"),action:#selector(NSText.selectAll(_:)),keyEquivalent:"a")
         editItem.submenu=edit;main.addItem(editItem)
         let windowItem=NSMenuItem();let windowMenu=NSMenu(title:L("窗口"))
-        let show=NSMenuItem(title:L("显示温控台"),action:#selector(showWindow),keyEquivalent:"0");show.target=self;windowMenu.addItem(show)
+        let show=NSMenuItem(title:L("显示ShowMac"),action:#selector(showWindow),keyEquivalent:"0");show.target=self;windowMenu.addItem(show)
         windowMenu.addItem(withTitle:L("最小化"),action:#selector(NSWindow.performMiniaturize(_:)),keyEquivalent:"m")
         let quick=NSMenuItem(title:L("打开菜单栏快捷面板"),action:#selector(showStatusMenu),keyEquivalent:"p");quick.target=self;windowMenu.addItem(quick)
         if performanceProbe != nil {

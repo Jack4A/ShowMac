@@ -179,7 +179,7 @@ jobs:
             python3 -c 'import json,sys; assert json.load(open(sys.argv[1]))["isDraft"], "Refusing to overwrite a published release"' "$RUNNER_TEMP/existing-release.json"
           else
             gh release create "$tag" --draft --verify-tag \
-              --title "ThermalScope $tag · Intel + Apple Silicon" \
+              --title "ShowMac $tag · Intel + Apple Silicon" \
               --notes-file "docs/releases/$tag.md"
           fi
           gh release upload "$tag" dist/* --clobber

@@ -22,8 +22,18 @@ def verify(folder, version, commit):
         raise ValueError("Expected a full source commit SHA")
     expected = set()
     builds = set()
+    products = set()
     for arch, suffix in [("arm64", "-arm64"), ("x86_64", "")]:
-        archive = f"ThermalScope-{version}-macOS-{arch}.zip"
+        manifest_path = folder / f"release-manifest{suffix}.json"
+        if not manifest_path.is_file():
+            raise ValueError(f"Missing release asset: {manifest_path.name}")
+        data = json.loads(manifest_path.read_text())
+        product = data.get("product", "ThermalScope")
+        if product not in {"ThermalScope", "ShowMac"}:
+            raise ValueError("Unrecognized release product")
+        products.add(product)
+        app_root = product + ".app/"
+        archive = f"{product}-{version}-macOS-{arch}.zip"
         manifest = f"release-manifest{suffix}.json"
         install = f"INSTALL{suffix}.txt"
         sums = f"SHA256SUMS{suffix}.txt"
@@ -56,10 +66,12 @@ def verify(folder, version, commit):
         builds.add(data.get("build"))
         with zipfile.ZipFile(folder / archive) as zipped:
             for info in ["Contents/Info.plist", "Contents/PlugIns/ThermalScopeWidget.appex/Contents/Info.plist"]:
-                metadata = plistlib.loads(zipped.read("ThermalScope.app/" + info))
+                metadata = plistlib.loads(zipped.read(app_root + info))
                 if metadata.get("CFBundleShortVersionString") != version or metadata.get("CFBundleVersion") != data.get("build"):
                     raise ValueError(f"Bundle version mismatch: {archive}/{info}")
-            verify_app(lambda name: zipped.read("ThermalScope.app/" + name), arch)
+            verify_app(lambda name: zipped.read(app_root + name), arch)
+    if len(products) != 1:
+        raise ValueError("Architectures must share one product name")
     if len(builds) != 1 or not all(isinstance(build, str) and build.isdigit() for build in builds):
         raise ValueError("Architectures must share one numeric build number")
     if {p.name for p in folder.iterdir()} != expected:
