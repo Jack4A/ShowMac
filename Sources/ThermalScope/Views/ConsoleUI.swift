@@ -10,8 +10,8 @@ struct ConsoleShell:View {
     @State private var loadEvidence=false
     private var monitorSample:Bool {model.tab==0 && navigation.page == .metrics && navigation.metric==nil}
     var body:some View {
-        NavigationSplitView {
-            ConsoleSidebar(model:model).navigationSplitViewColumnWidth(min:210,ideal:220,max:280)
+        ConsoleNavigation {
+            ConsoleSidebar(model:model)
         } detail: {
             VStack(spacing:0) {
                 HStack {
@@ -19,7 +19,7 @@ struct ConsoleShell:View {
                         if model.tab==0,let metric=navigation.metric {
                             Text(L(metric.title)).font(AppTypography.title)
                         }
-                        Text(model.tab==1 ? L("让温控台适合你的使用习惯。"):L(navigation.metric != nil ? "指标详情":(navigation.page == .thermal && ControlAvailability.isAppleSilicon ? "选择档位，或直接拖动曲线调速。":navigation.page.subtitle))).font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+                        Text(model.tab==1 ? L("让温控台适合你的使用习惯。"):L(navigation.metric != nil ? "指标详情":(navigation.page == .thermal && ControlAvailability.isAppleSilicon ? "选择档位，或直接拖动曲线调速。":navigation.page.subtitle))).font(.system(size:12)).foregroundColor(Palette.secondaryText)
                     }
                     Spacer()
                 }.padding(.horizontal,28).padding(.top,model.tab==0 && navigation.metric != nil ? 25:20).padding(.bottom,model.tab==1 ? 20:14)
@@ -55,13 +55,13 @@ struct ConsoleShell:View {
                             case .history:
                                 VStack(alignment:.leading,spacing:14) {
                                     HStack { Text(L("最近的操作")).font(AppTypography.section);Spacer();Button(L("导出采样")) {model.exportCSV()}.buttonStyle(.borderless) }
-                                    if model.events.isEmpty { Text(L("暂无操作记录")).font(.system(size:12)).foregroundStyle(Palette.secondaryText) }
+                                    if model.events.isEmpty { Text(L("暂无操作记录")).font(.system(size:12)).foregroundColor(Palette.secondaryText) }
                                     ForEach(model.events.prefix(20)) {event in
                                         HStack(alignment:.top,spacing:12) {
-                                            Image(systemName:event.warning ? "exclamationmark.circle":"checkmark.circle").foregroundStyle(event.warning ? Color.orange:Palette.violet)
-                                            VStack(alignment:.leading,spacing:5) {Text(L(event.title)).font(.callout);Text(L(event.detail)).font(.system(size:12)).foregroundStyle(Palette.secondaryText).textSelection(.enabled)}
+                                            Image(systemName:AppSymbols.resolve(event.warning ? "exclamationmark.circle":"checkmark.circle")).foregroundColor(event.warning ? Color.orange:Palette.violet)
+                                            VStack(alignment:.leading,spacing:5) {Text(L(event.title)).font(.callout);Text(L(event.detail)).font(.system(size:12)).foregroundColor(Palette.secondaryText).appTextSelection()}
                                             Spacer()
-                                            Text(event.date,format:.dateTime.month().day().hour().minute().second()).font(.system(size:12)).foregroundStyle(Palette.secondaryText).monospacedDigit()
+                                            Text(DateFormatter.localizedString(from:event.date,dateStyle:.short,timeStyle:.medium)).font(.system(size:12)).foregroundColor(Palette.secondaryText).appMonospacedDigit()
                                         }.padding(.vertical,6)
                                     }
                                 }.subtlePanel()
@@ -81,14 +81,14 @@ struct ConsoleShell:View {
                 .toolbar {
                     ToolbarItem(placement:.navigation) {
                         if model.tab==0,navigation.metric != nil {
-                            Button {navigation.metric=nil} label:{Label(L("返回实时监测"),systemImage:"chevron.left")}
+                            Button {navigation.metric=nil} label:{Label(L("返回实时监测"),systemImage:AppSymbols.resolve("chevron.left"))}
                                 .accessibilityIdentifier("backToOverview")
                         }
                     }
                 }
-        }.navigationSplitViewStyle(.balanced)
-            .background {ConsoleWindowBackdrop()}
-            .toolbarBackground(.hidden,for:.windowToolbar)
+        }
+            .appBackground {ConsoleWindowBackdrop()}
+            .appHideToolbarBackground()
             .font(AppTypography.body).id(model.language).environment(\.locale,Locale(identifier:AppLocalization.shared.resolvedLanguage)).preferredColorScheme(model.colorScheme).frame(minWidth:900,minHeight:700).transaction { $0.animation=nil;$0.disablesAnimations=true }
             .sheet(isPresented:Binding(get:{navigation.applicationID != nil},set:{if !$0{navigation.applicationID=nil}})) {
                 ApplicationReviewSheet(observer:model.processes,groupID:navigation.applicationID ?? "",onClose:{navigation.applicationID=nil}).preferredColorScheme(model.colorScheme)
@@ -101,5 +101,22 @@ struct ConsoleShell:View {
     func showMetric(_ kind:MetricKind) {
         navigation.showMetric(kind)
         if let sensor=kind.sensor {model.timeline.sensor=sensor}
+    }
+}
+
+private struct ConsoleNavigation<Sidebar:View,Detail:View>:View {
+    let sidebar:Sidebar
+    let detail:Detail
+    init(@ViewBuilder sidebar:()->Sidebar,@ViewBuilder detail:()->Detail) {self.sidebar=sidebar();self.detail=detail()}
+    @ViewBuilder var body:some View {
+        if #available(macOS 13,*),!PlatformUI.classic {
+            NavigationSplitView {sidebar.navigationSplitViewColumnWidth(min:210,ideal:220,max:280)} detail:{detail}
+                .navigationSplitViewStyle(.balanced)
+        } else {
+            HSplitView {
+                sidebar.frame(minWidth:210,idealWidth:220,maxWidth:280,maxHeight:.infinity)
+                detail.frame(minWidth:620,maxWidth:.infinity,maxHeight:.infinity)
+            }
+        }
     }
 }

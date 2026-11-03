@@ -35,30 +35,30 @@ struct MenuAppearanceControls:View {
                 Text(L("整体外边距")).frame(width:70,alignment:.leading)
                 Slider(value:$model.menuOuterPadding,in:0...20,step:1).frame(maxWidth:210)
                     .accessibilityLabel(L("整体外边距"))
-                Text(String(format:L("左右各 %.0f pt"),model.menuOuterPadding)).monospacedDigit().fixedSize()
+                Text(String(format:L("左右各 %.0f pt"),model.menuOuterPadding)).appMonospacedDigit().fixedSize()
             }.help(L("调整整组组件左右两端的留白。"))
             HStack(spacing:12) {
                 Text(L("组件内边距")).frame(width:70,alignment:.leading)
                 Slider(value:$model.menuInnerPadding,in:0...20,step:1).frame(maxWidth:210)
                     .accessibilityLabel(L("组件内边距"))
-                Text(String(format:L("左右各 %.0f pt"),model.menuInnerPadding)).monospacedDigit().fixedSize()
+                Text(String(format:L("左右各 %.0f pt"),model.menuInnerPadding)).appMonospacedDigit().fixedSize()
             }.help(L("调整每个组件内部左右两侧的留白。"))
             HStack(spacing:12) {
                 Text(L("项目间距")).frame(width:70,alignment:.leading)
                 Slider(value:$model.menuSpacing,in:MenuBarLayout.spacingRange,step:1).frame(maxWidth:210)
                     .accessibilityLabel(L("项目间距"))
-                Text(String(format:"%.0f pt",model.menuSpacing)).monospacedDigit().frame(width:40)
+                Text(String(format:"%.0f pt",model.menuSpacing)).appMonospacedDigit().frame(width:40)
             }
             Toggle(L("项目分隔线"),isOn:$model.menuDividers).toggleStyle(.checkbox)
             HStack(spacing:12) {
                 Text(L("曲线宽度")).frame(width:70,alignment:.leading)
                 Slider(value:$model.menuGraphWidth,in:28...100,step:4).frame(maxWidth:210)
-                Text(String(format:"%.0f pt",model.menuGraphWidth)).monospacedDigit().frame(width:40)
+                Text(String(format:"%.0f pt",model.menuGraphWidth)).appMonospacedDigit().frame(width:40)
             }
             Toggle(L("图形底色"),isOn:$model.menuGraphBackground).toggleStyle(.checkbox)
             Toggle(L("曲线告警色"),isOn:$model.menuCPUWarnings).toggleStyle(.checkbox)
             Text(L("CPU ≥70% 橙色，持续 ≥90% 10 秒红色；CPU 温度 ≥80/90°C、GPU ≥75/85°C 分级变色。"))
-                .foregroundStyle(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+                .foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
         }.font(AppTypography.caption)
     }
 }
@@ -71,7 +71,7 @@ struct MenuPresetGallery:View {
                 Button(L(preset.title)) {model.applyMenuPreset(preset.rawValue)}
                     .help(L(preset.title))
             }
-        } label:{Image(systemName:"sparkles")}
+        } label:{Image(systemName:AppSymbols.resolve("sparkles"))}
             .menuStyle(.borderlessButton).help(L("快速样式")).accessibilityLabel(L("快速样式"))
     }
 }
@@ -100,27 +100,28 @@ struct MenuTileEditor:View {
             HStack {
                 VStack(alignment:.leading,spacing:4) {
                     Text(component.title(in:model)).font(AppTypography.section)
-                    Text(L("状态栏")).font(AppTypography.caption).foregroundStyle(.secondary)
+                    Text(L("状态栏")).font(AppTypography.caption).foregroundColor(.secondary)
                 }
                 Spacer()
                 Button(L("完成"),action:onClose).keyboardShortcut(.cancelAction)
             }.padding(20)
             Divider()
             Form {
-                Section(L("显示方式")) {
+                Section(header:Text(L("显示方式"))) {
                     Picker(L("项目样式"),selection:style) {ForEach(styles){Text(L($0.title)).tag($0)}}
                         .accessibilityLabel(component.title(in:model)+" · "+L("项目样式"))
-                    LabeledContent(L("图标")) {iconMenu}
+                    HStack {Text(L("图标"));Spacer();iconMenu}
                 }
                 Section {
-                    LabeledContent(L("项目颜色")) {colorMenu}
+                    HStack {Text(L("项目颜色"));Spacer();colorMenu}
                 }
-            }.formStyle(.grouped)
+            }.appGroupedForm()
             HStack {
-                Button(L("移除组件"),role:.destructive) {if model.removeMenuComponent(id:componentID){onClose()}}
+                Button(L("移除组件")) {if model.removeMenuComponent(id:componentID){onClose()}}
+                    .foregroundColor(.red)
                     .disabled(model.effectiveMenuComponents.count<=1)
                 Spacer()
-                Text(L("更改会立即保存。")).font(AppTypography.caption).foregroundStyle(.secondary)
+                Text(L("更改会立即保存。")).font(AppTypography.caption).foregroundColor(.secondary)
             }
                 .padding(.horizontal,20).padding(.bottom,16)
         }.font(AppTypography.body).frame(width:420,height:330)
@@ -153,7 +154,7 @@ struct MenuTileEditor:View {
             Button(L("无图标")){model.setMenuComponentIcon("none",id:componentID)}
             Divider()
             ForEach(MenuIconOption.options(component)) {option in
-                Button {model.setMenuComponentIcon("sf:"+option.symbol,id:componentID)} label:{Label(L(option.title),systemImage:option.symbol)}
+                Button {model.setMenuComponentIcon("sf:"+option.symbol,id:componentID)} label:{Label(L(option.title),systemImage:AppSymbols.resolve(option.symbol))}
             }
             Divider()
             Button(L("选择图片…")){model.chooseMenuIcon(metric,componentID:componentID)}
@@ -166,9 +167,9 @@ struct MenuTileEditor:View {
     }
     @ViewBuilder var iconPreview:some View {
         switch MenuIconStore.icon(component.icon,metric:metric,preview:model.isFanControlPreview,options:MenuIconOption.options(component)) {
-        case .automatic:Image(systemName:component.source.symbol)
-        case .hidden:Image(systemName:"minus.circle")
-        case .symbol(let name):Image(systemName:name)
+        case .automatic:Image(systemName:AppSymbols.resolve(component.source.symbol))
+        case .hidden:Image(systemName:AppSymbols.resolve("minus.circle"))
+        case .symbol(let name):Image(systemName:AppSymbols.resolve(name))
         case .image(let image):Image(nsImage:MenuIconStore.thumbnail(image))
         }
     }

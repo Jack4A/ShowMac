@@ -382,6 +382,7 @@ struct TimelineEvent: Identifiable {
         case .temperatureTimeline:navigation.go(.temperature)
         case .wakeRequests:navigation.showWakeRequests=true
         case .lowPowerPlan:
+            guard SystemCapabilities.lowPowerMode else{return}
             if optimization.backup==nil && !optimization.busy {
                 optimization.lowPower=true;optimization.scope = .current
                 optimization.displaySleep=false;optimization.idleSleep=false;optimization.disableTurbo=false
@@ -394,7 +395,8 @@ struct TimelineEvent: Identifiable {
     func dismissNotice() { noticeVisible=false;messageIsError=false }
     func exportCSV() {
         let panel=NSSavePanel()
-        panel.nameFieldStringValue="ThermalScope-\(Date().formatted(.iso8601.year().month().day())) .csv".replacingOccurrences(of:" .csv",with:".csv")
+        let formatter=DateFormatter();formatter.locale=Locale(identifier:"en_US_POSIX");formatter.dateFormat="yyyy-MM-dd"
+        panel.nameFieldStringValue="ThermalScope-"+formatter.string(from:Date())+".csv"
         panel.title=L("导出最近 30 分钟监测数据")
         guard panel.runModal() == .OK,let url=panel.url else { return }
         do { try Export.csv(history).write(to:url,atomically:true,encoding:.utf8); report(String(format:L("已导出 %d 条采样。"),history.count),error:false) }

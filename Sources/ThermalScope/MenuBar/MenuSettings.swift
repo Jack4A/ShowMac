@@ -33,7 +33,7 @@ struct MenuSettings:View {
                     Text(L("状态栏定制")).font(AppTypography.section)
                     MenuLivePreview(readings:model.readings,items:model.menuItems,style:model.menuStyle)
                     Text(L("当前使用兼容布局，可切换为逐项定制。")).font(AppTypography.body)
-                    Button(L("启用逐项定制")){enableCustomization()}.buttonStyle(.bordered)
+                    Button(L("启用逐项定制")){enableCustomization()}.buttonStyle(AppNativeButtonStyle())
                 }
                 .subtlePanel(padding:18)
             }

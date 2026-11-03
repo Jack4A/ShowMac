@@ -46,7 +46,7 @@ import WidgetUI
             let output=NSMutableAttributedString()
             for (index,metric) in self.model.menuItems.enumerated() {
                 if index>0 { output.append(NSAttributedString(string:"  ")) }
-                if self.model.menuStyle != "values",let image=NSImage(systemSymbolName:metric.symbol,accessibilityDescription:metric.title) {
+                if self.model.menuStyle != "values",let image=NSImage(systemSymbolName:AppSymbols.resolve(metric.symbol),accessibilityDescription:metric.title) {
                     let attachment=NSTextAttachment();image.size=NSSize(width:14,height:14);image.isTemplate=true
                     attachment.image=image;attachment.bounds=NSRect(x:0,y:-2,width:14,height:14)
                     output.append(NSAttributedString(attachment:attachment))
@@ -174,7 +174,7 @@ import WidgetUI
             info(L("运行模式")+"  "+L(model.coolingStatus),"thermal")
             let turboText=snapshot.turbo == .disabledDriverLoaded ? L("已关闭"):(snapshot.turbo == .driverNotLoaded ? L("允许开启"):L("状态不可用"))
             if !ControlAvailability.isAppleSilicon {info(L("睿频")+"  "+turboText,"thermal")}
-            info(L("系统低电量模式")+"  "+L(snapshot.lowPower ? "开启":"关闭"),"optimization")
+            if SystemCapabilities.lowPowerMode {info(L("系统低电量模式")+"  "+L(snapshot.lowPower ? "开启":"关闭"),"optimization")}
             info(L("GPU 温度")+"  "+valueText(snapshot.temperature(.gpu))+"°C",MetricKind.gpuTemperature.rawValue)
             info(L("硬盘温度")+"  "+valueText(snapshot.temperature(.storage))+"°C",MetricKind.storageTemperature.rawValue)
             for fan in snapshot.fans {
@@ -285,6 +285,7 @@ import WidgetUI
 @main struct Entry {
     @MainActor static func main() {
         let args=CommandLine.arguments
+        if args.contains("--compatibility-ui-check") {CompatibilityUICheck.run();return}
         if args.contains("--status-cards-check") {StatusCardsCheck.run();return}
         if args.contains("--curve-warning-check") {CurveWarningCheck.run();return}
         if args.contains("--menu-sensor-check") {MenuSensorCheck.run();return}
@@ -392,8 +393,18 @@ import WidgetUI
                 for size in WidgetCardSize.allCases {
                     let dimensions:CGSize=size == .small ? CGSize(width:164,height:164):(size == .medium ? CGSize(width:364,height:170):CGSize(width:364,height:382))
                     let content=WidgetStatusContent(snapshot:snapshot,size:size,linksEnabled:false).padding(16).frame(width:dimensions.width,height:dimensions.height).background(Color.white).environment(\.colorScheme,.light)
-                    let renderer=ImageRenderer(content:content);renderer.scale=2
-                    guard let image=renderer.cgImage,let data=NSBitmapImageRep(cgImage:image).representation(using:.png,properties:[:]) else{throw WidgetDataError.invalid}
+                    let data:Data?
+                    if #available(macOS 13,*) {
+                        let renderer=ImageRenderer(content:content);renderer.scale=2
+                        data=renderer.cgImage.flatMap{NSBitmapImageRep(cgImage:$0).representation(using:.png,properties:[:])}
+                    } else {
+                        let host=NSHostingView(rootView:content)
+                        host.frame=CGRect(origin:.zero,size:dimensions);host.layoutSubtreeIfNeeded()
+                        guard let bitmap=host.bitmapImageRepForCachingDisplay(in:host.bounds) else{throw WidgetDataError.invalid}
+                        host.cacheDisplay(in:host.bounds,to:bitmap)
+                        data=bitmap.representation(using:.png,properties:[:])
+                    }
+                    guard let data else{throw WidgetDataError.invalid}
                     try data.write(to:directory.appendingPathComponent("widget-"+size.rawValue+".png"))
                 }
                 print("Rendered three layouts from the actual shared snapshot; not a system-host screenshot.")

@@ -26,6 +26,8 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
     static func main() {
         let core=CoreTests(),cooling=CoolingTests(),history=HistoryTests(),curve=CurveTests()
         let checks:[(String,() throws ->Void)]=[
+            ("Big Sur chart inspection preserves signed values and coordinates",ChartCoordinatesTests().testSignedValuesAndInspection),
+            ("Big Sur fan dragging clamps outside the chart",ChartCoordinatesTests().testCurveDragClampsAtPlotEdges),
             ("Common sensor histories match cards and preserve signed power",CommonSensorHistoryTests().testMatchesCardsAndPreservesSignedPower),
             ("Common sensor outages and sleep preserve gaps and known cards",CommonSensorHistoryTests().testOutagesAndSleepBreakLinesWithoutLosingCards),
             ("Common sensor windows bound retention and ignore stale samples",CommonSensorHistoryTests().testTimeWindowsRetentionAndOutOfOrderSamples),

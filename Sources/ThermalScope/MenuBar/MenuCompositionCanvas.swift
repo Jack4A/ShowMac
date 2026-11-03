@@ -24,26 +24,26 @@ struct MenuCompositionCanvas:View {
                 Text(L("状态栏")).font(AppTypography.section)
                 Spacer()
                 MenuPresetGallery(model:model)
-                Button {model.statusMenuRequested?()} label:{Image(systemName:"macwindow")}
+                Button {model.statusMenuRequested?()} label:{Image(systemName:AppSymbols.resolve("macwindow"))}
                     .help(L("查看状态面板")).accessibilityLabel(L("查看状态面板"))
             }.buttonStyle(.borderless)
             ScrollView(.horizontal,showsIndicators:false) {
                 HStack(spacing:6) {
                     ForEach(components) {component in activeComponent(component)}
-                    Image(systemName:"plus").foregroundStyle(.secondary).frame(width:64,height:44)
-                        .background(targetedEnd ? Palette.selection.opacity(0.5):.clear,in:RoundedRectangle(cornerRadius:6))
+                    Image(systemName:AppSymbols.resolve("plus")).foregroundColor(.secondary).frame(width:64,height:44)
+                        .appBackground(targetedEnd ? Palette.selection.opacity(0.5):.clear,in:RoundedRectangle(cornerRadius:6))
                         .contentShape(Rectangle()).accessibilityLabel(L("拖到此处"))
                         .onDrop(of:[Self.dragType],isTargeted:$targetedEnd) {providers in receive(providers){model.applyMenuDrop([$0],before:nil)}}
                 }.padding(8)
             }.frame(height:66)
-                .background(Palette.inset,in:RoundedRectangle(cornerRadius:8))
+                .appBackground(Palette.inset,in:RoundedRectangle(cornerRadius:8))
             HStack(spacing:8) {
                 MenuSensorPicker(model:model,source:$source)
                 ForEach([MenuTileStyle.icon,.value,.history]) {style in template(style)}
                 Spacer(minLength:0)
-                Image(systemName:"trash").foregroundStyle(targetedRemoval ? Color.red:Color.secondary)
+                Image(systemName:AppSymbols.resolve("trash")).foregroundColor(targetedRemoval ? Color.red:Color.secondary)
                     .frame(width:32,height:32).contentShape(Rectangle())
-                    .background(targetedRemoval ? Color.red.opacity(0.10):.clear,in:RoundedRectangle(cornerRadius:6))
+                    .appBackground(targetedRemoval ? Color.red.opacity(0.10):.clear,in:RoundedRectangle(cornerRadius:6))
                     .accessibilityLabel(L("拖到这里移除"))
                     .onDrop(of:[Self.dragType],isTargeted:$targetedRemoval) {providers in receive(providers) {token in
                         guard let drag=MenuComponentDrag(token),case .existing(let id)=drag else{return false}
@@ -51,7 +51,7 @@ struct MenuCompositionCanvas:View {
                     }}
                     .help(L("拖到这里移除"))
             }
-            Text(L("拖动添加或排序，点按编辑。")).font(AppTypography.caption).foregroundStyle(.secondary)
+            Text(L("拖动添加或排序，点按编辑。")).font(AppTypography.caption).foregroundColor(.secondary)
         }.modifier(MenuGlassGrouping()).subtlePanel(padding:18)
     }
     private func provider(_ token:String)->NSItemProvider {
@@ -85,9 +85,9 @@ struct MenuCompositionCanvas:View {
                     Button(L("向右移动")){_ = model.moveMenuComponent(id:component.id,before:index+2<components.count ? components[index+2].id:nil)}.disabled(index==components.count-1)
                 }
                 Divider()
-                Button(L("移除组件"),role:.destructive){_ = model.removeMenuComponent(id:component.id)}.disabled(components.count<=1)
+                Button(L("移除组件")){_ = model.removeMenuComponent(id:component.id)}.disabled(components.count<=1)
             }
-            .overlay(alignment:.leading) {if targetedID==component.id {Rectangle().fill(Palette.violet).frame(width:2).allowsHitTesting(false)}}
+            .appOverlay(alignment:.leading) {if targetedID==component.id {Rectangle().fill(Palette.violet).frame(width:2).allowsHitTesting(false)}}
             .onDrop(of:[Self.dragType],isTargeted:Binding(get:{targetedID==component.id},set:{value in
                 if value {targetedID=component.id} else if targetedID==component.id {targetedID=nil}
             })) {providers in receive(providers){model.applyMenuDrop([$0],before:component.id)}}
@@ -95,7 +95,7 @@ struct MenuCompositionCanvas:View {
     private func template(_ style:MenuTileStyle)->some View {
         return Button {_ = model.insertMenuComponent(source:source,style:style)} label:{
             HStack(spacing:5) {
-                Image(systemName:style == .icon ? source.symbol:style == .value ? "textformat.123":"waveform.path")
+                Image(systemName:AppSymbols.resolve(style == .icon ? source.symbol:style == .value ? "textformat.123":"waveform.path"))
                 Text(L(style == .icon ? "图标":style == .value ? "数值":"趋势")).font(AppTypography.caption)
             }.frame(height:22).padding(6)
                 .modifier(MenuActionSurface(fallbackOpacity:0.035))
@@ -113,7 +113,7 @@ struct MenuCompositionCanvas:View {
 
 private struct MenuGlassGrouping:ViewModifier {
     @ViewBuilder func body(content:Content)->some View {
-        if #available(macOS 26,*) {GlassEffectContainer(spacing:0) {content}}
+        if #available(macOS 26,*),!PlatformUI.classic {GlassEffectContainer(spacing:0) {content}}
         else {content}
     }
 }
@@ -123,13 +123,13 @@ private struct MenuActionSurface:ViewModifier {
     @Environment(\.colorSchemeContrast) private var contrast
     let fallbackOpacity:Double
     @ViewBuilder func body(content:Content)->some View {
-        if #available(macOS 26,*),!reduceTransparency,contrast != .increased {
+        if #available(macOS 26,*),!PlatformUI.classic,!reduceTransparency,contrast != .increased {
             content.glassEffect(.regular.interactive(),in:RoundedRectangle(cornerRadius:8,style:.continuous))
         } else if reduceTransparency || contrast == .increased {
-            content.background(Palette.surface,in:RoundedRectangle(cornerRadius:6))
-                .overlay {RoundedRectangle(cornerRadius:6).stroke(Color.primary.opacity(contrast == .increased ? 0.4:0.15),lineWidth:0.75).allowsHitTesting(false)}
+            content.appBackground(Palette.surface,in:RoundedRectangle(cornerRadius:6))
+                .appOverlay {RoundedRectangle(cornerRadius:6).stroke(Color.primary.opacity(contrast == .increased ? 0.4:0.15),lineWidth:0.75).allowsHitTesting(false)}
         } else {
-            content.background(.primary.opacity(fallbackOpacity),in:RoundedRectangle(cornerRadius:6))
+            content.appBackground(.primary.opacity(fallbackOpacity),in:RoundedRectangle(cornerRadius:6))
         }
     }
 }

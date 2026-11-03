@@ -16,10 +16,10 @@ struct LiveAuxiliary:View {
     @ObservedObject var readings:LiveReadings
     var body:some View {
         HStack(spacing:16) {
-            Label("GPU "+valueText(readings.snapshot?.temperature(.gpu))+"°C",systemImage:"display")
-            Label(L("存储 ")+valueText(readings.snapshot?.temperature(.storage))+"°C",systemImage:"internaldrive")
-            Spacer();Label(valueText(readings.telemetry?.batteryPercent)+"%",systemImage:"battery.75percent")
-        }.font(.system(size:11)).foregroundStyle(.secondary).padding(.horizontal,4)
+            Label("GPU "+valueText(readings.snapshot?.temperature(.gpu))+"°C",systemImage:AppSymbols.resolve("display"))
+            Label(L("存储 ")+valueText(readings.snapshot?.temperature(.storage))+"°C",systemImage:AppSymbols.resolve("internaldrive"))
+            Spacer();Label(valueText(readings.telemetry?.batteryPercent)+"%",systemImage:AppSymbols.resolve("battery.75percent"))
+        }.font(.system(size:11)).foregroundColor(.secondary).padding(.horizontal,4)
     }
 }
 struct LiveThermalDetails:View {
@@ -35,12 +35,12 @@ struct MenuLivePreview:View {
         HStack(spacing:14) {
             ForEach(items) {metric in
                 HStack(spacing:4) {
-                    if style != "values" {Image(systemName:metric.symbol)}
-                    if style != "icons" {Text(value(metric)).monospacedDigit()}
+                    if style != "values" {Image(systemName:AppSymbols.resolve(metric.symbol))}
+                    if style != "icons" {Text(value(metric)).appMonospacedDigit()}
                 }.help(metric.title)
             }
         }.font(.system(size:12,weight:.medium)).fixedSize(horizontal:true,vertical:false).padding(.horizontal,10).frame(minHeight:32)
-        }.frame(height:32).background(.primary.opacity(0.035),in:RoundedRectangle(cornerRadius:8))
+        }.frame(height:32).appBackground(.primary.opacity(0.035),in:RoundedRectangle(cornerRadius:8))
     }
     func value(_ metric:MenuMetric)->String {
         switch metric {

@@ -60,7 +60,7 @@ struct StatusOverview:View {
                         }
                         if model.statusPanel.showProcesses {StatusCPUContributor(observer:model.processes,onOpen:{onNavigate(MetricKind.cpuUsage.rawValue)})}
                         if model.messageIsError {
-                            Button {onNavigate("thermal")} label:{Label(L(model.operationIssue.title),systemImage:"exclamationmark.circle.fill").font(.callout).foregroundStyle(.orange).frame(maxWidth:.infinity,alignment:.leading)}.buttonStyle(.plain).padding(.vertical,8)
+                            Button {onNavigate("thermal")} label:{Label(L(model.operationIssue.title),systemImage:AppSymbols.resolve("exclamationmark.circle.fill")).font(.callout).foregroundColor(.orange).frame(maxWidth:.infinity,alignment:.leading)}.buttonStyle(.plain).padding(.vertical,8)
                         }
                     }
                     .padding(.bottom,10)
@@ -69,10 +69,10 @@ struct StatusOverview:View {
             Divider().opacity(0.6)
             footer.padding(.top,8)
         }.font(AppTypography.body).padding(.horizontal,16).padding(.vertical,12).frame(width:390,height:panelHeight)
-            .background {
+            .appBackground {
                 if reduceTransparency {Palette.canvas}
                 else {
-                    Rectangle().fill(.ultraThinMaterial)
+                    AppPopoverMaterial()
                         .overlay(Palette.canvas.opacity(scheme == .dark ? 0.92:0.96))
                 }
             }
@@ -85,24 +85,24 @@ struct StatusOverview:View {
             HStack {
                 Text(L("温控台")).font(.system(size:15,weight:.semibold))
                 Spacer()
-                Button(L(editing ? "完成":"编辑")){editing.toggle()}.controlSize(.small)
+                Button(L(editing ? "完成":"编辑")){editing.toggle()}.appControlSize(.small)
                 Picker(L("趋势时间范围"),selection:$model.statusMinutes) {
                     Text(L("2 分钟")).tag(2);Text(L("5 分钟")).tag(5);Text(L("10 分钟")).tag(10)
-                }.labelsHidden().frame(width:88).controlSize(.small)
+                }.labelsHidden().frame(width:88).appControlSize(.small)
             }
             HStack(spacing:5) {
                 Button {onNavigate("thermal")} label:{
                     HStack(spacing:5) {
                         Text(L(model.fanStrategyTitle))
-                        Image(systemName:"chevron.right").font(.system(size:8,weight:.semibold))
+                        Image(systemName:AppSymbols.resolve("chevron.right")).font(.system(size:8,weight:.semibold))
                     }.lineLimit(1).contentShape(Rectangle())
                 }.buttonStyle(.plain).help(L("温度控制"))
                 Spacer(minLength:4)
                 if ControlAvailability.isAppleSilicon {
                     Text(L("热压力")+" · "+L(readings.snapshot?.thermalTitle ?? "未知")).lineLimit(1)
-                        .foregroundStyle((readings.snapshot?.thermalState ?? 0)>0 ? Color.orange:Color.secondary)
+                        .foregroundColor((readings.snapshot?.thermalState ?? 0)>0 ? Color.orange:Color.secondary)
                 } else {Text(L("睿频")+" · "+L(turbo)).lineLimit(1)}
-            }.font(.system(size:11)).foregroundStyle(.secondary)
+            }.font(.system(size:11)).foregroundColor(.secondary)
         }
     }
     var footer:some View {
@@ -111,44 +111,44 @@ struct StatusOverview:View {
                 .font(.system(size:12,weight:.medium)).buttonStyle(.plain)
             Spacer(minLength:4)
             freshness
-            Button(action:onSettings) {Image(systemName:"gearshape")}.help(L("设置")).accessibilityLabel(L("设置"))
-            Button(action:onActions) {Image(systemName:"ellipsis")}.help(L("更多操作")).accessibilityLabel(L("更多操作"))
-        }.buttonStyle(.borderless).controlSize(.small).frame(minHeight:24)
+            Button(action:onSettings) {Image(systemName:AppSymbols.resolve("gearshape"))}.help(L("设置")).accessibilityLabel(L("设置"))
+            Button(action:onActions) {Image(systemName:AppSymbols.resolve("ellipsis"))}.help(L("更多操作")).accessibilityLabel(L("更多操作"))
+        }.buttonStyle(.borderless).appControlSize(.small).frame(minHeight:24)
     }
     var freshness:some View {
-        TimelineView(.periodic(from:.now,by:5)) {context in
+        AppTimelineView(interval:5) {context in
             let date=readings.snapshot?.date
             let stale=date.map{context.date.timeIntervalSince($0)>max(15,model.interval*3)} ?? false
-            let description=date.map{L(stale ? "读数未更新":"采样时间")+" · "+$0.formatted(date:.omitted,time:.standard)} ?? L("正在读取…")
+            let description=date.map{L(stale ? "读数未更新":"采样时间")+" · "+DateFormatter.localizedString(from:$0,dateStyle:.none,timeStyle:.medium)} ?? L("正在读取…")
             HStack(spacing:4) {
                 if let date {
-                    if stale {Image(systemName:"exclamationmark.circle").foregroundStyle(.orange)}
-                    Text(date,format:.dateTime.hour().minute().second()).monospacedDigit()
-                        .foregroundStyle(stale ? Color.orange:Color.secondary)
+                    if stale {Image(systemName:AppSymbols.resolve("exclamationmark.circle")).foregroundColor(.orange)}
+                    Text(date,style:.time).appMonospacedDigit()
+                        .foregroundColor(stale ? Color.orange:Color.secondary)
                 } else {Text(L("正在读取…"))}
-            }.font(.system(size:10)).foregroundStyle(.secondary)
+            }.font(.system(size:10)).foregroundColor(.secondary)
                 .accessibilityElement(children:.ignore).accessibilityLabel(description).help(description)
         }
     }
     var fanControls:some View {
         VStack(spacing:6) {
             if model.busy {
-                HStack {ProgressView().controlSize(.mini);Text(L("正在应用…"));Spacer()}.font(.system(size:11)).foregroundStyle(.secondary)
+                HStack {ProgressView().appControlSize(.mini);Text(L("正在应用…"));Spacer()}.font(.system(size:11)).foregroundColor(.secondary)
             } else if control.status?.protectionActive==true {
-                Text(L("高温保护中")).font(.system(size:11)).foregroundStyle(.orange).frame(maxWidth:.infinity,alignment:.leading)
+                Text(L("高温保护中")).font(.system(size:11)).foregroundColor(.orange).frame(maxWidth:.infinity,alignment:.leading)
             } else if model.coolingToken != nil {
-                TimelineView(.periodic(from:.now,by:1)) {_ in
+                AppTimelineView(interval:1) {_ in
                     Group {
                         if let seconds=control.remaining() {
-                            Text(seconds>0 ? String(format:L("剩余 %02d:%02d"),Int(ceil(seconds))/60,Int(ceil(seconds))%60):L("正在恢复自动…")).monospacedDigit()
+                            Text(seconds>0 ? String(format:L("剩余 %02d:%02d"),Int(ceil(seconds))/60,Int(ceil(seconds))%60):L("正在恢复自动…")).appMonospacedDigit()
                         } else {Text(L("控制中"))}
-                    }.font(.system(size:11)).foregroundStyle(.secondary).frame(maxWidth:.infinity,alignment:.leading)
+                    }.font(.system(size:11)).foregroundColor(.secondary).frame(maxWidth:.infinity,alignment:.leading)
                 }
             }
             if ControlAvailability.fansAvailable(readings.snapshot) {
                 FanStrategySelector(selected:selection,busy:model.busy,available:true,compact:true,onSelect:choose)
             } else {
-                Button(L("恢复系统自动")){choose(.system)}.buttonStyle(.bordered).controlSize(.small)
+                Button(L("恢复系统自动")){choose(.system)}.buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
                     .disabled(model.busy).frame(maxWidth:.infinity,alignment:.leading)
             }
         }
@@ -163,16 +163,16 @@ struct StatusFanReadings:View {
     @ObservedObject var readings:LiveReadings
     var body:some View {
         let fans=readings.snapshot?.fans ?? []
-        if fans.isEmpty {Text(L("风扇状态未知")).font(.system(size:11)).foregroundStyle(.secondary).frame(maxWidth:.infinity,alignment:.leading)}
+        if fans.isEmpty {Text(L("风扇状态未知")).font(.system(size:11)).foregroundColor(.secondary).frame(maxWidth:.infinity,alignment:.leading)}
         else {
             VStack(spacing:5) {
                 ForEach(fans) {fan in
                     let mode=L(fan.manual.map{$0 ? "手动":"自动"} ?? "未知")
                     HStack(spacing:6) {
-                        Text(String(format:L("风扇 %d"),fan.id+1)+" · "+mode).foregroundStyle(.secondary)
+                        Text(String(format:L("风扇 %d"),fan.id+1)+" · "+mode).foregroundColor(.secondary)
                         Spacer(minLength:4)
                         if let rpm=fan.rpm,let maximum=fan.maximum,maximum>0 {
-                            ProgressView(value:max(0,min(maximum,rpm)),total:maximum).progressViewStyle(.linear).tint(Palette.violet)
+                            ProgressView(value:max(0,min(maximum,rpm)),total:maximum).progressViewStyle(.linear).accentColor(Palette.violet)
                                 .frame(width:fans.count==1 ? 86:52).help(valueText(fan.minimum)+"–"+valueText(maximum)+" RPM")
                         }
                         MetricValue(value:valueText(fan.rpm),unit:"RPM",size:12,unitSize:10,weight:.regular).frame(minWidth:76,alignment:.trailing)
@@ -192,14 +192,14 @@ struct StatusCPUContributor:View {
         let currentRows=rows
         if !currentRows.isEmpty {
             VStack(alignment:.leading,spacing:6) {
-                HStack {Text(L("CPU 占用排行"));Spacer();Text(L("单核 100%"))}.font(.system(size:10)).foregroundStyle(.secondary)
+                HStack {Text(L("CPU 占用排行"));Spacer();Text(L("单核 100%"))}.font(.system(size:10)).foregroundColor(.secondary)
                 ForEach(currentRows) {row in
                     Button(action:onOpen) {
                         HStack(spacing:6) {
-                            if let icon=row.application?.icon {Image(nsImage:icon).resizable().frame(width:14,height:14)} else {Image(systemName:"app").frame(width:14,height:14).foregroundStyle(.secondary)}
+                            if let icon=row.application?.icon {Image(nsImage:icon).resizable().frame(width:14,height:14)} else {Image(systemName:AppSymbols.resolve("app")).frame(width:14,height:14).foregroundColor(.secondary)}
                             Text(row.name).lineLimit(1);Spacer(minLength:2)
                             MetricValue(value:String(format:"%.1f",row.reading.cpu),unit:"%",size:12,unitSize:10,weight:.regular).fixedSize(horizontal:true,vertical:false)
-                        }.font(.system(size:12)).foregroundStyle(.primary).frame(minHeight:18).contentShape(Rectangle())
+                        }.font(.system(size:12)).foregroundColor(.primary).frame(minHeight:18).contentShape(Rectangle())
                     }.buttonStyle(.plain).help(L("每 5 秒更新；进程 CPU 以单个核心 100% 计，多线程应用可能超过 100%。"))
                 }
             }.padding(.vertical,8)

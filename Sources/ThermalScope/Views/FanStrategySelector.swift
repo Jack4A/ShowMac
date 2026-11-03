@@ -41,7 +41,7 @@ private struct FullWidthFanStrategyControl:NSViewRepresentable {
         control.selectedSegment=selected.flatMap{FanStrategy.allCases.firstIndex(of:$0)} ?? -1
         control.isEnabled = !busy
     }
-    func sizeThatFits(_ proposal:ProposedViewSize,nsView:NSSegmentedControl,context:Context)->CGSize? {
+    @available(macOS 13,*) func sizeThatFits(_ proposal:ProposedViewSize,nsView:NSSegmentedControl,context:Context)->CGSize? {
         CGSize(width:proposal.width ?? nsView.intrinsicContentSize.width,height:nsView.intrinsicContentSize.height)
     }
     final class Coordinator:NSObject {

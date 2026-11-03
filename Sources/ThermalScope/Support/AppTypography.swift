@@ -7,6 +7,6 @@ enum AppTypography {
     static let caption=Font.system(size:12)
     static let sidebar=Font.system(size:13,weight:.medium)
     static func number(_ size:CGFloat,weight:Font.Weight = .medium)->Font {
-        .system(size:size,weight:weight)
+        .system(size:size,weight:weight).monospacedDigit()
     }
 }

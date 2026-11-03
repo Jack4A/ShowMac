@@ -9,8 +9,8 @@ struct ConsoleWindowBackdrop:View {
             ZStack {
                 Palette.canvas
                 if scheme == .dark && !reduceTransparency {
-                    LinearGradient(colors:[Palette.sidebarTop.opacity(0.72),.clear],startPoint:.leading,endPoint:UnitPoint(x:0.7,y:0.5))
-                    RadialGradient(colors:[Palette.violet.opacity(0.12),.clear],center:UnitPoint(x:0.08,y:0.1),startRadius:0,endRadius:max(400,geometry.size.width*0.65))
+                    LinearGradient(gradient:Gradient(colors:[Palette.sidebarTop.opacity(0.72),.clear]),startPoint:.leading,endPoint:UnitPoint(x:0.7,y:0.5))
+                    RadialGradient(gradient:Gradient(colors:[Palette.violet.opacity(0.12),.clear]),center:UnitPoint(x:0.08,y:0.1),startRadius:0,endRadius:max(400,geometry.size.width*0.65))
                 }
             }
         }.ignoresSafeArea().allowsHitTesting(false).accessibilityHidden(true)
@@ -23,17 +23,17 @@ struct ConsoleDetailCorners:ViewModifier {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorSchemeContrast) private var contrast
     func body(content:Content)->some View {
-        content.overlay {
+        content.appOverlay {
             GeometryReader { _ in
-                sidebarFill.mask {
-                    Rectangle().overlay {
+                sidebarFill.appMask {
+                    Rectangle().appOverlay {
                         SidebarFacingShape().fill(.black).blendMode(.destinationOut)
                     }.compositingGroup()
                 }
                 if !reduceTransparency && contrast != .increased {
                     SidebarFacingShape()
-                        .stroke(LinearGradient(colors:[.white.opacity(scheme == .dark ? 0.22:0.85),.white.opacity(0.025),Palette.violet.opacity(scheme == .dark ? 0.20:0.12)],startPoint:.topLeading,endPoint:.bottomTrailing),lineWidth:0.75)
-                        .mask(alignment:.leading) {Rectangle().frame(width:24)}
+                        .stroke(LinearGradient(gradient:Gradient(colors:[.white.opacity(scheme == .dark ? 0.22:0.85),.white.opacity(0.025),Palette.violet.opacity(scheme == .dark ? 0.20:0.12)]),startPoint:.topLeading,endPoint:.bottomTrailing),lineWidth:0.75)
+                        .appMask(alignment:.leading) {Rectangle().frame(width:24)}
                 }
             }
             .ignoresSafeArea(.container,edges:[.top,.bottom])
@@ -43,9 +43,9 @@ struct ConsoleDetailCorners:ViewModifier {
     @ViewBuilder private var sidebarFill:some View {
         if scheme == .dark {
             // Match the neutral sidebar instead of sampling colors from the desktop.
-            LinearGradient(colors:[Color(red:0.165,green:0.157,blue:0.180),Color(red:0.145,green:0.137,blue:0.165)],startPoint:.top,endPoint:.bottom)
+            LinearGradient(gradient:Gradient(colors:[Color(red:0.165,green:0.157,blue:0.180),Color(red:0.145,green:0.137,blue:0.165)]),startPoint:.top,endPoint:.bottom)
         }
-        else {LinearGradient(colors:[Palette.sidebarTop,Palette.sidebarBottom],startPoint:.topLeading,endPoint:.bottomTrailing)}
+        else {LinearGradient(gradient:Gradient(colors:[Palette.sidebarTop,Palette.sidebarBottom]),startPoint:.topLeading,endPoint:.bottomTrailing)}
     }
 }
 

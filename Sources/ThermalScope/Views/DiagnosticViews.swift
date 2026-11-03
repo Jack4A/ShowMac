@@ -62,15 +62,15 @@ struct ApplicationReviewSheet:View {
     var body:some View {
         VStack(alignment:.leading,spacing:18) {
             HStack {Text(title).font(.title2.bold());Spacer();Button(L("完成"),action:onClose).keyboardShortcut(.cancelAction)}
-            Text(L("以下是当前关联进程。退出应用需要确认，并可能影响正在进行的任务。")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+            Text(L("以下是当前关联进程。退出应用需要确认，并可能影响正在进行的任务。")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
             ScrollView(showsIndicators:false) {
                 VStack(alignment:.leading,spacing:12) {
-                    if matches.isEmpty {Text(L("该应用或进程已结束，当前没有可审阅的读数。")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}
+                    if matches.isEmpty {Text(L("该应用或进程已结束，当前没有可审阅的读数。")).font(.system(size:12)).foregroundColor(Palette.secondaryText)}
                     ForEach(matches.prefix(30)) {row in
                         HStack {
-                            VStack(alignment:.leading,spacing:3) {Text(row.name).font(.system(size:12,weight:.medium));Text(verbatim:"PID \(row.reading.pid)").font(.system(size:12,design:.monospaced)).foregroundStyle(Palette.secondaryText)}
-                            Spacer();Text(String(format:"%.1f%%",row.reading.cpu)).monospacedDigit().frame(width:70,alignment:.trailing)
-                            Text(diskRateText(row.reading.diskRate)).monospacedDigit().frame(width:95,alignment:.trailing)
+                            VStack(alignment:.leading,spacing:3) {Text(row.name).font(.system(size:12,weight:.medium));Text(verbatim:"PID \(row.reading.pid)").font(.system(size:12,design:.monospaced)).foregroundColor(Palette.secondaryText)}
+                            Spacer();Text(String(format:"%.1f%%",row.reading.cpu)).appMonospacedDigit().frame(width:70,alignment:.trailing)
+                            Text(diskRateText(row.reading.diskRate)).appMonospacedDigit().frame(width:95,alignment:.trailing)
                         }.font(.system(size:12)).padding(.vertical,4)
                     }
                 }
@@ -83,11 +83,11 @@ struct ApplicationReviewSheet:View {
                 Spacer()
                 Button(L("请求正常退出")){candidate=matches.first(where:{$0.canQuit})}.disabled(!matches.contains(where:{$0.canQuit}))
             }
-            if !observer.actionMessage.isEmpty {Text(L(observer.actionMessage)).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}
+            if !observer.actionMessage.isEmpty {Text(L(observer.actionMessage)).font(.system(size:12)).foregroundColor(Palette.secondaryText)}
         }.padding(24).frame(width:650,height:500)
-            .confirmationDialog(L("请求应用正常退出？"),isPresented:Binding(get:{candidate != nil},set:{if !$0{candidate=nil}}),titleVisibility:.visible) {
-                if let row=candidate {Button(L("退出应用"),role:.destructive){observer.quit(row);candidate=nil}}
-                Button(L("取消"),role:.cancel){candidate=nil}
-            } message:{Text(L("将退出所属应用：")+(candidate?.application?.localizedName ?? candidate?.name ?? "")+"\n"+L("有未保存内容时，应用可能要求你先保存。系统进程和其他用户的进程不会在这里结束。"))}
+            .alert(isPresented:Binding(get:{candidate != nil},set:{if !$0{candidate=nil}})) {
+                let row=candidate
+                return Alert(title:Text(L("请求应用正常退出？")),message:Text(L("将退出所属应用：")+(row?.application?.localizedName ?? row?.name ?? "")+"\n"+L("有未保存内容时，应用可能要求你先保存。系统进程和其他用户的进程不会在这里结束。")),primaryButton:.destructive(Text(L("退出应用"))){if let row {observer.quit(row)};candidate=nil},secondaryButton:.cancel(Text(L("取消"))){candidate=nil})
+            }
     }
 }

@@ -28,8 +28,8 @@ struct SensorInventoryPage:View {
             HStack {
                 Text(countText)
                 Spacer()
-                if let date=readings.snapshot?.date {Text(date,format:.dateTime.hour().minute().second()).monospacedDigit()}
-            }.font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+                if let date=readings.snapshot?.date {Text(date,style:.time).appMonospacedDigit()}
+            }.font(.system(size:12)).foregroundColor(Palette.secondaryText)
             ScrollView(showsIndicators:false) {
                 VStack(alignment:.leading,spacing:20) {
                     if all.isEmpty && (showAll || common.isEmpty) {empty("暂无可读传感器","设备暂未提供可读取的传感器信息，可稍后刷新。")}
@@ -75,9 +75,9 @@ struct SensorInventoryPage:View {
                     }
                 }
                 Text(L("仅保留本次运行最近 30 分钟；退出后清空。"))
-                    .font(AppTypography.caption).foregroundStyle(Palette.secondaryText)
+                    .font(AppTypography.caption).foregroundColor(Palette.secondaryText)
             }
-            Button {showAll=true} label:{Label(L("查看完整读数"),systemImage:"list.bullet")}
+            Button {showAll=true} label:{Label(L("查看完整读数"),systemImage:AppSymbols.resolve("list.bullet"))}
                 .buttonStyle(.borderless).font(.system(size:12))
         }
     }
@@ -99,7 +99,7 @@ struct SensorInventoryPage:View {
                     }
                 }
                 Text(L("已识别的名称用于帮助理解读数；未识别探头保留完整原始数据。"))
-                    .font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+                    .font(.system(size:12)).foregroundColor(Palette.secondaryText)
             }
         }
     }
@@ -107,7 +107,7 @@ struct SensorInventoryPage:View {
         VStack(alignment:.leading,spacing:10) {
             HStack(spacing:6) {
                 Text(L(title)).font(.system(size:14,weight:.semibold))
-                Text("\(rows.count)").font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+                Text("\(rows.count)").font(.system(size:12)).foregroundColor(Palette.secondaryText)
             }
             grid(rows)
         }
@@ -122,9 +122,9 @@ struct SensorInventoryPage:View {
     }
     func empty(_ title:String,_ detail:String)->some View {
         VStack(spacing:10) {
-            Image(systemName:"sensor").font(.system(size:24)).foregroundStyle(Palette.secondaryText)
+            Image(systemName:AppSymbols.resolve("sensor")).font(.system(size:24)).foregroundColor(Palette.secondaryText)
             Text(L(title)).font(AppTypography.section)
-            Text(L(detail)).font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+            Text(L(detail)).font(.system(size:12)).foregroundColor(Palette.secondaryText)
         }.frame(maxWidth:.infinity,minHeight:160)
     }
 }
@@ -142,27 +142,27 @@ private struct CommonSensorCell:View {
             HStack {
                 Text(title).font(.system(size:13,weight:.semibold))
                 Spacer(minLength:6)
-                Button {explanationVisible.toggle()} label:{Image(systemName:"info.circle").foregroundStyle(Palette.secondaryText)}
+                Button {explanationVisible.toggle()} label:{Image(systemName:AppSymbols.resolve("info.circle")).foregroundColor(Palette.secondaryText)}
                     .buttonStyle(.borderless).accessibilityLabel(L("读数说明")+" · "+title)
                     .popover(isPresented:$explanationVisible) {
                         VStack(alignment:.leading,spacing:12) {
                             Text(title).font(AppTypography.section)
                             Text(L(reading.explanation)).font(.system(size:13))
                             if reading.kind == .temperature {Text(L("温度取已识别的相关探头最高值；探头编号不代表核心编号。")).font(.system(size:12))}
-                            Text(L("原始编号")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)
-                            Text(reading.sources.joined(separator:" · ")).font(.system(size:11,design:.monospaced)).textSelection(.enabled)
+                            Text(L("原始编号")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
+                            Text(reading.sources.joined(separator:" · ")).font(.system(size:11,design:.monospaced)).appTextSelection()
                         }.padding(18).frame(width:300,alignment:.leading)
                     }
             }
             Button(action:onTrend) {
                 VStack(alignment:.leading,spacing:10) {
-                    Text(sensorValueText(reading.value,kind:reading.kind)).font(AppTypography.number(26,weight:.medium)).monospacedDigit().foregroundStyle(.primary)
+                    Text(sensorValueText(reading.value,kind:reading.kind)).font(AppTypography.number(26,weight:.medium)).appMonospacedDigit().foregroundColor(.primary)
                     SensorSparkline(points:points,end:end,minutes:minutes,kind:reading.kind,warningKind:MetricWarningBands.kind(commonID:reading.id)).frame(height:44)
                     HStack {
-                        Text(sensorTrendPeriodText(points,end:end,minutes:minutes)).foregroundStyle(Palette.secondaryText).lineLimit(1).minimumScaleFactor(0.85)
+                        Text(sensorTrendPeriodText(points,end:end,minutes:minutes)).foregroundColor(Palette.secondaryText).lineLimit(1).minimumScaleFactor(0.85)
                         Spacer()
-                        Text(L("查看趋势")).foregroundStyle(Palette.violet).fixedSize()
-                        Image(systemName:"chevron.right").font(.system(size:10,weight:.semibold)).foregroundStyle(Palette.violet)
+                        Text(L("查看趋势")).foregroundColor(Palette.violet).fixedSize()
+                        Image(systemName:AppSymbols.resolve("chevron.right")).font(.system(size:10,weight:.semibold)).foregroundColor(Palette.violet)
                     }.font(AppTypography.caption)
                 }.contentShape(Rectangle())
             }.buttonStyle(.plain)
@@ -180,17 +180,17 @@ private struct SensorInventoryCell:View {
             VStack(alignment:.leading,spacing:5) {
                 Text(sensor.title).font(.system(size:13,weight:.medium)).lineLimit(2)
                 Text(sensor.reading.key+(sensor.meaning==nil ? " · "+L("用途未公开"):""))
-                    .font(.system(size:11,design:.monospaced)).foregroundStyle(Palette.secondaryText)
+                    .font(.system(size:11,design:.monospaced)).foregroundColor(Palette.secondaryText)
                 if let fan {
                     Text(L(fan.manual.map{$0 ? "手动":"自动"} ?? "未知")+" · "+valueText(fan.minimum)+"–"+valueText(fan.maximum)+" RPM")
-                        .font(.system(size:11)).foregroundStyle(Palette.secondaryText)
+                        .font(.system(size:11)).foregroundColor(Palette.secondaryText)
                 }
             }
             Spacer(minLength:4)
             Text(sensorValueText(sensor.reading.value,kind:sensor.reading.kind))
-                .font(AppTypography.number(14,weight:.medium)).monospacedDigit().fixedSize()
+                .font(AppTypography.number(14,weight:.medium)).appMonospacedDigit().fixedSize()
         }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel()
-            .textSelection(.enabled).accessibilityElement(children:.combine)
+            .appTextSelection().accessibilityElement(children:.combine)
             .help(L(sensor.meaning?.explanation ?? "该探头的具体位置和用途尚无可靠映射。"))
     }
 }

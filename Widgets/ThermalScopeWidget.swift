@@ -19,8 +19,8 @@ struct StatusWidgetView:View {
     var size:WidgetCardSize {family == .systemSmall ? .small:(family == .systemMedium ? .medium:.large)}
     var content:some View {WidgetStatusContent(snapshot:entry.snapshot,date:entry.date,size:size).widgetURL(WidgetRoute.overview.url)}
     @ViewBuilder var body:some View {
-        if #available(macOS 14.0,*) {content.containerBackground(for:.widget){Color(nsColor:.windowBackgroundColor)}}
-        else {content.padding().background(Color(nsColor:.windowBackgroundColor))}
+        if #available(macOS 14.0,*) {content.containerBackground(for:.widget){Color(.windowBackgroundColor)}}
+        else {content.padding().background(Color(.windowBackgroundColor))}
     }
 }
 @main struct ThermalStatusWidget:Widget {

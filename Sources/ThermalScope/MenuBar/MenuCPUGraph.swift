@@ -35,26 +35,7 @@ struct MetricSparkline:View {
     var body:some View {
         let points=history.points(kind,minutes:2),end=history.end,upper=max(kind.fixedUpper,points.compactMap(\.value).max() ?? 0)
         let runs=MetricWarningBands.runs(points,kind:kind,enabled:warningsEnabled)
-        Canvas {context,size in
-            for run in runs {
-                var line=Path(),area=Path(),previous:Int?,first:CGPoint?,last:CGPoint?
-                func finishArea() {
-                    guard let first,let last else{return}
-                    area.addLine(to:CGPoint(x:last.x,y:size.height));area.addLine(to:CGPoint(x:first.x,y:size.height));area.closeSubpath()
-                }
-                for point in run.points {
-                    guard let value=point.value else {finishArea();first=nil;previous=nil;continue}
-                    let position=CGPoint(x:min(1,max(0,point.date.timeIntervalSince(end.addingTimeInterval(-120))/120))*size.width,y:size.height-2-min(1,max(0,value/max(1,upper)))*(size.height-4))
-                    if previous==point.segment {line.addLine(to:position);area.addLine(to:position)}
-                    else {finishArea();line.move(to:position);area.move(to:position);first=position}
-                    previous=point.segment;last=position
-                }
-                finishArea()
-                let color=run.level.plotColor()
-                context.fill(area,with:.linearGradient(Gradient(colors:[color.opacity(0.18),color.opacity(0.015)]),startPoint:.zero,endPoint:CGPoint(x:0,y:size.height)))
-                context.stroke(line,with:.color(color),style:StrokeStyle(lineWidth:1.5,lineCap:.round,lineJoin:.round))
-                if let last {context.fill(Path(ellipseIn:CGRect(x:last.x-2,y:last.y-2,width:4,height:4)),with:.color(color))}
-            }
-        }.frame(height:32).accessibilityHidden(true)
+        CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs,filled:true),xRange:end.addingTimeInterval(-120).timeIntervalSince1970...end.timeIntervalSince1970,yRange:0...upper)
+            .frame(height:32).accessibilityHidden(true)
     }
 }

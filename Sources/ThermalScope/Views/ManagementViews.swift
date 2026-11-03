@@ -30,8 +30,8 @@ struct PreferencesPage:View {
                         Picker(L("采样频率"),selection:$model.interval) {
                             Text(L("2 秒")).tag(2.0);Text(L("5 秒")).tag(5.0)
                         }.labelsHidden().frame(width:90,alignment:.trailing)
-                        Button {model.refresh()} label:{Label(L("刷新读数"),systemImage:"arrow.clockwise")}
-                            .buttonStyle(.bordered).disabled(model.busy)
+                        Button {model.refresh()} label:{Label(L("刷新读数"),systemImage:AppSymbols.resolve("arrow.clockwise"))}
+                            .buttonStyle(AppNativeButtonStyle()).disabled(model.busy)
                     }
                 }
             }.subtlePanel(padding:18)
@@ -44,7 +44,7 @@ struct PreferencesPage:View {
         HStack(spacing:12) {
             VStack(alignment:.leading,spacing:4) {
                 Text(L(title)).font(AppTypography.body)
-                if let detail {Text(L(detail)).font(.system(size:12)).foregroundStyle(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)}
+                if let detail {Text(L(detail)).font(.system(size:12)).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)}
             }
             Spacer(minLength:16)
             content()

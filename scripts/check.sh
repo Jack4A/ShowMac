@@ -26,3 +26,4 @@ for flag in --status-cards-check --curve-warning-check --menu-sensor-check --men
     "$APP/Contents/MacOS/ThermalScope" "$flag" --ui-check
 done
 "$APP/Contents/MacOS/ThermalScope" --cpu-warning-check
+"$APP/Contents/MacOS/ThermalScope" --compatibility-ui-check --ui-check

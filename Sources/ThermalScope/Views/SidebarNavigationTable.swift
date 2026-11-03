@@ -141,16 +141,15 @@ final class SidebarScrollView:NSScrollView {
 
 private final class SidebarMaterialRow:NSTableRowView {
     private let glass:NSView={
-        if #available(macOS 26,*) {
+        if #available(macOS 26,*),!PlatformUI.classic {
             let view=NSGlassEffectView()
             view.style = .regular;view.cornerRadius=14
             view.contentView=NSView()
-            // effectIsInteractive ships in the macOS 27 SDK (Swift 6.4 toolchain); guard at
-            // compile time so builds against the macOS 26 SDK still pass. Rebuild with the
-            // macOS 27 SDK to enable the direct API.
-#if compiler(>=6.4)
-            if #available(macOS 27,*) {view.effectIsInteractive=true}
-#endif
+            // Use the public property dynamically so the macOS 26 SDK can build
+            // the macOS 11 package while newer systems retain the interaction.
+            if #available(macOS 27,*),view.responds(to:NSSelectorFromString("setEffectIsInteractive:")) {
+                view.setValue(true,forKey:"effectIsInteractive")
+            }
             return view
         }
         let view=NSVisualEffectView()
@@ -195,9 +194,9 @@ private final class SidebarMaterialRow:NSTableRowView {
 
 private enum SidebarSymbol {
     static func image(_ name:String,dark:Bool,selected:Bool)->NSImage? {
-        guard let symbol=NSImage(systemSymbolName:name,accessibilityDescription:nil)?
-            .withSymbolConfiguration(.init(pointSize:22,weight:.medium))?
-            .withSymbolConfiguration(.init(paletteColors:[.black,.black,.black])) else{return nil}
+        guard var symbol=NSImage(systemSymbolName:AppSymbols.resolve(name),accessibilityDescription:nil)?
+            .withSymbolConfiguration(.init(pointSize:22,weight:.medium)) else{return nil}
+        if #available(macOS 12,*),let palette=symbol.withSymbolConfiguration(.init(paletteColors:[.black,.black,.black])) {symbol=palette}
         let mask=NSImage(size:NSSize(width:24,height:24),flipped:false) {rect in
             let scale=min(22/symbol.size.width,22/symbol.size.height)
             let size=NSSize(width:symbol.size.width*scale,height:symbol.size.height*scale)

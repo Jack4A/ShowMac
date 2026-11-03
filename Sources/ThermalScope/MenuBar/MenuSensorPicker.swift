@@ -20,7 +20,7 @@ struct MenuSensorPicker:View {
             HStack(spacing:6) {
                 Text(source.title(in:model)).lineLimit(1)
                 Spacer(minLength:2)
-                Image(systemName:"chevron.up.chevron.down").font(.system(size:10))
+                Image(systemName:AppSymbols.resolve("chevron.up.chevron.down")).font(.system(size:10))
             }.frame(width:175)
         }.accessibilityLabel(L("选择状态栏读数")+" · "+source.title(in:model))
             .popover(isPresented:$showing,arrowEdge:.bottom) {
@@ -34,7 +34,7 @@ struct MenuSensorPicker:View {
                         let common=model.menuCommonSensorOptions.filter(matches)
                         let hardware=model.menuHardwareSensorOptions.filter(matches)
                         if !metrics.isEmpty || !common.isEmpty {
-                            Section(L("常用读数")) {
+                            Section(header:Text(L("常用读数"))) {
                                 ForEach(metrics) {metric in
                                     choice(.metric(metric),title:metric.title,detail:nil,value:metric.value(readings))
                                 }
@@ -43,10 +43,10 @@ struct MenuSensorPicker:View {
                         }
                         ForEach(HardwareSensorKind.allCases) {kind in
                             let rows=hardware.filter{$0.reference.kind==kind}
-                            if !rows.isEmpty {Section(L(kind.title)) {ForEach(rows){optionRow($0)}}}
+                            if !rows.isEmpty {Section(header:Text(L(kind.title))) {ForEach(rows){optionRow($0)}}}
                         }
-                        if metrics.isEmpty && common.isEmpty && hardware.isEmpty {Text(L("没有匹配的传感器")).foregroundStyle(.secondary)}
-                    }.listStyle(.inset).scrollIndicators(.hidden)
+                        if metrics.isEmpty && common.isEmpty && hardware.isEmpty {Text(L("没有匹配的传感器")).foregroundColor(.secondary)}
+                    }.listStyle(.inset).appHideScrollIndicators()
                 }.frame(width:390,height:440)
             }
     }
@@ -55,14 +55,14 @@ struct MenuSensorPicker:View {
     }
     private func choice(_ item:MenuComponentSource,title:String,detail:String?,value:String)->some View {
         HStack(spacing:8) {
-                Image(systemName:item.symbol).frame(width:16).foregroundStyle(.secondary)
+                Image(systemName:AppSymbols.resolve(item.symbol)).frame(width:16).foregroundColor(.secondary)
                 VStack(alignment:.leading,spacing:2) {
                     Text(title).lineLimit(2)
-                    if let detail {Text(detail).font(AppTypography.caption).foregroundStyle(.secondary).lineLimit(1)}
+                    if let detail {Text(detail).font(AppTypography.caption).foregroundColor(.secondary).lineLimit(1)}
                 }
                 Spacer(minLength:6)
-                Text(value).font(AppTypography.caption).monospacedDigit().foregroundStyle(.secondary)
-                Image(systemName:"checkmark").font(.system(size:10)).opacity(source==item ? 1:0).frame(width:10)
+                Text(value).font(AppTypography.caption).appMonospacedDigit().foregroundColor(.secondary)
+                Image(systemName:AppSymbols.resolve("checkmark")).font(.system(size:10)).opacity(source==item ? 1:0).frame(width:10)
         }.padding(.vertical,3).contentShape(Rectangle()).tag(item)
             .accessibilityElement(children:.combine)
             .accessibilityLabel(title+" · "+(detail.map{$0+" · "} ?? "")+value)

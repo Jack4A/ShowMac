@@ -26,7 +26,7 @@ public struct SystemTelemetry:Identifiable,Codable {
                 charging=d[kIOPSIsChargingKey] as? Bool
             }
         }
-        let battery=IOServiceGetMatchingService(kIOMainPortDefault,IOServiceMatching("AppleSmartBattery"))
+        let battery=IOServiceGetMatchingService(kIOMasterPortDefault,IOServiceMatching("AppleSmartBattery"))
         if battery != 0 {
             defer { IOObjectRelease(battery) }
             func number(_ key:String)->Double? { (IORegistryEntryCreateCFProperty(battery,key as CFString,kCFAllocatorDefault,0)?.takeRetainedValue() as? NSNumber)?.doubleValue }

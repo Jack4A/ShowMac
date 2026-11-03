@@ -17,6 +17,7 @@ OUT="$(cd "$OUT" && pwd)"
 APP="$OUT/staging/ThermalScope.app"
 THERMALSCOPE_ARCH="$ARCH" THERMALSCOPE_SIGN_IDENTITY=- THERMALSCOPE_APP_GROUP= bash "$ROOT/scripts/build.sh" "$APP"
 codesign --verify --deep --strict "$APP"
+python3 "$ROOT/scripts/macos_compatibility.py" "$APP" --arch "$ARCH"
 for executable in "$APP/Contents/MacOS/ThermalScope" "$APP/Contents/Helpers/ThermalScopeHelper" "$APP/Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget"; do
     test -x "$executable"
     lipo "$executable" -verify_arch "$ARCH"
@@ -32,11 +33,12 @@ from zoneinfo import ZoneInfo
 root,out,archive,commit,arch,suffix=Path(sys.argv[1]),Path(sys.argv[2]),Path(sys.argv[3]),sys.argv[4],sys.argv[5],sys.argv[6]
 source=plistlib.loads((root/'Resources/Info.plist').read_bytes())
 native=platform.machine()==arch
-checks=['deep_strict_signature','target_architecture_all_executables','executable_permissions','zip_extract_signature','static_english_localization','system_only_dynamic_dependencies']
+checks=['deep_strict_signature','target_architecture_all_executables','executable_permissions','zip_extract_signature','static_english_localization','system_only_dynamic_dependencies','minimum_macos_all_executables','weak_linked_new_frameworks','back_deployed_swift_runtime']
 with tempfile.TemporaryDirectory(prefix='thermalscope-release-verify-') as temporary:
     restored=Path(temporary)/'ThermalScope.app'
     subprocess.run(['ditto','-x','-k',str(archive),temporary],check=True)
     subprocess.run(['codesign','--verify','--deep','--strict',str(restored)],check=True)
+    subprocess.run([sys.executable,str(root/'scripts/macos_compatibility.py'),str(restored),'--arch',arch],check=True)
     installed=plistlib.loads((restored/'Contents/Info.plist').read_bytes())
     assert installed['CFBundleShortVersionString']==source['CFBundleShortVersionString']
     assert installed['CFBundleVersion']==source['CFBundleVersion']

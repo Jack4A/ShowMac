@@ -92,8 +92,9 @@ struct DiagnosticTests {
     func testBatteryOnlyPreparesPlan() {
         var engine=DiagnosticEngine()
         let battery=sample(0,battery:true)
-        let report=engine.evaluate(DiagnosticInput(snapshot:battery,processSeconds:60,processDate:battery.date,blockers:0,batteryPercent:20))
+        let report=engine.evaluate(DiagnosticInput(snapshot:battery,processSeconds:60,processDate:battery.date,blockers:0,batteryPercent:20,supportsLowPowerMode:true))
         expectEqual(report.findings.first{$0.kind == .batteryPolicy}?.action,.lowPowerPlan)
+        expectFalse(engine.evaluate(DiagnosticInput(snapshot:battery,processDate:battery.date,batteryPercent:20,supportsLowPowerMode:false)).findings.contains{$0.kind == .batteryPolicy})
         let ac=sample(5)
         expectFalse(engine.evaluate(DiagnosticInput(snapshot:ac,processDate:ac.date,batteryPercent:20)).findings.contains{$0.kind == .batteryPolicy})
         let already=sample(10,lowPower:true,battery:true)

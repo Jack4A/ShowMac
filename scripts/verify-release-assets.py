@@ -7,6 +7,7 @@ import plistlib
 import re
 import zipfile
 from pathlib import Path
+from macos_compatibility import MINIMUM_MACOS, verify_app, version_tuple
 
 
 def sha256(path):
@@ -47,7 +48,9 @@ def verify(folder, version, commit):
             raise ValueError(f"Release identity mismatch: {manifest}")
         if data.get("archive_sha256") != sha256(folder / archive):
             raise ValueError(f"Archive digest mismatch: {archive}")
-        required = {"deep_strict_signature", "target_architecture_all_executables", "executable_permissions", "zip_extract_signature", "static_english_localization", "system_only_dynamic_dependencies"}
+        if version_tuple(data.get("minimum_macos", "0")) != version_tuple(MINIMUM_MACOS):
+            raise ValueError(f"Manifest minimum macOS mismatch: {manifest}")
+        required = {"deep_strict_signature", "target_architecture_all_executables", "executable_permissions", "zip_extract_signature", "static_english_localization", "system_only_dynamic_dependencies", "minimum_macos_all_executables", "weak_linked_new_frameworks", "back_deployed_swift_runtime"}
         if not required.issubset(data.get("checks", [])):
             raise ValueError(f"Required package checks missing: {manifest}")
         builds.add(data.get("build"))
@@ -56,6 +59,7 @@ def verify(folder, version, commit):
                 metadata = plistlib.loads(zipped.read("ThermalScope.app/" + info))
                 if metadata.get("CFBundleShortVersionString") != version or metadata.get("CFBundleVersion") != data.get("build"):
                     raise ValueError(f"Bundle version mismatch: {archive}/{info}")
+            verify_app(lambda name: zipped.read("ThermalScope.app/" + name), arch)
     if len(builds) != 1 or not all(isinstance(build, str) and build.isdigit() for build in builds):
         raise ValueError("Architectures must share one numeric build number")
     if {p.name for p in folder.iterdir()} != expected:

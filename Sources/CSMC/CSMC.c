@@ -34,7 +34,7 @@ static int call(uint32_t connection, SMCMessage *in, SMCMessage *out) {
     return out->result ? (int)out->result : 0;
 }
 uint32_t ts_smc_open(void) {
-    io_service_t service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSMC"));
+    io_service_t service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("AppleSMC"));
     if (!service) return 0;
     io_connect_t connection = 0;
     kern_return_t result = IOServiceOpen(service, mach_task_self(), 0, &connection);

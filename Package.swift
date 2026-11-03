@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "ThermalScope",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v11)],
     products: [
         .library(name:"WidgetShared",type:.static,targets:["WidgetShared"]),
         .library(name:"WidgetUI",type:.static,targets:["WidgetUI"]),

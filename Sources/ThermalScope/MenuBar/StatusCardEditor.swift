@@ -52,11 +52,11 @@ struct StatusCardEditor:View {
         }.padding(.vertical,6)
     }
     private var count:some View {
-        Text("\(model.statusPanel.cards.count)/\(StatusPanelConfiguration.limit)").font(.system(size:11)).foregroundStyle(.secondary)
+        Text("\(model.statusPanel.cards.count)/\(StatusPanelConfiguration.limit)").font(.system(size:11)).foregroundColor(.secondary)
     }
     private var addButton:some View {
-        Button {search="";choosing=true} label:{Label(L("添加卡片"),systemImage:"plus")}
-            .disabled(model.statusPanel.cards.count>=StatusPanelConfiguration.limit).controlSize(.small)
+        Button {search="";choosing=true} label:{Label(L("添加卡片"),systemImage:AppSymbols.resolve("plus"))}
+            .disabled(model.statusPanel.cards.count>=StatusPanelConfiguration.limit).appControlSize(.small)
     }
     @ViewBuilder private var visibilityControls:some View {
         Toggle(L("显示风扇控制"),isOn:$model.statusPanel.showFanControls)
@@ -66,24 +66,24 @@ struct StatusCardEditor:View {
         VStack(spacing:0) {
             ForEach(Array(model.statusPanel.cards.enumerated()),id:\.element.id) {index,source in
                 HStack(spacing:8) {
-                    Image(systemName:source.symbol).frame(width:16).foregroundStyle(Palette.violet)
+                    Image(systemName:AppSymbols.resolve(source.symbol)).frame(width:16).foregroundColor(Palette.violet)
                     Text(source.title(model)).lineLimit(1).help(source.title(model))
                     Spacer(minLength:2)
-                    Button {model.moveStatusCard(source,by:-1)} label:{Image(systemName:"chevron.up")}
+                    Button {model.moveStatusCard(source,by:-1)} label:{Image(systemName:AppSymbols.resolve("chevron.up"))}
                         .disabled(index==0).help(L("上移")).accessibilityLabel(L("上移")+" · "+source.title(model))
-                    Button {model.moveStatusCard(source,by:1)} label:{Image(systemName:"chevron.down")}
+                    Button {model.moveStatusCard(source,by:1)} label:{Image(systemName:AppSymbols.resolve("chevron.down"))}
                         .disabled(index==model.statusPanel.cards.count-1).help(L("下移")).accessibilityLabel(L("下移")+" · "+source.title(model))
-                    Button {model.removeStatusCard(source)} label:{Image(systemName:"minus.circle")}
+                    Button {model.removeStatusCard(source)} label:{Image(systemName:AppSymbols.resolve("minus.circle"))}
                         .disabled(model.statusPanel.cards.count<=1).help(L("移除")).accessibilityLabel(L("移除")+" · "+source.title(model))
-                }.font(.system(size:12)).buttonStyle(.borderless).controlSize(.small).padding(.vertical,10)
+                }.font(.system(size:12)).buttonStyle(.borderless).appControlSize(.small).padding(.vertical,10)
                 if index<model.statusPanel.cards.count-1 {Divider().opacity(0.5)}
             }
-        }.padding(.horizontal,10).background(Palette.surface,in:RoundedRectangle(cornerRadius:12,style:.continuous))
+        }.padding(.horizontal,10).appBackground(Palette.surface,in:RoundedRectangle(cornerRadius:12,style:.continuous))
     }
     private var sourcePicker:some View {
         VStack(spacing:10) {
             HStack {
-                Button {choosing=false} label:{Label(L("返回"),systemImage:"chevron.left")}.controlSize(.small)
+                Button {choosing=false} label:{Label(L("返回"),systemImage:AppSymbols.resolve("chevron.left"))}.appControlSize(.small)
                 Spacer()
                 Text(L("添加卡片")).font(.system(size:12,weight:.medium))
             }
@@ -95,7 +95,7 @@ struct StatusCardEditor:View {
                 let common=model.menuCommonSensorOptions.filter{matches($0) && $0.reference.isCommon && $0.reference.key=="memory"}
                 let hardware=model.menuHardwareSensorOptions.filter(matches)
                 if !metrics.isEmpty || !common.isEmpty {
-                    Section(L("常用读数")) {
+                    Section(header:Text(L("常用读数"))) {
                         ForEach(metrics) {kind in choice(.metric(kind),title:L(kind.title),detail:nil,value:StatusCardSource.metric(kind).value(model.readings))}
                         ForEach(common) {option in choice(.sensor(option.reference),title:option.title,detail:option.detail,value:option.value)}
                     }
@@ -103,11 +103,11 @@ struct StatusCardEditor:View {
                 ForEach(HardwareSensorKind.allCases) {kind in
                     let options=hardware.filter{$0.reference.kind==kind}
                     if !options.isEmpty {
-                        Section(L(kind.title)) {ForEach(options) {option in choice(.sensor(option.reference),title:option.title,detail:option.detail,value:option.value)}}
+                        Section(header:Text(L(kind.title))) {ForEach(options) {option in choice(.sensor(option.reference),title:option.title,detail:option.detail,value:option.value)}}
                     }
                 }
-                if metrics.isEmpty && common.isEmpty && hardware.isEmpty {Text(L("没有匹配的传感器")).foregroundStyle(.secondary)}
-            }.listStyle(.inset).scrollIndicators(.hidden)
+                if metrics.isEmpty && common.isEmpty && hardware.isEmpty {Text(L("没有匹配的传感器")).foregroundColor(.secondary)}
+            }.listStyle(.inset).appHideScrollIndicators()
         }
     }
     private func matches(_ option:MenuSensorOption)->Bool {
@@ -116,16 +116,16 @@ struct StatusCardEditor:View {
     private func choice(_ source:StatusCardSource,title:String,detail:String?,value:Double?)->some View {
         let selected=model.statusPanel.cards.contains(source)
         return HStack(spacing:7) {
-                Image(systemName:source.symbol).frame(width:16).foregroundStyle(Palette.violet)
+                Image(systemName:AppSymbols.resolve(source.symbol)).frame(width:16).foregroundColor(Palette.violet)
                 VStack(alignment:.leading,spacing:2) {
                     Text(title).lineLimit(2)
-                    if let detail {Text(detail).font(.system(size:10)).foregroundStyle(.secondary).lineLimit(1)}
+                    if let detail {Text(detail).font(.system(size:10)).foregroundColor(.secondary).lineLimit(1)}
                 }
                 Spacer(minLength:2)
-                Text(source.valueText(value)+" "+source.unit).font(.system(size:11)).monospacedDigit().foregroundStyle(.secondary)
-                if selected {Image(systemName:"checkmark").font(.system(size:10))}
+                Text(source.valueText(value)+" "+source.unit).font(.system(size:11)).appMonospacedDigit().foregroundColor(.secondary)
+                if selected {Image(systemName:AppSymbols.resolve("checkmark")).font(.system(size:10))}
             }.font(.system(size:12)).padding(.vertical,4).contentShape(Rectangle()).tag(source)
-            .foregroundStyle(selected ? Color.secondary:Color.primary)
+            .foregroundColor(selected ? Color.secondary:Color.primary)
             .accessibilityLabel(title+(detail.map{" · "+$0} ?? "")+(selected ? " · "+L("已添加"):""))
     }
 }

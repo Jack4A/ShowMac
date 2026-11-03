@@ -41,13 +41,13 @@ struct PerformanceDiagnosisPage:View {
     private var summary:some View {
         VStack(alignment:.leading,spacing:12) {
             HStack(alignment:.top,spacing:10) {
-                Image(systemName:report.state.symbol).font(.title2).foregroundStyle(attention.contains{$0.severity == .critical} ? Color.red:report.state.tone)
+                Image(systemName:AppSymbols.resolve(report.state.symbol)).font(.title2).foregroundColor(attention.contains{$0.severity == .critical} ? Color.red:report.state.tone)
                 VStack(alignment:.leading,spacing:6) {
                     Text(L(report.state.title)).font(.headline)
-                    Text(L(report.state.detail)).font(AppTypography.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+                    Text(L(report.state.detail)).font(AppTypography.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                 }
                 Spacer(minLength:0)
-                if model.isFanControlPreview,DiagnosticPreview.isEnabled {Text(L("模拟")).font(AppTypography.caption).foregroundStyle(.orange)}
+                if model.isFanControlPreview,DiagnosticPreview.isEnabled {Text(L("模拟")).font(AppTypography.caption).foregroundColor(.orange)}
             }
             if report.state == .sampling {
                 ProgressView(value:min(45,max(0,report.observedSeconds)),total:45).progressViewStyle(.linear)
@@ -55,8 +55,8 @@ struct PerformanceDiagnosisPage:View {
             HStack {
                 Text(String(format:L("已观察 %.0f 秒"),report.observedSeconds))
                 Spacer()
-                if let date=report.date {Text(L("更新于"));Text(date,format:.dateTime.hour().minute().second()).monospacedDigit()}
-            }.font(AppTypography.caption).foregroundStyle(.secondary)
+                if let date=report.date {Text(L("更新于"));Text(date,style:.time).appMonospacedDigit()}
+            }.font(AppTypography.caption).foregroundColor(.secondary)
             ForEach(attention) {finding in
                 Divider()
                 DiagnosticFindingRow(finding:finding,onAction:model.follow)
@@ -66,15 +66,15 @@ struct PerformanceDiagnosisPage:View {
     private var currentReadings:some View {
         VStack(alignment:.leading,spacing:14) {
             Text(L("当前读数")).font(AppTypography.section)
-            Grid(alignment:.leading,horizontalSpacing:18,verticalSpacing:10) {
+            VStack(alignment:.leading,spacing:10) {
                 reading("CPU 使用率",value:valueText(metrics?.cpuUsage,unit:"%"),actionTitle:"查看进程") {showProcesses()}
-                Divider().gridCellColumns(3)
+                Divider()
                 reading(metrics?.gpuTemperature==nil ? "CPU 温度":"CPU / GPU 温度",value:temperatureText,actionTitle:"查看温度曲线") {model.follow(.temperatureTimeline)}
-                Divider().gridCellColumns(3)
+                Divider()
                 reading("内存压力",value:L(metrics?.memoryPressure?.title ?? "未知"),actionTitle:"查看内存排行") {model.follow(.memoryProcesses)}
-                Divider().gridCellColumns(3)
+                Divider()
                 reading("热压力",value:L(metrics?.thermalTitle ?? "未知"))
-                Divider().gridCellColumns(3)
+                Divider()
                 reading("系统性能限制",value:L(metrics?.performanceLimited.map{$0 ? "系统正在限制性能":"未检测到系统限速"} ?? "暂不可用"))
             }.frame(maxWidth:.infinity,alignment:.leading).padding(.vertical,4)
         }.subtlePanel()
@@ -89,8 +89,8 @@ struct PerformanceDiagnosisPage:View {
             VStack(alignment:.leading,spacing:16) {
                 if !missing.isEmpty {
                     Text(L("暂不可用：")+missing.joined(separator:AppLocalization.shared.resolvedLanguage.hasPrefix("zh") ? "、":", "))
-                        .font(AppTypography.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
-                    Text(L("缺失读数不代表正常；结论仅覆盖当前可用信息。")).font(AppTypography.caption).foregroundStyle(.secondary)
+                        .font(AppTypography.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+                    Text(L("缺失读数不代表正常；结论仅覆盖当前可用信息。")).font(AppTypography.caption).foregroundColor(.secondary)
                 }
                 VStack(alignment:.leading,spacing:10) {
                     Text(L("负载来源")).font(.headline)
@@ -101,10 +101,10 @@ struct PerformanceDiagnosisPage:View {
                         sourceRow("磁盘读写最多",source:source,value:String(format:L("平均 %@"),diskRateText(source.averageDiskRate)),seconds:source.diskSeconds)
                     }
                     if metrics?.cpuSource==nil && metrics?.diskSource==nil {
-                        Text(L("还没有足够的应用采样。")).font(AppTypography.caption).foregroundStyle(.secondary)
+                        Text(L("还没有足够的应用采样。")).font(AppTypography.caption).foregroundColor(.secondary)
                     }
                     Text(L("应用 CPU 按单核 100% 计，不代表实际耗电量；编译、渲染和传输也可能是正常任务。"))
-                        .font(AppTypography.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+                        .font(AppTypography.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
                 }
                 if !observations.isEmpty {
                     Divider()
@@ -114,7 +114,7 @@ struct PerformanceDiagnosisPage:View {
                 Divider()
                 DisclosureGroup(L("判定规则"),isExpanded:$showRules) {
                     Text(L("CPU：观察至少 45 秒，应用平均占用一个核心且当前仍活跃时提示。温度：CPU ≥90°C 或 GPU ≥85°C 持续 30 秒时提示；系统热压力与限速单独判断。内存依据系统压力，磁盘持续传输仅作信息。缺失或过期数据保持未知。"))
-                        .font(AppTypography.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true).padding(.top,6)
+                        .font(AppTypography.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true).padding(.top,6)
                 }
             }.padding(.top,12)
         }.subtlePanel()
@@ -122,20 +122,20 @@ struct PerformanceDiagnosisPage:View {
     @ViewBuilder private var adjustments:some View {
         if ControlAvailability.isAppleSilicon && optimizer.backup==nil {
             VStack(alignment:.leading,spacing:8) {
-                Text(L("节能选项在系统设置中调整。")).font(AppTypography.caption).foregroundStyle(.secondary)
+                Text(L("节能选项在系统设置中调整。")).font(AppTypography.caption).foregroundColor(.secondary)
                 HStack {
                     Button(L("温度控制")){navigation.metric=nil;navigation.page = .thermal}
-                    Button(L("打开系统设置…")){NSWorkspace.shared.open(URL(fileURLWithPath:"/System/Applications/System Settings.app"))}
+                    Button(L("打开系统设置…")){if let url=NSWorkspace.shared.urlForApplication(withBundleIdentifier:"com.apple.systempreferences") {NSWorkspace.shared.open(url)}}
                 }
-            }.buttonStyle(.bordered)
+            }.buttonStyle(AppNativeButtonStyle())
         } else {
             OptimizationWorkbench(optimizer:optimizer,navigation:navigation,globalBusy:model.busy)
         }
     }
     private func reading(_ title:String,value:String,actionTitle:String?=nil,action:(()->Void)?=nil)->some View {
-        GridRow {
+        HStack(spacing:18) {
             Text(L(title)).frame(maxWidth:.infinity,alignment:.leading)
-            Text(value).monospacedDigit().textSelection(.enabled)
+            Text(value).appMonospacedDigit().appTextSelection()
             if let actionTitle,let action {Button(L(actionTitle),action:action).buttonStyle(.borderless)}
             else {Color.clear.frame(width:0,height:0).accessibilityHidden(true)}
         }
@@ -143,11 +143,11 @@ struct PerformanceDiagnosisPage:View {
     private func sourceRow(_ title:String,source:DiagnosticSource,value:String,seconds:Double)->some View {
         HStack(alignment:.top) {
             VStack(alignment:.leading,spacing:4) {
-                Text(L(title)+" · "+source.name).font(AppTypography.body).textSelection(.enabled)
-                Text(value+" · "+String(format:L("近 %.0f 秒"),min(60,seconds))).font(AppTypography.caption).foregroundStyle(.secondary).monospacedDigit()
+                Text(L(title)+" · "+source.name).font(AppTypography.body).appTextSelection()
+                Text(value+" · "+String(format:L("近 %.0f 秒"),min(60,seconds))).font(AppTypography.caption).foregroundColor(.secondary).appMonospacedDigit()
             }
             Spacer(minLength:12)
-            Button(L("查看相关应用")){model.follow(.reviewApplication(source.id))}.buttonStyle(.bordered)
+            Button(L("查看相关应用")){model.follow(.reviewApplication(source.id))}.buttonStyle(AppNativeButtonStyle())
         }
     }
     private func showProcesses(){model.processes.sort = .cpu;navigation.go(.processes)}
@@ -163,16 +163,16 @@ private struct DiagnosticFindingRow:View {
             HStack(alignment:.top,spacing:16) {
                 VStack(alignment:.leading,spacing:5) {
                     Text(L(finding.title)).font(.headline)
-                    if let subject=finding.subject {Text(subject).font(AppTypography.body).textSelection(.enabled)}
+                    if let subject=finding.subject {Text(subject).font(AppTypography.body).appTextSelection()}
                 }
                 Spacer(minLength:0)
-                Button(L(finding.actionTitle)){onAction(finding.action)}.buttonStyle(.bordered)
+                Button(L(finding.actionTitle)){onAction(finding.action)}.buttonStyle(AppNativeButtonStyle())
             }
             HStack(alignment:.firstTextBaseline,spacing:8) {
-                Text(L(confidence)).foregroundStyle(finding.severity == .information ? Color.secondary:(finding.severity == .critical ? .red:.orange))
-                if let evidence=finding.evidence {Text(evidence).foregroundStyle(.secondary).monospacedDigit()}
+                Text(L(confidence)).foregroundColor(finding.severity == .information ? Color.secondary:(finding.severity == .critical ? .red:.orange))
+                if let evidence=finding.evidence {Text(evidence).foregroundColor(.secondary).appMonospacedDigit()}
             }.font(AppTypography.caption)
-            Text(L(finding.explanation)).font(AppTypography.caption).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+            Text(L(finding.explanation)).font(AppTypography.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
         }
     }
 }

@@ -115,16 +115,16 @@ struct StatusCardSurface:ViewModifier {
     @Environment(\.colorSchemeContrast) private var contrast
     var hovered=false
     func body(content:Content)->some View {
-        content.background {
+        content.appBackground {
             RoundedRectangle(cornerRadius:12,style:.continuous).fill(Palette.surface)
-                .overlay {
+                .appOverlay {
                     if scheme == .dark {
                         RoundedRectangle(cornerRadius:12,style:.continuous)
-                            .fill(LinearGradient(colors:[Palette.highlight.opacity(0.07),.clear],startPoint:.topLeading,endPoint:.bottomTrailing))
+                            .fill(LinearGradient(gradient:Gradient(colors:[Palette.highlight.opacity(0.07),.clear]),startPoint:.topLeading,endPoint:.bottomTrailing))
                     }
                 }
                 .shadow(color:.black.opacity(contrast == .increased ? 0:(scheme == .dark ? 0.10:0.018)),radius:5,x:0,y:2)
-        }.overlay {
+        }.appOverlay {
             RoundedRectangle(cornerRadius:12,style:.continuous)
                 .stroke(border,lineWidth:contrast == .increased ? CGFloat(1):CGFloat(0.6)).allowsHitTesting(false)
         }
@@ -186,19 +186,26 @@ struct StatusMetricCard:View {
     }
     private var reading:some View {
         HStack(alignment:.firstTextBaseline,spacing:5) {
-            Image(systemName:source.symbol).font(.system(size:11,weight:.medium)).foregroundStyle(Palette.violet.opacity(0.85)).frame(width:12)
-            Text(source.title(model)).font(.system(size:11,weight:.medium)).foregroundStyle(Palette.secondaryText).lineLimit(1).minimumScaleFactor(0.9)
+            Image(systemName:AppSymbols.resolve(source.symbol)).font(.system(size:11,weight:.medium)).foregroundColor(Palette.violet.opacity(0.85)).frame(width:12)
+            Text(source.title(model)).font(.system(size:11,weight:.medium)).foregroundColor(Palette.secondaryText).lineLimit(1).minimumScaleFactor(0.9)
             Spacer(minLength:2)
             MetricValue(value:source.valueText(source.value(readings)),unit:source.unit,size:21,unitSize:10,foreground:level > .normal ? level.plotColor():.primary)
                 .fixedSize(horizontal:true,vertical:false)
         }
     }
-    private var graph:some View {
+    @ViewBuilder private var graph:some View {
+        if #available(macOS 13,*),!PlatformUI.classic {modernGraph}
+        else {
+            CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs,filled:true),xRange:end.addingTimeInterval(-Double(model.statusMinutes*60)).timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale)
+                .allowsHitTesting(false).accessibilityHidden(true)
+        }
+    }
+    @available(macOS 13,*) private var modernGraph:some View {
         let endpoint=full.last(where:{$0.value != nil})?.id
         return Chart {
             ForEach(runs) {run in ForEach(run.points) {point in
                 AreaMark(x:.value(L("时间"),point.date),yStart:.value("",0),yEnd:.value("",point.value!),series:.value("", "\(run.id):\(point.segment)"))
-                    .foregroundStyle(LinearGradient(colors:[run.level.plotColor().opacity(0.10),.clear],startPoint:.top,endPoint:.bottom))
+                    .foregroundStyle(LinearGradient(gradient:Gradient(colors:[run.level.plotColor().opacity(0.10),.clear]),startPoint:.top,endPoint:.bottom))
                 LineMark(x:.value(L("时间"),point.date),y:.value("",point.value!),series:.value("", "\(run.id):\(point.segment)"))
                     .foregroundStyle(run.level.plotColor()).lineStyle(StrokeStyle(lineWidth:1.7,lineCap:.round,lineJoin:.round))
                 if run.points.count==1 || point.id==endpoint {
@@ -207,7 +214,7 @@ struct StatusMetricCard:View {
             }}
         }.chartXScale(domain:end.addingTimeInterval(-Double(model.statusMinutes*60))...end).chartYScale(domain:scale)
             .chartXAxis(.hidden).chartYAxis(.hidden).chartLegend(.hidden)
-            .overlay(alignment:.leading) {if !full.contains(where:{$0.value != nil}) {Text(L(source.value(readings)==nil ? "暂无读数":"正在积累趋势…")).font(.system(size:10)).foregroundStyle(.tertiary)}}
+            .appOverlay(alignment:.leading) {if !full.contains(where:{$0.value != nil}) {Text(L(source.value(readings)==nil ? "暂无读数":"正在积累趋势…")).font(.system(size:10)).foregroundStyle(.tertiary)}}
             .allowsHitTesting(false).accessibilityHidden(true)
     }
 }

@@ -102,11 +102,11 @@ enum MenuBarAppearanceRenderer {
         func measured(_ s:String,_ font:NSFont)->CGFloat {(s as NSString).size(withAttributes:[.font:font]).width.rounded(.up)}
         let textWidths=tiles.map {measured($0.value,large)}
         let icons=tiles.map {tile -> NSImage? in
-            let fallback=NSImage(systemSymbolName:tile.sensor?.symbol ?? tile.metric.symbol,accessibilityDescription:nil)
+            let fallback=NSImage(systemSymbolName:AppSymbols.resolve(tile.sensor?.symbol ?? tile.metric.symbol),accessibilityDescription:nil)
             switch tile.icon {
             case .automatic:return [.icon,.iconValue,.history,.bars].contains(tile.style) ? fallback:nil
             case .hidden:return tile.style == .icon ? fallback:nil
-            case .symbol(let name):return NSImage(systemSymbolName:name,accessibilityDescription:nil) ?? fallback
+            case .symbol(let name):return NSImage(systemSymbolName:AppSymbols.resolve(name),accessibilityDescription:nil) ?? fallback
             case .image(let image):return image
             }
         }

@@ -77,8 +77,10 @@ public struct DiagnosticInput {
     public let processDate:Date?
     public let blockers:Int?
     public let batteryPercent:Double?
-    public init(snapshot:Snapshot,sources:[DiagnosticSource]=[],processSeconds:Double=0,processDate:Date?=nil,blockers:Int?=nil,batteryPercent:Double?=nil) {
+    public let supportsLowPowerMode:Bool
+    public init(snapshot:Snapshot,sources:[DiagnosticSource]=[],processSeconds:Double=0,processDate:Date?=nil,blockers:Int?=nil,batteryPercent:Double?=nil,supportsLowPowerMode:Bool=SystemCapabilities.lowPowerMode) {
         self.snapshot=snapshot;self.sources=sources;self.processSeconds=processSeconds;self.processDate=processDate;self.blockers=blockers;self.batteryPercent=batteryPercent
+        self.supportsLowPowerMode=supportsLowPowerMode
     }
 }
 /// Rules only produce evidence and review actions. They never execute controls.
@@ -124,7 +126,7 @@ public struct DiagnosticEngine {
         if processFresh,let source=input.sources.filter({$0.diskSeconds>=30 && ($0.averageDiskRate?.isFinite ?? false) && ($0.currentDiskRate?.isFinite ?? false) && ($0.averageDiskRate ?? 0)>=20*1024*1024 && ($0.currentDiskRate ?? 0)>=5*1024*1024}).max(by:{($0.averageDiskRate ?? 0)<($1.averageDiskRate ?? 0)}) {
             items.append(DiagnosticFinding(id:"disk:"+source.id,kind:.diskActivity,severity:.information,confidence:.confirmed,subject:source.name,value:source.averageDiskRate,seconds:min(60,source.diskSeconds),action:.reviewApplication(source.id)))
         }
-        if sample.acPower==false,!sample.lowPower,let battery=input.batteryPercent,battery.isFinite,battery>=0,battery<=30 {
+        if input.supportsLowPowerMode,sample.acPower==false,!sample.lowPower,let battery=input.batteryPercent,battery.isFinite,battery>=0,battery<=30 {
             items.append(DiagnosticFinding(id:"battery-policy",kind:.batteryPolicy,severity:.information,confidence:.confirmed,value:battery,action:.lowPowerPlan))
         }
         if let count=input.blockers,count>0 {

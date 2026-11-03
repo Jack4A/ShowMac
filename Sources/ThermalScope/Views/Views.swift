@@ -10,11 +10,11 @@ struct ChartOptions:View {
     let onPause:()->Void
     var body:some View {
         HStack(spacing:10) {
-            Button(action:onPause) {Label(L(paused ? "继续实时":"暂停图表"),systemImage:paused ? "play.fill":"pause.fill")}.buttonStyle(.bordered).controlSize(.small)
+            Button(action:onPause) {Label(L(paused ? "继续实时":"暂停图表"),systemImage:AppSymbols.resolve(paused ? "play.fill":"pause.fill"))}.buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
             Picker(L("纵轴刻度"),selection:$automatic) {Text(L("固定刻度")).tag(false);Text(L("自动刻度")).tag(true)}.pickerStyle(.segmented).labelsHidden().fixedSize()
             Picker(L("图形样式"),selection:$filled) {Text(L("线条")).tag(false);Text(L("面积")).tag(true)}.pickerStyle(.segmented).labelsHidden().fixedSize()
             Spacer(minLength:0)
-        }.font(.system(size:12)).controlSize(.small)
+        }.font(.system(size:12)).appControlSize(.small)
     }
 }
 struct ChartReadout:View {
@@ -29,12 +29,12 @@ struct ChartReadout:View {
     var body:some View {
         HStack(spacing:10) {
             if let date {
-                Text(value).font(AppTypography.number(16,weight:.semibold)).monospacedDigit()
-                Text(date,format:.dateTime.hour().minute().second()).font(.system(size:12)).monospacedDigit().foregroundStyle(Palette.secondaryText)
-                if let mode {Text(L(mode)).font(.system(size:12)).lineLimit(1).foregroundStyle(color).help(L(mode))}
-            } else {Image(systemName:"cursorarrow.rays").foregroundStyle(accent);Text(L(supportsClickInspection ? "悬停或点击查看读数":"悬停查看真实采样")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}
+                Text(value).font(AppTypography.number(16,weight:.semibold)).appMonospacedDigit()
+                Text(date,style:.time).font(.system(size:12)).appMonospacedDigit().foregroundColor(Palette.secondaryText)
+                if let mode {Text(L(mode)).font(.system(size:12)).lineLimit(1).foregroundColor(color).help(L(mode))}
+            } else {Image(systemName:AppSymbols.resolve("cursorarrow.rays")).foregroundColor(accent);Text(L(supportsClickInspection ? "悬停或点击查看读数":"悬停查看真实采样")).font(.system(size:12)).foregroundColor(Palette.secondaryText)}
             Spacer(minLength:0)
-            Label(L(paused ? "已暂停图表":"实时"),systemImage:paused ? "pause.circle":"waveform.path").font(.system(size:12)).foregroundStyle(accent)
+            Label(L(paused ? "已暂停图表":"实时"),systemImage:AppSymbols.resolve(paused ? "pause.circle":"waveform.path")).font(.system(size:12)).foregroundColor(accent)
         }.frame(minHeight:24).accessibilityElement(children:.combine)
     }
 }
@@ -75,9 +75,9 @@ struct TemperaturePanel:View,Equatable {
         VStack(alignment:.leading,spacing:12) {
             HStack {
                 Text(L("温度趋势")).font(.system(size:14,weight:.semibold));Spacer()
-                if timeline.isPreview {Text(L("模拟")).font(AppTypography.caption).foregroundStyle(.orange)}
+                if timeline.isPreview {Text(L("模拟")).font(AppTypography.caption).foregroundColor(.orange)}
                 if allowsSensorSelection {Picker(L("温度来源"),selection:$timeline.sensor) {Text("CPU").tag(SensorCategory.cpu);Text("GPU").tag(SensorCategory.gpu);Text(L("硬盘 / 存储")).tag(SensorCategory.storage);Text(L("电池")).tag(SensorCategory.battery)}.labelsHidden().frame(width:135)}
-                Text("°C").font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+                Text("°C").font(.system(size:12)).foregroundColor(Palette.secondaryText)
                 Picker(L("时间范围"),selection:$timeline.minutes) {Text(L("5 分钟")).tag(5);Text(L("10 分钟")).tag(10);Text(L("30 分钟")).tag(30)}.labelsHidden().frame(width:90)
             }
             if points.isEmpty {
@@ -87,7 +87,7 @@ struct TemperaturePanel:View,Equatable {
             else if !neutralPanels {options}
             if modes.count>1 || (!neutralPanels && !modes.isEmpty) {
                 LazyVGrid(columns:[GridItem(.adaptive(minimum:180),alignment:.leading)],alignment:.leading,spacing:8) {
-                    ForEach(modes,id:\.self) {mode in HStack(spacing:6) {Circle().fill(color(mode)).frame(width:6,height:6);Text(L(mode)).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}}
+                    ForEach(modes,id:\.self) {mode in HStack(spacing:6) {Circle().fill(color(mode)).frame(width:6,height:6);Text(L(mode)).font(.system(size:12)).foregroundColor(Palette.secondaryText)}}
                 }
             }
             temperatureChart
@@ -107,7 +107,7 @@ struct TemperaturePanel:View,Equatable {
                 }
             }
             if expanded || !transitions.isEmpty {
-                Text(L(ControlAvailability.isAppleSilicon ? "竖线：检测到运行模式切换。":"虚线：睿频关闭；竖线：检测到切换。")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+                Text(L(ControlAvailability.isAppleSilicon ? "竖线：检测到运行模式切换。":"虚线：睿频关闭；竖线：检测到切换。")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
             }
             if neutralPanels && !expanded {options}
             }
@@ -118,11 +118,26 @@ struct TemperaturePanel:View,Equatable {
             ChartOptions(automatic:$automatic,filled:$filled,paused:frozen != nil,onPause:togglePause).padding(.top,8)
         }.font(.system(size:12))
     }
-    var temperatureChart:some View {
+    @ViewBuilder var temperatureChart:some View {
+        if #available(macOS 13,*),!PlatformUI.classic {modernTemperatureChart}
+        else {
+            let grouped=Dictionary(grouping:points,by:\.segment)
+            let base=grouped.keys.sorted().map {segment in
+                let values=grouped[segment]!
+                return CompatibilityPlot.Series(id:"mode:\(segment)",points:values.map{.init(x:$0.date.timeIntervalSince1970,y:$0.temperature,segment:$0.segment)},color:color(values[0].mode),filled:filled,dash:values[0].turboDisabled == true ? [5,3]:[])
+            }
+            let warnings=CompatibilityPlot.metricSeries(warningRuns)
+            CompatibilityPlot(series:base+warnings,xRange:start.timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale,rules:transitions.map{.init(id:String(describing:$0.id),x:$0.date.timeIntervalSince1970,color:color($0.mode))},axes:true,xLabel:CompatibilityPlot.timeLabel,onInspect:{value in
+                guard let value,let nearest=full.min(by:{abs($0.date.timeIntervalSince1970-value)<abs($1.date.timeIntervalSince1970-value)}),abs(nearest.date.timeIntervalSince1970-value)<=15 else {hovered=nil;return}
+                hovered=nearest
+            }).frame(height:expanded ? 250:160).padding(.top,8).accessibilityLabel(L("按运行模式分色的温度时间线"))
+        }
+    }
+    @available(macOS 13,*) private var modernTemperatureChart:some View {
         let counts=Dictionary(grouping:points,by:\.segment).mapValues(\.count)
         return Chart {
             ForEach(points) {p in
-                if filled {AreaMark(x:.value(L("时间"),p.date),yStart:.value(L("温度"),scale.lowerBound),yEnd:.value(L("温度"),p.temperature),series:.value(L("连续记录"),p.series)).foregroundStyle(LinearGradient(colors:[color(p.mode).opacity(0.22),color(p.mode).opacity(0.015)],startPoint:.top,endPoint:.bottom))}
+                if filled {AreaMark(x:.value(L("时间"),p.date),yStart:.value(L("温度"),scale.lowerBound),yEnd:.value(L("温度"),p.temperature),series:.value(L("连续记录"),p.series)).foregroundStyle(LinearGradient(gradient:Gradient(colors:[color(p.mode).opacity(0.22),color(p.mode).opacity(0.015)]),startPoint:.top,endPoint:.bottom))}
                 LineMark(x:.value(L("时间"),p.date),y:.value(L("温度"),p.temperature),series:.value(L("连续记录"),p.series)).foregroundStyle(by:.value(L("模式"),L(p.mode))).lineStyle(StrokeStyle(lineWidth:2.1,lineCap:.round,dash:p.turboDisabled == true ? [5,3]:[]))
                 if points.count<3 || counts[p.segment]==1 {PointMark(x:.value(L("时间"),p.date),y:.value(L("温度"),p.temperature)).foregroundStyle(color(p.mode)).symbolSize(18)}
             }
@@ -151,10 +166,10 @@ struct TemperaturePanel:View,Equatable {
                 }
                 .gesture(DragGesture(minimumDistance:0).onChanged {value in inspect(value.location,proxy:proxy,geometry:geometry)})
             }}.frame(height:expanded ? 250:160).padding(.top,8)
-            .overlay {if points.isEmpty {Text(L("当前来源暂无温度读数")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}}
+            .appOverlay {if points.isEmpty {Text(L("当前来源暂无温度读数")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}}
             .accessibilityLabel(L("按运行模式分色的温度时间线"))
     }
-    func inspect(_ location:CGPoint,proxy:ChartProxy,geometry:GeometryProxy) {
+    @available(macOS 13,*) func inspect(_ location:CGPoint,proxy:ChartProxy,geometry:GeometryProxy) {
         let plot=geometry[proxy.plotAreaFrame],x=location.x-plot.minX
         guard plot.contains(location),let date:Date=proxy.value(atX:x),let nearest=full.min(by:{abs($0.date.timeIntervalSince(date))<abs($1.date.timeIntervalSince(date))}),abs(nearest.date.timeIntervalSince(date))<=15 else {hovered=nil;return}
         if hovered?.id != nearest.id {hovered=nearest}
@@ -163,9 +178,9 @@ struct TemperaturePanel:View,Equatable {
     func resume() {frozen=nil;frozenEnd=nil;hovered=nil}
     func summary(_ title:String,_ value:Double?,_ unit:String)->some View {
         VStack(alignment:.leading,spacing:6) {
-            Text(title).font(.system(size:12)).foregroundStyle(.secondary)
+            Text(title).font(.system(size:12)).foregroundColor(.secondary)
             if neutralPanels {MetricValue(value:value.map{String(format:"%.1f",$0)} ?? "—",unit:unit,size:21,unitSize:11)}
-            else {Text(value.map{String(format:"%.1f",$0)+unit} ?? "—").font(AppTypography.number(21,weight:.medium)).monospacedDigit()}
+            else {Text(value.map{String(format:"%.1f",$0)+unit} ?? "—").font(AppTypography.number(21,weight:.medium)).appMonospacedDigit()}
         }
     }
 }
@@ -209,9 +224,9 @@ extension View {
 struct SensorUnavailableNotice:View {
     var body:some View {
         VStack(alignment:.leading,spacing:12) {
-            Label(L("未发现可读传感器"),systemImage:"sensor").font(AppTypography.section)
+            Label(L("未发现可读传感器"),systemImage:AppSymbols.resolve("sensor")).font(AppTypography.section)
             Text(L("此设备可能未提供该传感器，或当前读取失败。可刷新重试；缺失读数不会当作零。"))
-                .font(.system(size:13)).foregroundStyle(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+                .font(.system(size:13)).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
         }.frame(maxWidth:.infinity,minHeight:100,alignment:.leading).padding(.vertical,12)
     }
 }

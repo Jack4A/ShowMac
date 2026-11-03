@@ -43,11 +43,11 @@ struct NeutralPanelSurface:ViewModifier {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.colorSchemeContrast) private var contrast
     func body(content:Content)->some View {
-        content.background {
+        content.appBackground {
             RoundedRectangle(cornerRadius:14,style:.continuous).fill(MonitorAppearance.groupFill)
                 .shadow(color:.black.opacity(scheme == .light && contrast != .increased ? 0.025:0),radius:scheme == .light ? 8:6,x:0,y:2)
         }
-            .overlay {
+            .appOverlay {
                 RoundedRectangle(cornerRadius:14,style:.continuous)
                     .stroke(contrast == .increased ? Color.primary.opacity(0.4):Palette.border.opacity(scheme == .light ? 0.65:0.75),lineWidth:contrast == .increased ? 1:0.5)
                     .allowsHitTesting(false)
@@ -65,10 +65,10 @@ struct MetricValue:View {
     var foreground:Color = .primary
     var body:some View {
         HStack(alignment:.firstTextBaseline,spacing:3) {
-            Text(value).font(AppTypography.number(size,weight:weight)).monospacedDigit()
-                .foregroundStyle(foreground).lineLimit(1).minimumScaleFactor(0.8)
+            Text(value).font(AppTypography.number(size,weight:weight)).appMonospacedDigit()
+                .foregroundColor(foreground).lineLimit(1).minimumScaleFactor(0.8)
             if !unit.isEmpty {
-                Text(unit).font(.system(size:unitSize)).foregroundStyle(.secondary).fixedSize()
+                Text(unit).font(.system(size:unitSize)).foregroundColor(.secondary).fixedSize()
             }
         }.accessibilityElement(children:.ignore).accessibilityLabel(value+" "+unit)
     }

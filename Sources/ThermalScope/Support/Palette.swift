@@ -4,7 +4,7 @@ import SwiftUI
 enum Palette {
     // Silver surfaces in light mode reserve plum for selection, controls and data.
     private static func adaptive(_ light:(CGFloat,CGFloat,CGFloat),_ dark:(CGFloat,CGFloat,CGFloat))->Color {
-        Color(nsColor:NSColor(name:nil,dynamicProvider:{appearance in
+        Color(NSColor(name:nil,dynamicProvider:{appearance in
             let rgb=appearance.bestMatch(from:[.darkAqua,.aqua]) == .darkAqua ? dark:light
             return NSColor(srgbRed:rgb.0,green:rgb.1,blue:rgb.2,alpha:1)
         }))
@@ -21,10 +21,10 @@ enum Palette {
     static let border=adaptive((0.851,0.871,0.906),(0.231,0.212,0.271))
     static let highlight=adaptive((1,1,1),(0.24,0.23,0.32))
     static let cool=adaptive((0.337,0.471,0.569),(0.600,0.741,0.831))
-    static let secondaryText=Color(nsColor:NSColor(name:nil,dynamicProvider:{appearance in
+    static let secondaryText=Color(NSColor(name:nil,dynamicProvider:{appearance in
         appearance.bestMatch(from:[.darkAqua,.aqua]) == .darkAqua ? .secondaryLabelColor:native(0x5D6470)
     }))
-    static let base=Color(nsColor:.windowBackgroundColor)
+    static let base=Color(.windowBackgroundColor)
     // Mode series keep distinct, related colors and their existing text labels.
     static func mode(_ name:String)->Color {
         switch name.components(separatedBy:" · ").first ?? name {

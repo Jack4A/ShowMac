@@ -9,7 +9,7 @@ enum MenuComponentColorPreset:String,CaseIterable,Identifiable {
         switch self {case .purple:return "雾紫";case .blue:return "海蓝";case .teal:return "青绿";case .graphite:return "石墨";case .rose:return "玫瑰";case .gold:return "暖金"}
     }
     static func swatch(hex:String?,dark:Bool)->NSImage {
-        let symbol=NSImage(systemSymbolName:hex==nil ? "circle.lefthalf.filled":"circle.fill",accessibilityDescription:nil)
+        let symbol=NSImage(systemSymbolName:AppSymbols.resolve(hex==nil ? "circle.lefthalf.filled":"circle.fill"),accessibilityDescription:nil)
         let color=MenuBarAppearanceRenderer.color(hex:hex) ?? (dark ? NSColor.white:.black)
         let image=NSImage(size:NSSize(width:14,height:14),flipped:false) {rect in
             symbol?.draw(in:rect);color.setFill();rect.fill(using:.sourceAtop);return true

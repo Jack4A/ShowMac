@@ -43,12 +43,19 @@ struct SensorSparkline:View {
     let minutes:Int
     let kind:HardwareSensorKind
     var warningKind:MetricKind?
-    var body:some View {
+    @ViewBuilder var body:some View {
+        if #available(macOS 13,*),!PlatformUI.classic {modernChart}
+        else {
+            let runs=MetricWarningBands.runs(points,kind:warningKind,enabled:warningsEnabled,budget:80)
+            CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs),xRange:sensorTrendStart(points,end:end,minutes:minutes).timeIntervalSince1970...end.timeIntervalSince1970,yRange:sensorTrendScale(points,kind:kind)).accessibilityHidden(true)
+        }
+    }
+    @available(macOS 13,*) private var modernChart:some View {
         let plotted=MetricPlot.decimated(points,budget:80)
         let scale=sensorTrendScale(points,kind:kind)
         let start=sensorTrendStart(points,end:end,minutes:minutes)
         let runs=MetricWarningBands.runs(points,kind:warningKind,enabled:warningsEnabled,budget:80)
-        Chart {
+        return Chart {
             ForEach(runs) {run in ForEach(run.points) {point in
                 LineMark(x:.value(L("时间"),point.date),y:.value(L(kind.title),point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)"))
                     .foregroundStyle(run.level.plotColor()).lineStyle(StrokeStyle(lineWidth:1.7,lineCap:.round))
@@ -59,7 +66,7 @@ struct SensorSparkline:View {
         }.chartXScale(domain:start...end).chartYScale(domain:scale)
             .chartXAxis(.hidden).chartYAxis(.hidden).chartLegend(.hidden)
             .padding(.vertical,3).allowsHitTesting(false)
-            .overlay(alignment:.leading) {
+            .appOverlay(alignment:.leading) {
             if plotted.count<2 {
                 Text(L(plotted.isEmpty ? "暂无历史读数":"正在积累趋势…")).font(AppTypography.caption).foregroundStyle(Palette.secondaryText)
             }
@@ -72,7 +79,7 @@ struct SensorTrendSheet:View {
     @ObservedObject var history:SensorHistoryStore
     let initial:CommonSensorReading
     @Binding var minutes:Int
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
     @State private var hovered:MetricPoint?
     private var reading:CommonSensorReading? {history.readings.first{$0.id==initial.id}}
     private var title:String {commonSensorTitle(initial)}
@@ -93,28 +100,28 @@ struct SensorTrendSheet:View {
             HStack(alignment:.top) {
                 VStack(alignment:.leading,spacing:5) {
                     Text(title).font(AppTypography.title)
-                    Text(L(initial.explanation)).font(AppTypography.caption).foregroundStyle(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+                    Text(L(initial.explanation)).font(AppTypography.caption).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
                 }
                 Spacer(minLength:16)
-                Button(L("完成")){dismiss()}.keyboardShortcut(.cancelAction)
+                Button(L("完成")){presentationMode.wrappedValue.dismiss()}.keyboardShortcut(.cancelAction)
             }
             HStack(alignment:.firstTextBaseline) {
-                Text(sensorValueText(reading?.value,kind:initial.kind)).font(AppTypography.number(30)).monospacedDigit()
+                Text(sensorValueText(reading?.value,kind:initial.kind)).font(AppTypography.number(30)).appMonospacedDigit()
                 Spacer()
                 SensorTrendRangePicker(minutes:$minutes)
             }
             if reading?.value==nil {
-                Text(L("当前读数暂时中断，以下为已有历史采样。")).font(AppTypography.caption).foregroundStyle(Palette.secondaryText)
+                Text(L("当前读数暂时中断，以下为已有历史采样。")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
             }
             trendChart
             HStack {
                 if let hovered {
-                    Text(hovered.date,format:.dateTime.hour().minute().second())
-                    Text(sensorValueText(hovered.value,kind:initial.kind)).foregroundStyle(.primary)
+                    Text(hovered.date,style:.time)
+                    Text(sensorValueText(hovered.value,kind:initial.kind)).foregroundColor(.primary)
                 } else {Text(L("悬停或点击查看读数"))}
                 Spacer()
                 Text(String(format:L("已记录 %d 分 %d 秒"),recordedSeconds/60,recordedSeconds%60))
-            }.font(AppTypography.caption).monospacedDigit().foregroundStyle(Palette.secondaryText).frame(height:18)
+            }.font(AppTypography.caption).appMonospacedDigit().foregroundColor(Palette.secondaryText).frame(height:18)
             Divider().opacity(0.5)
             HStack(spacing:36) {
                 stat("最低",values.min())
@@ -122,11 +129,19 @@ struct SensorTrendSheet:View {
                 stat("最高",values.max())
                 Spacer()
             }
-            Text(L("仅保留本次运行最近 30 分钟；退出后清空。")).font(AppTypography.caption).foregroundStyle(Palette.secondaryText)
+            Text(L("仅保留本次运行最近 30 分钟；退出后清空。")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
         }.padding(24).frame(width:620).background(Palette.canvas)
             .onChange(of:minutes){_ in hovered=nil}
     }
-    private var trendChart:some View {
+    @ViewBuilder private var trendChart:some View {
+        if #available(macOS 13,*),!PlatformUI.classic {modernTrendChart}
+        else {
+            CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs),xRange:start.timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale,axes:true,xLabel:CompatibilityPlot.timeLabel,onInspect:{value in
+                hovered=value.flatMap{MetricPlot.nearest(full,to:Date(timeIntervalSince1970:$0),maximumDistance:15)}
+            }).frame(height:220).accessibilityLabel(title+" · "+L("趋势图"))
+        }
+    }
+    @available(macOS 13,*) private var modernTrendChart:some View {
         return Chart {
             ForEach(runs) {run in ForEach(run.points) {point in
                 LineMark(x:.value(L("时间"),point.date),y:.value(title,point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)"))
@@ -164,18 +179,18 @@ struct SensorTrendSheet:View {
                 }
                 .gesture(DragGesture(minimumDistance:0).onChanged {value in inspect(value.location,proxy:proxy,geometry:geometry)})
             }}
-            .overlay {if points.isEmpty {Text(L("暂无历史读数")).font(AppTypography.caption).foregroundStyle(Palette.secondaryText)}}
+            .appOverlay {if points.isEmpty {Text(L("暂无历史读数")).font(AppTypography.caption).foregroundStyle(Palette.secondaryText)}}
             .accessibilityLabel(title+" · "+L("趋势图"))
     }
-    private func inspect(_ location:CGPoint,proxy:ChartProxy,geometry:GeometryProxy) {
+    @available(macOS 13,*) private func inspect(_ location:CGPoint,proxy:ChartProxy,geometry:GeometryProxy) {
         let plot=geometry[proxy.plotAreaFrame]
         guard plot.contains(location),let date:Date=proxy.value(atX:location.x-plot.minX) else{hovered=nil;return}
         hovered=MetricPlot.nearest(full,to:date,maximumDistance:15)
     }
     private func stat(_ title:String,_ value:Double?)->some View {
         VStack(alignment:.leading,spacing:5) {
-            Text(L(title)).font(AppTypography.caption).foregroundStyle(Palette.secondaryText)
-            Text(sensorValueText(value,kind:initial.kind)).font(AppTypography.number(16)).monospacedDigit()
+            Text(L(title)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+            Text(sensorValueText(value,kind:initial.kind)).font(AppTypography.number(16)).appMonospacedDigit()
         }
     }
 }

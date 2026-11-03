@@ -14,13 +14,14 @@ fi
 EXT="$APP/Contents/PlugIns/ThermalScopeWidget.appex"
 mkdir -p "$EXT/Contents/MacOS" "$EXT/Contents/Resources"
 SDK="${THERMALSCOPE_SDK:-$(xcrun --sdk macosx --show-sdk-path)}"
-xcrun swiftc -parse-as-library -application-extension -O -target "$ARCH-apple-macosx13.0" -sdk "$SDK" -I "$BIN/Modules" -I "$BIN" -L "$BIN" -lWidgetUI -lWidgetShared -framework SwiftUI -framework WidgetKit -Xlinker -e -Xlinker _NSExtensionMain "$ROOT/Widgets/ThermalScopeWidget.swift" -o "$EXT/Contents/MacOS/ThermalScopeWidget"
+MINIMUM_OS="$(/usr/libexec/PlistBuddy -c 'Print LSMinimumSystemVersion' "$APP/Contents/Info.plist")"
+xcrun swiftc -parse-as-library -application-extension -O -target "$ARCH-apple-macosx$MINIMUM_OS" -sdk "$SDK" -I "$BIN/Modules" -I "$BIN" -L "$BIN" -lWidgetUI -lWidgetShared -framework SwiftUI -framework WidgetKit -Xlinker -rpath -Xlinker '@executable_path/../Frameworks' -Xlinker -e -Xlinker _NSExtensionMain "$ROOT/Widgets/ThermalScopeWidget.swift" -o "$EXT/Contents/MacOS/ThermalScopeWidget"
 python3 - "$APP" "$EXT" "$GROUP" "$BIN" <<'PY'
 import plistlib,sys
 from pathlib import Path
 app,ext,group,metadata=Path(sys.argv[1]),Path(sys.argv[2]),sys.argv[3],Path(sys.argv[4])
 host=plistlib.loads((app/'Contents/Info.plist').read_bytes())
-p={'CFBundleInfoDictionaryVersion':'6.0','CFBundleDevelopmentRegion':'en','CFBundleIdentifier':host['CFBundleIdentifier']+'.Widget','CFBundleExecutable':'ThermalScopeWidget','CFBundleName':'温控台','CFBundleDisplayName':'温控台','CFBundlePackageType':'XPC!','CFBundleShortVersionString':host['CFBundleShortVersionString'],'CFBundleVersion':host['CFBundleVersion'],'CFBundleSupportedPlatforms':['MacOSX'],'LSMinimumSystemVersion':'13.0','NSExtension':{'NSExtensionPointIdentifier':'com.apple.widgetkit-extension'}}
+p={'CFBundleInfoDictionaryVersion':'6.0','CFBundleDevelopmentRegion':'en','CFBundleIdentifier':host['CFBundleIdentifier']+'.Widget','CFBundleExecutable':'ThermalScopeWidget','CFBundleName':'温控台','CFBundleDisplayName':'温控台','CFBundlePackageType':'XPC!','CFBundleShortVersionString':host['CFBundleShortVersionString'],'CFBundleVersion':host['CFBundleVersion'],'CFBundleSupportedPlatforms':['MacOSX'],'LSMinimumSystemVersion':host['LSMinimumSystemVersion'],'NSExtension':{'NSExtensionPointIdentifier':'com.apple.widgetkit-extension'}}
 e={'com.apple.security.app-sandbox':True}
 h={}
 if group:
@@ -39,4 +40,12 @@ cp "$ROOT/Resources/Localization.json" "$EXT/Contents/Resources/Localization.jso
 for localization in "$ROOT"/Resources/*.lproj; do
     if [ -d "$localization" ]; then cp -R "$localization" "$EXT/Contents/Resources/"; fi
 done
+mkdir -p "$EXT/Contents/Frameworks"
+xcrun swift-stdlib-tool --copy --strip-bitcode --platform macosx --scan-executable "$EXT/Contents/MacOS/ThermalScopeWidget" \
+    --destination "$EXT/Contents/Frameworks" --sign "$IDENTITY"
+python3 - "$EXT/Contents/Frameworks" <<'PY'
+from pathlib import Path
+import sys
+for backup in Path(sys.argv[1]).glob('*.original'): backup.unlink()
+PY
 codesign --force --sign "$IDENTITY" --entitlements "$BIN/Widget.entitlements" "$EXT"

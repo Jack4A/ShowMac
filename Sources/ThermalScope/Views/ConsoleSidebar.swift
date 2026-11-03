@@ -13,9 +13,9 @@ struct ConsoleSidebar:View {
             .modifier(ConsoleToolbarPresentation())
             .padding(.bottom,12)
             .frame(minWidth:210,idealWidth:220,maxWidth:280)
-            .background {
+            .appBackground {
                 if scheme == .light {
-                    LinearGradient(colors:[Palette.sidebarTop,Palette.sidebarBottom],startPoint:.topLeading,endPoint:.bottomTrailing).ignoresSafeArea()
+                    LinearGradient(gradient:Gradient(colors:[Palette.sidebarTop,Palette.sidebarBottom]),startPoint:.topLeading,endPoint:.bottomTrailing).ignoresSafeArea()
                 }
             }
     }

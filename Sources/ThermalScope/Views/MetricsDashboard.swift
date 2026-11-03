@@ -19,12 +19,12 @@ struct MetricsDashboard:View {
                 MetricSummaryCard(title:"CPU 使用率",value:valueText(sample?.cpuUsage),unit:"%",detail:"100% 表示全部核心",symbol:"cpu",trendKind:.cpuUsage,trend:history.points(.cpuUsage,minutes:2),trendEnd:history.end,action:onCPU)
             }
             HStack(spacing:12) {
-                Button(action:onMode) {Label(L("运行模式")+" · "+L(mode),systemImage:"slider.horizontal.3").lineLimit(1)}
-                    .buttonStyle(.borderless).foregroundStyle(.primary).help(L("温度控制"))
+                Button(action:onMode) {Label(L("运行模式")+" · "+L(mode),systemImage:AppSymbols.resolve("slider.horizontal.3")).lineLimit(1)}
+                    .buttonStyle(.borderless).foregroundColor(.primary).help(L("温度控制"))
                 Spacer(minLength:0)
                 if !ControlAvailability.isAppleSilicon {Text(L("睿频")+" · "+L(sample.map {$0.turbo == .disabledDriverLoaded ? "已关闭":($0.turbo == .driverNotLoaded ? "允许开启":"未知")} ?? "未知"))}
-                Text(L("系统低电量模式")+" · "+L(sample.map {$0.lowPower ? "开启":"关闭"} ?? "未知"))
-            }.font(.system(size:12)).foregroundStyle(Palette.secondaryText).padding(.horizontal,4)
+                if SystemCapabilities.lowPowerMode {Text(L("系统低电量模式")+" · "+L(sample.map {$0.lowPower ? "开启":"关闭"} ?? "未知"))}
+            }.font(.system(size:12)).foregroundColor(Palette.secondaryText).padding(.horizontal,4)
         }
     }
 }
@@ -50,18 +50,18 @@ struct MetricSummaryCard:View {
         VStack(alignment:.leading,spacing:8) {
             header
             valueRow
-            Text(displayDetail).font(.system(size:12)).foregroundStyle(Palette.secondaryText).lineLimit(2).frame(minHeight:28,alignment:.topLeading)
+            Text(displayDetail).font(.system(size:12)).foregroundColor(Palette.secondaryText).lineLimit(2).frame(minHeight:28,alignment:.topLeading)
         }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel(padding:18).contentShape(Rectangle())
     }
     private var header:some View {
         HStack {
             Label {
-                Text(L(title)).foregroundStyle(Palette.secondaryText)
+                Text(L(title)).foregroundColor(Palette.secondaryText)
             } icon:{
-                Image(systemName:symbol).foregroundStyle(tone)
+                Image(systemName:AppSymbols.resolve(symbol)).foregroundColor(tone)
             }.font(.system(size:12))
             Spacer(minLength:4)
-            Image(systemName:"chevron.right").font(.system(size:12,weight:.medium)).foregroundStyle(Palette.secondaryText)
+            Image(systemName:AppSymbols.resolve("chevron.right")).font(.system(size:12,weight:.medium)).foregroundColor(Palette.secondaryText)
         }
     }
     private var valueRow:some View {
@@ -71,7 +71,7 @@ struct MetricSummaryCard:View {
             if let trendKind,let trendEnd {
                 VStack(alignment:.trailing,spacing:2) {
                     MetricCardSparkline(points:trend,ending:trendEnd,kind:trendKind).frame(height:24)
-                    Text(L("2 分钟")).font(.system(size:11)).foregroundStyle(.secondary)
+                    Text(L("2 分钟")).font(.system(size:11)).foregroundColor(.secondary)
                 }.frame(width:60).accessibilityHidden(true)
             }
         }.frame(maxWidth:.infinity,alignment:.leading)
@@ -90,18 +90,22 @@ private struct MetricCardSparkline:View {
     }
     private var tone:Color {MonitorAppearance.metric(kind)}
     private var runs:[CPULoadRun] {MetricWarningBands.runs(points,kind:kind,enabled:warningsEnabled,budget:50)}
-    var body:some View {
+    @ViewBuilder var body:some View {
+        if #available(macOS 13,*),!PlatformUI.classic {modernChart}
+        else {CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs,normal:tone,filled:true),xRange:ending.addingTimeInterval(-120).timeIntervalSince1970...ending.timeIntervalSince1970,yRange:scale).accessibilityHidden(true)}
+    }
+    @available(macOS 13,*) private var modernChart:some View {
         Chart {
             ForEach(runs) {run in ForEach(run.points) {point in
                 AreaMark(x:.value(L("时间"),point.date),yStart:.value(L(kind.title),scale.lowerBound),yEnd:.value(L(kind.title),point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)"))
-                    .foregroundStyle(LinearGradient(colors:[run.level.plotColor(normal:tone).opacity(0.18),run.level.plotColor(normal:tone).opacity(0.01)],startPoint:.top,endPoint:.bottom))
+                    .foregroundStyle(LinearGradient(gradient:Gradient(colors:[run.level.plotColor(normal:tone).opacity(0.18),run.level.plotColor(normal:tone).opacity(0.01)]),startPoint:.top,endPoint:.bottom))
                 LineMark(x:.value(L("时间"),point.date),y:.value(L(kind.title),point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)"))
                     .foregroundStyle(run.level.plotColor(normal:tone)).lineStyle(StrokeStyle(lineWidth:1.5,lineCap:.round))
                 if run.points.count==1 {PointMark(x:.value(L("时间"),point.date),y:.value(L(kind.title),point.value!)).foregroundStyle(run.level.plotColor(normal:tone)).symbolSize(10)}
             }}
         }.chartXScale(domain:ending.addingTimeInterval(-120)...ending).chartYScale(domain:scale)
             .chartXAxis(.hidden).chartYAxis(.hidden).chartLegend(.hidden)
-            .overlay {if visible.isEmpty {Text(L("采样中")).font(.system(size:11)).foregroundStyle(.secondary)}}
+            .appOverlay {if visible.isEmpty {Text(L("采样中")).font(.system(size:11)).foregroundStyle(.secondary)}}
     }
 }
 
@@ -126,8 +130,8 @@ struct SupplementaryMetrics:View {
             }
             if !unavailable.isEmpty {
                 HStack(spacing:8) {
-                    Image(systemName:"sensor").foregroundStyle(Palette.secondaryText)
-                    Text(L("暂无读数：")).foregroundStyle(Palette.secondaryText)
+                    Image(systemName:AppSymbols.resolve("sensor")).foregroundColor(Palette.secondaryText)
+                    Text(L("暂无读数：")).foregroundColor(Palette.secondaryText)
                     ForEach(unavailable) {kind in
                         Button(L(kind.title)){onTemperature(kind)}.buttonStyle(.borderless)
                     }

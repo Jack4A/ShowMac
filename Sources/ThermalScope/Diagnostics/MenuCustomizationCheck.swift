@@ -13,7 +13,7 @@ import ThermalCore
             guard try JSONDecoder().decode(MenuTypography.self,from:JSONEncoder().encode(font))==font else{throw ScopeError.message("Typography roundtrip failed")}
             guard MenuIconStore.label(" A\nB ",fallback:"CPU")=="AB",MenuIconStore.label("",fallback:"CPU")=="CPU",MenuIconStore.label("123456789",fallback:"CPU")=="12345678" else{throw ScopeError.message("Label normalization failed")}
             for metric in MenuMetric.allCases {for option in MenuIconOption.options(metric) {
-                guard NSImage(systemSymbolName:option.symbol,accessibilityDescription:nil) != nil else{throw ScopeError.message("Unavailable built-in symbol: "+option.symbol)}
+                guard NSImage(systemSymbolName:AppSymbols.resolve(option.symbol),accessibilityDescription:nil) != nil else{throw ScopeError.message("Unavailable built-in symbol: "+option.symbol)}
             }}
             let fixtureFolder=FileManager.default.temporaryDirectory.appendingPathComponent("ThermalScope-Icon-Check-"+UUID().uuidString,isDirectory:true)
             try FileManager.default.createDirectory(at:fixtureFolder,withIntermediateDirectories:true)

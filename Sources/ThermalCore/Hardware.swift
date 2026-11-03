@@ -81,7 +81,17 @@ public final class SMC {
 }
 
 /// Used only on the sampler queue. No subprocesses or polling of `top`.
+public enum SystemCapabilities {
+    public static var lowPowerMode:Bool {
+        if #available(macOS 12,*) {return true}
+        return false
+    }
+}
 public final class HardwareSampler: @unchecked Sendable {
+    private static var lowPowerModeEnabled:Bool {
+        if #available(macOS 12,*) {return ProcessInfo.processInfo.isLowPowerModeEnabled}
+        return false // Low Power Mode was introduced in macOS 12.
+    }
     private let lock=NSLock()
     private let smc=SMC()
     private var previous: CPUCounters?
@@ -133,7 +143,7 @@ public final class HardwareSampler: @unchecked Sendable {
         ticks+=1
         let p=ts_power_status(), ac=ts_ac_power()
         func percent(_ x:Int32)->Int? { (0...100).contains(x) ? Int(x):nil }
-        return Snapshot(date:Date(),cpuUsage:usage,sensors:sensors,fans:smc.fans(),speedLimit:percent(p.speed),schedulerLimit:percent(p.scheduler),availableCPUs:p.available>=0 ? Int(p.available):nil,totalCPUs:ProcessInfo.processInfo.processorCount,thermalState:ProcessInfo.processInfo.thermalState.rawValue,thermalWarning:p.warning>=0 ? Int(p.warning):nil,turbo:turbo,acPower:ac<0 ? nil:ac==1,lowPower:ProcessInfo.processInfo.isLowPowerModeEnabled,smcAvailable:smc.available,memoryPressure:MemoryPressure(rawValue:Int(ts_memory_pressure())),additionalSensors:additional)
+        return Snapshot(date:Date(),cpuUsage:usage,sensors:sensors,fans:smc.fans(),speedLimit:percent(p.speed),schedulerLimit:percent(p.scheduler),availableCPUs:p.available>=0 ? Int(p.available):nil,totalCPUs:ProcessInfo.processInfo.processorCount,thermalState:ProcessInfo.processInfo.thermalState.rawValue,thermalWarning:p.warning>=0 ? Int(p.warning):nil,turbo:turbo,acPower:ac<0 ? nil:ac==1,lowPower:Self.lowPowerModeEnabled,smcAvailable:smc.available,memoryPressure:MemoryPressure(rawValue:Int(ts_memory_pressure())),additionalSensors:additional)
     }
     public func refreshTurbo() { lock.lock();defer { lock.unlock() };ticks=0 }
 }
