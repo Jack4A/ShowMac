@@ -38,6 +38,7 @@ cp "$BIN/ThermalScope" "$APP/Contents/MacOS/ThermalScope"
 cp "$BIN/ThermalScopeHelper" "$APP/Contents/Helpers/ThermalScopeHelper"
 cp "$ROOT/Resources/Info.plist" "$APP/Contents/Info.plist"
 cp "$ROOT/Resources/Localization.json" "$APP/Contents/Resources/Localization.json"
+cp "$ROOT/Resources/PrivacyInfo.xcprivacy" "$APP/Contents/Resources/PrivacyInfo.xcprivacy"
 cp "$ROOT/Resources/SMCKit-LICENSE.txt" "$APP/Contents/Resources/SMCKit-LICENSE.txt"
 # actool ships only with full Xcode; without it the appearance assets are skipped and
 # Color.accentColor falls back to the system accent color at runtime.

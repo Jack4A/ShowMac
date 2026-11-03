@@ -30,3 +30,13 @@ Build from committed source, transfer the static output, verify both ZIP hashes 
 Trusted Let’s Encrypt certificates for the domain and the legacy IP are isolated under `/srv/showmac/acme-config`; the existing account is reused. A dedicated systemd timer checks both certificates twice daily and reloads Nginx on renewal. The other system Certbot installation and existing named-host certificates are untouched. Deploy configs do not contain keys or account credentials.
 
 Downloads remain the complete ad-hoc signed developer preview, without notarization. App Store submission is deferred at the user’s request; no reduced edition is distributed.
+
+## Cloudflare migration — November 4, 2026
+
+The user selected Cloudflare after mainland-origin domain access was blocked pending filing. The Pages project is `showmac`, with the verified live fallback <https://showmac.pages.dev/>. Website assets, localized screenshots and both original ZIPs are uploaded to Pages; they do not proxy or fetch the former mainland origin.
+
+The build now defaults to `--hosting cloudflare`, copying `cloudflare/worker.mjs` as `_worker.js`, plus security headers and routing metadata. The edge Worker selects the initial language from Cloudflare's country metadata, with a first-party manual cookie override and browser-language fallback. Explicit language URLs stay explicit. CDN caching is disabled on user-specific redirects. Cloudflare privacy wording replaces the former origin's log-retention/DB-IP statements. Use `--hosting nginx` only for the retained legacy server deployment.
+
+For a dashboard upload, ZIP the contents of `dist/` (without a parent folder), then create a production deployment of the existing Pages project. `_worker.js` is supported by dashboard uploads. Check `/locale.json`, a manual language override, both localized pages, and the public download hashes. Do not upload source credentials, provisioning profiles, server logs or private build folders.
+
+The custom root and `www` records target `showmac.pages.dev`. Root-domain attachment requires activating the Cloudflare zone at the registrar first. The user approved replacing the old nameservers with the two Cloudflare-assigned nameservers on November 4; DNS activation and Pages custom-domain status must still be confirmed before declaring the migration complete. The custom domain remains `show-mac.cc`; the human-facing logo wordmark is `ShowMac`.

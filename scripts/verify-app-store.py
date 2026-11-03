@@ -7,10 +7,12 @@ assert not (app/'Contents/Helpers').exists(),'Store bundle must not carry the pr
 host=plistlib.loads((app/'Contents/Info.plist').read_bytes())
 assert host['CFBundleIdentifier']=='com.jackjohn.showmac'
 assert host['CFBundleDisplayName']=='showmac'
+assert host['CFBundleShortVersionString']=='1.18.1' and host['CFBundleVersion']=='268'
 assert host['LSMinimumSystemVersion']=='11.0'
 components=[app,*app.glob('Contents/PlugIns/*.appex')];assert len(components)==2
 for bundle in components:
  info=plistlib.loads((bundle/'Contents/Info.plist').read_bytes())
+ assert info['CFBundleShortVersionString']==host['CFBundleShortVersionString'] and info['CFBundleVersion']==host['CFBundleVersion']
  assert info['ThermalScopeAppGroup']=='group.com.jackjohn.showmac'
  executable=bundle/'Contents/MacOS'/info['CFBundleExecutable']
  archs=set(subprocess.check_output(['lipo','-archs',str(executable)],text=True).split());assert archs=={'arm64','x86_64'},archs

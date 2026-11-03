@@ -94,7 +94,7 @@ import ThermalCore
             func color(_ point:CGPoint)->[Int]? {
                 let scaleX=Double(bitmap.pixelsWide)/size.width,scaleY=Double(bitmap.pixelsHigh)/size.height
                 let y=host.isFlipped ? point.y:size.height-point.y
-                guard let rgb=bitmap.colorAt(x:min(bitmap.pixelsWide-1,max(0,Int(point.x*scaleX))),y:min(bitmap.pixelsHigh-1,max(0,Int(y*scaleY)))) else{return nil}
+                guard let rgb=bitmap.colorAt(x:min(bitmap.pixelsWide-1,max(0,Int(point.x*scaleX))),y:min(bitmap.pixelsHigh-1,max(0,Int(y*scaleY))))?.usingColorSpace(.sRGB) else{return nil}
                 return [rgb.redComponent,rgb.greenComponent,rgb.blueComponent,rgb.alphaComponent].map{Int(($0*255).rounded())}
             }
             selected=color(row.convert(CGPoint(x:row.bounds.maxX-24,y:row.bounds.midY),to:host))

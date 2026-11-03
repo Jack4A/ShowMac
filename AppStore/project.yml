@@ -65,6 +65,8 @@ targets:
     info:
       path: Generated/Widget-Info.plist
       properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDisplayName: showmac
         CFBundleName: showmac
         CFBundleDevelopmentRegion: en
@@ -93,6 +95,8 @@ targets:
     info:
       path: Generated/Host-Info.plist
       properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDisplayName: showmac
         CFBundleName: showmac
         CFBundleDevelopmentRegion: en

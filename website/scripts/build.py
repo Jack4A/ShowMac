@@ -3,7 +3,7 @@
 import argparse,hashlib,html,json,re,shutil,subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];SITE=ROOT/'website'
-p=argparse.ArgumentParser();p.add_argument('--releases',type=Path,required=True);p.add_argument('--screenshots',type=Path,default=ROOT/'docs/screenshots/v1.18.1');args=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--hosting',choices=['cloudflare','nginx'],default='cloudflare');p.add_argument('--releases',type=Path,required=True);p.add_argument('--screenshots',type=Path,default=ROOT/'docs/screenshots/v1.18.1');args=p.parse_args()
 release=args.releases.resolve()
 arm=json.loads((release/'release-manifest-arm64.json').read_text());intel=json.loads((release/'release-manifest.json').read_text())
 assert arm['source_commit']==intel['source_commit'] and arm['version']==intel['version']
@@ -12,11 +12,15 @@ dist=SITE/'dist'
 if dist.exists():shutil.rmtree(dist)
 dist.mkdir()
 for name in ['style.css','app.js']:shutil.copy2(SITE/name,dist/name)
-credit='<p class="geo-credit"><a href="https://db-ip.com">IP Geolocation by DB-IP</a></p>'
+credit='<p class="geo-credit"><a href="https://db-ip.com">IP Geolocation by DB-IP</a></p>' if args.hosting=='nginx' else ''
 translation=re.compile(r'<([a-z0-9]+)([^>]*\bdata-en="([^"]*)"[^>]*\bdata-zh="([^"]*)"[^>]*)>.*?</\1>',re.S)
 for lang in ['en','zh']:
  for page in ['', 'support', 'privacy']:
   source=SITE/(page+'/index.html' if page else 'index.html');text=source.read_text()
+  if args.hosting=='cloudflare':
+   text=text.replace('our server looks up your IP address in a local DB-IP country database','Cloudflare processes your IP address and provides an approximate country or region').replace('This lookup does not send your IP to DB-IP.','The website and downloads are hosted on Cloudflare. Requests pass through its network; we do not use analytics or send app sensor readings to it.').replace('服务器使用本地 DB-IP 国家或地区数据库判断访问 IP','Cloudflare 处理访问 IP 并提供大致国家或地区').replace('查询不会将 IP 发送给 DB-IP。','官网与下载由 Cloudflare 托管，请求会经过其网络；我们不启用网站分析，也不会向其发送应用传感器读数。')
+  if args.hosting=='cloudflare':
+   text=text.replace('The hosting server keeps standard access and error logs for operation and troubleshooting. These can include IP address, request time, requested path, response status and browser information. Site-specific logs rotate daily and are retained for up to 14 days.','Cloudflare delivers the website and downloads and processes request metadata for delivery and security under its privacy policy. We do not enable Web Analytics or collect app sensor readings through the website.').replace('托管服务器保留用于运行与排错的访问及错误日志，可能包含 IP 地址、请求时间、访问路径、响应状态和浏览器信息。本站专用日志每日轮转，最多保留 14 天。','Cloudflare 提供网站与软件下载，并依据其隐私政策处理用于内容分发和安全的请求元数据。我们不启用网站分析，也不通过官网收集应用传感器读数。')
   text=translation.sub(lambda m:'<'+m[1]+m[2]+'>'+html.unescape(m[3 if lang=='en' else 4])+'</'+m[1]+'>',text)
   text=text.replace('lang="en"',f'lang="{"zh-CN" if lang=="zh" else "en"}"',1)
   for manifest in [arm,intel]:text=text.replace(f"showmac-1.18.0-macOS-{manifest['architecture']}.zip",manifest['archive'])
@@ -60,4 +64,8 @@ metadata={'version':arm['version'],'build':arm['build'],'minimumMacOS':arm['mini
 (dist/'robots.txt').write_text('User-agent: *\nAllow: /\nSitemap: https://show-mac.cc/sitemap.xml\n')
 urls=[f'https://show-mac.cc/{lang}/{page}' for lang in ['en','zh'] for page in ['','support/','privacy/']]
 (dist/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+''.join('<url><loc>'+u+'</loc></url>' for u in urls)+'</urlset>')
-print('Built static site:',dist)
+if args.hosting=='cloudflare':
+ shutil.copy2(SITE/'cloudflare/worker.mjs',dist/'_worker.js')
+ shutil.copy2(SITE/'cloudflare/headers',dist/'_headers')
+ (dist/'_routes.json').write_text(json.dumps({'version':1,'include':['/*'],'exclude':['/assets/*','/downloads/*','/style.css','/app.js']}))
+print('Built static site:',dist,'hosting:',args.hosting)
