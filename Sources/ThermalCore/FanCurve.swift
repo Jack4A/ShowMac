@@ -73,6 +73,10 @@ public enum ThermalProfile:String,CaseIterable,Identifiable {
     }
 }
 public enum CurvePolicy {
+    public static func percent(rpm:Double,minimum:Double,maximum:Double)->Double {
+        guard rpm.isFinite,minimum.isFinite,maximum.isFinite,maximum>minimum else{return 0}
+        return min(100,max(0,(rpm-minimum)/(maximum-minimum)*100))
+    }
     public static func requiresMaximum(_ sample:Snapshot)->Bool {
         (sample.cpuTemperature ?? 0)>=92 || (sample.temperature(.gpu) ?? 0)>=88 ||
         (sample.temperature(.storage) ?? 0)>=75 || (2...3).contains(sample.thermalState)
@@ -86,9 +90,14 @@ public enum CurvePolicy {
         return desired>=previous ? desired:max(desired,previous-4)
     }
 }
+public struct FanControlProgress {
+    public let deadline:Double
+    public let targets:[FanTarget]
+    public let protectionActive:Bool
+}
 public enum CurveLease {
     public static func run(hardware:CoolingHardware,curve:FanCurve,duration:Double=1800,
-                           sample:()->Snapshot,now:()->Double,isCancelled:()->Bool,wait:()->Void,onApplied:()->Void = {}) throws {
+                           sample:()->Snapshot,now:()->Double,isCancelled:()->Bool,wait:()->Void,onUpdate:(FanControlProgress)->Void = {_ in},onApplied:()->Void = {}) throws {
         try curve.validate()
         guard duration>0,duration<=1800 else { throw ScopeError.message("曲线会话最长 30 分钟") }
         if isCancelled() { return }
@@ -118,7 +127,8 @@ public enum CurveLease {
                         }
                     }
                 }
-                let wanted=CurvePolicy.requiresMaximum(reading) ? 100:curve.percent(at:temperature)
+                let protection=CurvePolicy.requiresMaximum(reading)
+                let wanted=protection ? 100:curve.percent(at:temperature)
                 let percent=CurvePolicy.smooth(desired:wanted,previous:previous)
                 for fan in fans {
                     if !active { try hardware.setManual(fan.id,true) }
@@ -127,6 +137,7 @@ public enum CurveLease {
                         try hardware.setTarget(fan.id,rpm:rpm);lastTargets[fan.id]=rpm
                     }
                 }
+                onUpdate(FanControlProgress(deadline:deadline,targets:fanTargets(lastTargets),protectionActive:protection))
                 if !active { onApplied() }
                 active=true;previous=percent;wait()
             }
@@ -137,5 +148,8 @@ public enum CurveLease {
             throw original
         }
         if active { try CoolingLease.restoreAuto(hardware,ids:fans.map(\.id)) }
+    }
+    private static func fanTargets(_ targets:[Int:Double])->[FanTarget] {
+        targets.keys.sorted().map{FanTarget(id:$0,rpm:targets[$0]!)}
     }
 }

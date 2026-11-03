@@ -26,6 +26,19 @@ public struct ControlRequest:Codable {
         if let label { guard label.utf8.count<=80 else { throw ScopeError.message("模式名称过长") } }
     }
 }
+public struct FanTarget:Codable,Equatable,Identifiable {
+    public let id:Int
+    public let rpm:Double
+    public init(id:Int,rpm:Double) {self.id=id;self.rpm=rpm}
+}
+public struct FanSessionStatus:Codable,Equatable {
+    public let remainingSeconds:Double
+    public let targets:[FanTarget]
+    public let protectionActive:Bool
+    public init(remainingSeconds:Double,targets:[FanTarget],protectionActive:Bool) {
+        self.remainingSeconds=remainingSeconds;self.targets=targets;self.protectionActive=protectionActive
+    }
+}
 public struct ControlReply:Codable {
     public var ok:Bool
     public var message:String
@@ -34,8 +47,10 @@ public struct ControlReply:Codable {
     public var label:String?
     public var turbo:Int?
     public var power:PowerOutcome?
-    public init(ok:Bool,message:String,session:String?=nil,profile:String?=nil,label:String?=nil,turbo:Int?=nil) {
+    public var fanStatus:FanSessionStatus?
+    public init(ok:Bool,message:String,session:String?=nil,profile:String?=nil,label:String?=nil,turbo:Int?=nil,fanStatus:FanSessionStatus?=nil) {
         self.ok=ok;self.message=message;self.session=session;self.profile=profile;self.label=label;self.turbo=turbo
+        self.fanStatus=fanStatus
     }
 }
 /// Framing uses a bounded line buffer. Both helper and app use the same protocol.

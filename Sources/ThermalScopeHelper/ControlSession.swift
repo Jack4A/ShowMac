@@ -12,6 +12,9 @@ final class SessionControl {
     private var session:String?
     private var profile:String?
     private var label:String?
+    private var progress:FanControlProgress?
+    // Keep handoff ownership after a failed restore so explicit Auto can retry it.
+    private let fanHardware=SMC()
     private let owner:Int32
     private let uid:UInt32
     init(owner:Int32,uid:UInt32) {self.owner=owner;self.uid=uid}
@@ -21,7 +24,11 @@ final class SessionControl {
     }
     func status()->ControlReply {
         condition.lock();defer{condition.unlock()}
-        return ControlReply(ok:failure==nil,message:failure ?? (running ? "控制已确认生效":"风扇由系统管理"),session:session,profile:profile,label:label)
+        let status:FanSessionStatus?
+        if running,applied,let progress {
+            status=FanSessionStatus(remainingSeconds:max(0,progress.deadline-ts_continuous_seconds()),targets:progress.targets,protectionActive:progress.protectionActive)
+        } else {status=nil}
+        return ControlReply(ok:failure==nil,message:failure ?? (running ? "控制已确认生效":"风扇由系统管理"),session:session,profile:profile,label:label,fanStatus:status)
     }
     func stop(ignorePreviousFailure:Bool=false) throws {
         condition.lock();defer{condition.unlock()}
@@ -35,20 +42,22 @@ final class SessionControl {
     func start(curve:FanCurve,mode:String,name:String,duration:Double) throws {
         try curve.validate();try stop()
         condition.lock()
-        cancelled=false;running=true;applied=false;failure=nil
+        cancelled=false;running=true;applied=false;failure=nil;progress=nil
         session=UUID().uuidString;profile=mode;label=name
         condition.unlock()
         DispatchQueue.global(qos:.utility).async { [self] in
             var errorText:String?
             do {
-                let hardware=SMC(),sampler=HardwareSampler()
+                let hardware=self.fanHardware,sampler=HardwareSampler()
                 try CurveLease.run(hardware:hardware,curve:curve,duration:duration,
                     sample:{sampler.sample()},now:{ts_continuous_seconds()},isCancelled:{self.shouldStop()},
-                    wait:{for _ in 0..<20 {if self.shouldStop(){break};usleep(100000)}},onApplied:{
+                    wait:{for _ in 0..<20 {if self.shouldStop(){break};usleep(100000)}},onUpdate:{progress in
+                        self.condition.lock();self.progress=progress;self.condition.unlock()
+                    },onApplied:{
                         self.condition.lock();self.applied=true;self.condition.broadcast();self.condition.unlock()
                     })
             } catch {errorText=error.localizedDescription}
-            condition.lock();failure=errorText;running=false;session=nil;profile=nil;label=nil
+            condition.lock();failure=errorText;running=false;session=nil;profile=nil;label=nil;progress=nil
             condition.broadcast();condition.unlock()
         }
         condition.lock();defer{condition.unlock()}
@@ -59,7 +68,11 @@ final class SessionControl {
         guard applied,failure==nil else {throw ScopeError.message(failure ?? "控制未生效")}
     }
     func handle(_ request:ControlRequest) throws ->ControlReply {
-        try request.validate()
+        #if arch(arm64)
+        try FanControlPolicy.validate(request,appleSilicon:true)
+        #else
+        try FanControlPolicy.validate(request,appleSilicon:false)
+        #endif
         switch request.command {
         case "hello","status":return status()
         case "power-optimize","power-restore":
@@ -76,7 +89,7 @@ final class SessionControl {
         case "shutdown":try stop();return status()
         case "auto":
             try stop(ignorePreviousFailure:true)
-            let hardware=SMC(),fans=hardware.fans()
+            let hardware=fanHardware,fans=hardware.fans()
             guard !fans.isEmpty else {throw ScopeError.message("没有可读取的风扇")}
             try CoolingLease.restoreAuto(hardware,ids:fans.map(\.id))
             condition.lock();failure=nil;condition.unlock();return status()

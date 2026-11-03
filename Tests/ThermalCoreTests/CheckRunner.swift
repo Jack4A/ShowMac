@@ -26,6 +26,27 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
     static func main() {
         let core=CoreTests(),cooling=CoolingTests(),history=HistoryTests(),curve=CurveTests()
         let checks:[(String,() throws ->Void)]=[
+            ("Common sensor histories match cards and preserve signed power",CommonSensorHistoryTests().testMatchesCardsAndPreservesSignedPower),
+            ("Common sensor outages and sleep preserve gaps and known cards",CommonSensorHistoryTests().testOutagesAndSleepBreakLinesWithoutLosingCards),
+            ("Common sensor windows bound retention and ignore stale samples",CommonSensorHistoryTests().testTimeWindowsRetentionAndOutOfOrderSamples),
+            ("Sensor names respect platform, case and measurement kind",SensorCatalogTests().testPlatformAndCaseSensitiveNames),
+            ("Common readings preserve sources, missing values and real zero power",SensorCatalogTests().testCommonReadingsUseRecognizedSources),
+            ("Physical sensor formats preserve signed values and reject invalid flags",SensorInventoryTests().testPhysicalFormatsAndMissingValues),
+            ("Sensor inventory is complete and decodes legacy snapshots",SensorInventoryTests().testCompleteInventoryAndBackwardCompatibility),
+            ("Fan progress reports verified targets and thermal override",FanTelemetryTests().testProgressFollowsVerifiedTargetsAndProtection),
+            ("Fan session telemetry preserves reply compatibility",FanTelemetryTests().testReplyMetadataCompatibility),
+            ("RPM input honors rated ranges and high-temperature ramp",FanTelemetryTests().testRPMInputUsesRatedRangeAndThermalRamp),
+            ("Unsupported Turbo is omitted from temperature timeline labels",NativeControlTests().testUnsupportedTurboLabels),
+            ("ARM direct fan mode preserves original automatic state",AppleSiliconFanTests().testDirectAndOriginalModeRestore),
+            ("ARM global handoff releases only after all fans restore",AppleSiliconFanTests().testHandoffSharedUntilAllFansRestore),
+            ("ARM failed acquisition rolls back handoff",AppleSiliconFanTests().testFailedAcquisitionReleasesHandoff),
+            ("ARM rejects occupied and unknown fan modes",AppleSiliconFanTests().testExistingOwnerAndUnknownModesAreRejected),
+            ("ARM handoff releases after mode restore failure",AppleSiliconFanTests().testReleaseAttemptedAfterModeRestoreFailure),
+            ("ARM release failures remain visible and retryable",AppleSiliconFanTests().testReleaseFailureIsReportedAndRetryable),
+            ("ARM lowercase mode without handoff flag",AppleSiliconFanTests().testLowercaseAndNoHandoffFirmware),
+            ("ARM slow writes respect acquisition deadline",AppleSiliconFanTests().testSlowWritesRespectDeadline),
+            ("ARM helper rejects Turbo and power requests",AppleSiliconFanTests().testARMRequestBoundary),
+
             ("CPU display bands respect thresholds and sustained duration",CPULoadBandsTests().testThresholdsAndDuration),
             ("CPU display bands reset across gaps and invalid samples",CPULoadBandsTests().testGapsAndMissingResetSustainedTime),
             ("CPU color runs preserve transitions and actual samples",CPULoadBandsTests().testRunsKeepTransitionsAndActualSamples),

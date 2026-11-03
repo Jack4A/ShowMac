@@ -12,6 +12,7 @@ extension DiagnosticTests {
         expectEqual(report.metrics?.cpuTemperature,82);expectEqual(report.metrics?.gpuTemperature,72)
         expectEqual(report.metrics?.cpuSource,first);expectEqual(report.metrics?.diskSource,first)
         expectEqual(report.metrics?.processSeconds,50);expectEqual(report.metrics?.performanceLimited,false)
+        expectEqual(report.metrics?.wakeRequestsKnown,true)
         let finding=report.findings.first{$0.kind == .sustainedCPU}
         expectEqual(finding?.value,report.metrics?.cpuSource?.averageCPU)
         expectEqual(finding?.action,.reviewApplication("build"))
@@ -25,6 +26,7 @@ extension DiagnosticTests {
         expectEqual(stale.metrics?.cpuTemperature,60)
         let missing=sample(5,temp:nil,cpu:nil,pressure:nil,known:false)
         let empty=engine.evaluate(DiagnosticInput(snapshot:missing))
+        expectEqual(empty.metrics?.wakeRequestsKnown,false)
         expectTrue(empty.metrics?.cpuUsage==nil);expectTrue(empty.metrics?.cpuTemperature==nil)
         expectTrue(empty.metrics?.memoryPressure==nil);expectTrue(empty.metrics?.performanceLimited==nil)
         let invalid=sample(10,temp:.infinity,cpu:.nan)

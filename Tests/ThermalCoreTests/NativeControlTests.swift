@@ -37,6 +37,15 @@ final class NativeControlTests {
         expectEqual(values[0].turboDisabled,false);expectEqual(values[1].turboDisabled,true)
         expectTrue(values[1].mode.contains("睿频关闭"));expectEqual(values[1].temperature,55)
     }
+    func testUnsupportedTurboLabels() {
+        let base=sample(0,cpu:60,gpu:nil,storage:nil)
+        let arm=Snapshot(date:base.date,cpuUsage:10,sensors:base.sensors,fans:[],speedLimit:nil,schedulerLimit:nil,availableCPUs:nil,totalCPUs:12,thermalState:0,thermalWarning:nil,turbo:.unsupported,acPower:true,lowPower:false,smcAvailable:true)
+        let values=SensorTimeline.records([TimelineSample(arm,mode:"系统自动")],sensor:.cpu,start:base.date)
+        expectEqual(values.first?.mode,"系统自动")
+        expectNil(values.first?.turboDisabled)
+        let intel=SensorTimeline.records([TimelineSample(base,mode:"系统自动")],sensor:.cpu,start:base.date)
+        expectEqual(intel.first?.mode,"系统自动 · 允许睿频")
+    }
     func testProcessCPUAccounting() {
         expectEqual(ProcessCPU.percent(previous:0,current:1_000_000_000,elapsed:1,sameIdentity:true),100)
         expectEqual(ProcessCPU.percent(previous:0,current:2_000_000_000,elapsed:1,sameIdentity:true),200)

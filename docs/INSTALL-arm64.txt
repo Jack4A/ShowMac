@@ -5,10 +5,10 @@ macOS 13+ · build 260 · ad-hoc signed · not notarized
 1. 登录有私有仓库权限的 GitHub 账号，从 v1.16.0 Release 下载 ThermalScope-1.16.0-macOS-arm64.zip。
 2. 解压，将 ThermalScope.app 拖到“应用程序”后打开。仅用于 Apple Silicon Mac。
 3. 点击顶部状态栏图标，从面板打开控制台；在“设置 → 语言”选择简体中文或 English。
-4. 本版仅用于实验性监测，风扇、睿频和电源设置控制均已禁用。Intel Turbo Boost 不适用于 Apple Silicon。
+4. 当前源码构建支持实验性独立风扇控制；在“温度控制”先运行5秒验证，完成系统管理员授权。可使用手动转速或温度曲线。Intel睿频和电源设置控制仍禁用。GitHub已发布的v1.16.0旧安装包仍仅支持监测。
 5. CPU/内存/进程/电池等可用读数依赖系统接口；温度和风扇传感器可能不可用，缺失值保持缺失。
 
-本包在 Intel Mac 上交叉编译，尚未在 Apple Silicon 真机运行和验证。
+硬件验证范围见源码 docs/APPLE_SILICON_FANS.txt；构建清单中的静态检查不代表每台Apple Silicon机型都已验证。
 已检查主程序、辅助程序及小组件均为 arm64，签名与归档解压完整性通过；这不能替代 ARM 真机功能和性能验证。
 当前为 ad-hoc 签名，未经 Apple 公证，macOS 可能提示无法验证开发者。
 与 Intel 版共用应用标识，安装时替换同名应用；不要同时运行两个版本。
@@ -18,10 +18,10 @@ English
 1. Sign in with repository access and download ThermalScope-1.16.0-macOS-arm64.zip from the v1.16.0 release.
 2. Extract it and drag ThermalScope.app into Applications. This package is for Apple Silicon Macs.
 3. Click the menu bar item and open the console from its panel. Select English or Simplified Chinese in Settings → Language.
-4. This is an experimental monitoring-only build. Fan, Turbo and power-setting control are disabled. Intel Turbo Boost does not apply to Apple Silicon.
+4. Current source builds support experimental independent fan controls. Start with the five-second test and authorize through macOS. Manual speeds and temperature curves are available. Intel Turbo and power-setting controls remain disabled. The original published v1.16.0 ARM archive is still monitoring-only.
 5. Available CPU, memory, process and battery readings depend on system interfaces. Temperature and fan sensors may be unavailable; missing readings stay missing.
 
-Cross-compiled on an Intel Mac; it has not been launched or validated on Apple Silicon hardware.
+See docs/APPLE_SILICON_FANS.txt in the source for hardware validation scope; static build checks do not validate every Apple Silicon model.
 Architecture checks confirm arm64 host, helper and widget binaries. Signatures and archive extraction integrity were checked; these do not establish ARM runtime functionality or performance.
 The package is ad-hoc signed and not notarized. macOS may report that the developer cannot be verified.
 It shares the Intel build's application identifier; replace the existing app rather than running both versions.

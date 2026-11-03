@@ -46,8 +46,11 @@ public enum CPULoadBands {
     }
     /// Runs preserve color transitions and sampling gaps before any drawing reduction.
     public static func runs(_ points:[MetricPoint],budget:Int=140)->[CPULoadRun] {
+        runs(samples:samples(points),budget:budget)
+    }
+    public static func runs(samples:[CPULoadSample],budget:Int=140)->[CPULoadRun] {
         var result:[CPULoadRun]=[],previous:CPULoadSample?
-        for sample in samples(points) {
+        for sample in samples {
             guard sample.level != .unknown else{previous=nil;continue}
             let contiguous=previous.map{sample.point.segment==$0.point.segment && sample.point.date>$0.point.date && sample.point.date.timeIntervalSince($0.point.date)<=15} ?? false
             if contiguous {

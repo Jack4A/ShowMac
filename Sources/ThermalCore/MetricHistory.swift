@@ -5,17 +5,19 @@ public struct MetricPoint:Identifiable,Equatable {
     public let value:Double?
     public let segment:Int
     public var id:Date {date}
+    public init(date:Date,value:Double?,segment:Int){self.date=date;self.value=value;self.segment=segment}
 }
 /// Bounded, timestamped samples. Missing values break a line, never become zero.
 public struct MetricHistory {
     public private(set) var points:[MetricPoint]=[]
     private var segment=0
     private let maximumGap:Double
-    public init(maximumGap:Double=15){self.maximumGap=maximumGap}
+    private let allowsNegativeValues:Bool
+    public init(maximumGap:Double=15,allowsNegativeValues:Bool=false){self.maximumGap=maximumGap;self.allowsNegativeValues=allowsNegativeValues}
     public mutating func append(_ value:Double?,at date:Date) {
         guard date.timeIntervalSince1970.isFinite else{return}
         if let previous=points.last, date<=previous.date {return}
-        let valid=value.flatMap{$0.isFinite && $0>=0 ? $0:nil}
+        let valid=value.flatMap{$0.isFinite && (allowsNegativeValues || $0>=0) ? $0:nil}
         if let previous=points.last,previous.value==nil || valid==nil || date.timeIntervalSince(previous.date)>maximumGap {segment+=1}
         points.append(MetricPoint(date:date,value:valid,segment:segment))
         points.removeAll{$0.date<date.addingTimeInterval(-1800)}

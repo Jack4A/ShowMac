@@ -59,7 +59,7 @@ manifest={'schema':2,'product':'ThermalScope','version':source['CFBundleShortVer
           'minimum_macos':source['LSMinimumSystemVersion'],'signing':'ad-hoc','notarized':False,
           'built_local':datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),'build_host_architecture':platform.machine(),
           'runtime_validation':'fixture_checks_only' if native else 'not_run_cross_compiled',
-          'apple_silicon_hardware_validation':False,'hardware_control_available':arch=='x86_64',
+          'apple_silicon_hardware_validation':False,'hardware_control_available':True,'fan_control_requires_capability_probe':True,'turbo_control_available':arch=='x86_64','power_control_available':arch=='x86_64',
           'experimental':arch=='arm64',
           'archive':archive.name,'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
           'bundled_components':['ThermalScope.app','ThermalScopeHelper','ThermalScopeWidget.appex'],'checks':checks}

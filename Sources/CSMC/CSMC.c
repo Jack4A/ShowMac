@@ -67,19 +67,35 @@ int ts_smc_write(uint32_t connection, const char *key, const TSValue *value) {
     if (!connection || !key || strlen(key) != 4 || !value || value->size > 32 || !value->size) return -1;
     // The bridge deliberately only permits fan mode/target keys, never arbitrary SMC writes.
     int fanKey = key[0]=='F' && key[1]>='0' && key[1]<='9' &&
-                 ((key[2]=='M' && key[3]=='d') || (key[2]=='T' && key[3]=='g'));
+                 (((key[2]=='M' || key[2]=='m') && key[3]=='d') || (key[2]=='T' && key[3]=='g'));
+#if defined(__arm64__)
+    // Only the firmware fan-control handoff flag; values remain boolean.
+    if (strcmp(key, "Ftst") == 0) {
+        if (value->type != fourcc("ui8 ") || value->size != 1 || value->bytes[0] > 1) return -3;
+        fanKey = 1;
+    }
+#endif
     if (!fanKey && strcmp(key, "FS! ") != 0) return -3;
     SMCMessage in = {0}, out = {0};
     in.key = fourcc(key); in.command = 6; in.info.size = value->size;
     memcpy(in.bytes, value->bytes, 32);
     return call(connection, &in, &out);
 }
+static int hexDigit(unsigned char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    return -1;
+}
 double ts_decode(const TSValue *v) {
     if (!v) return NAN;
-    if (v->type == fourcc("sp78") && v->size == 2)
-        return (double)(int16_t)((v->bytes[0]<<8)|v->bytes[1])/256.0;
-    if (v->type == fourcc("fpe2") && v->size == 2)
-        return (double)((v->bytes[0]<<8)|v->bytes[1])/4.0;
+    // SMC fixed-point types encode integer/fractional bit counts in hexadecimal.
+    unsigned char first=v->type>>24, second=v->type>>16;
+    int integer=hexDigit((v->type>>8)&255), fraction=hexDigit(v->type&255);
+    if (v->size == 2 && second == 'p' && integer >= 0 && fraction >= 0 &&
+        ((first == 's' && integer + fraction == 15) || (first == 'f' && integer + fraction == 16))) {
+        uint16_t bits=(uint16_t)((v->bytes[0]<<8)|v->bytes[1]);
+        return (first == 's' ? (double)(int16_t)bits : (double)bits) / (double)(1u<<fraction);
+    }
     if (v->type == fourcc("flt ") && v->size == 4) {
         float f; memcpy(&f, v->bytes, 4); return f;
     }

@@ -13,7 +13,7 @@ public enum SensorTimeline {
             let s=item.snapshot
             guard let value=s.temperature(sensor),value.isFinite else {previous=nil;mode=nil;continue}
             let turboLabel=s.turbo == .disabledDriverLoaded ? "睿频关闭":(s.turbo == .driverNotLoaded ? "允许睿频":"睿频未知")
-            let next=(item.mode ?? "未确认模式")+" · "+turboLabel
+            let next=(item.mode ?? "未确认模式")+(s.turbo == .unsupported ? "":" · "+turboLabel)
             if mode != next || previous.map({s.date.timeIntervalSince($0)>15 || s.date <= $0}) != false {
                 segment+=1;origin=s.date
             }

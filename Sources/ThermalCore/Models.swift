@@ -72,11 +72,13 @@ public struct Snapshot: Codable, Identifiable {
     public let lowPower: Bool
     public let smcAvailable: Bool
     public let memoryPressure:MemoryPressure?
-    public init(date:Date,cpuUsage:Double?,sensors:[SensorReading],fans:[FanReading],speedLimit:Int?,schedulerLimit:Int?,availableCPUs:Int?,totalCPUs:Int,thermalState:Int,thermalWarning:Int?,turbo:TurboState,acPower:Bool?,lowPower:Bool,smcAvailable:Bool,memoryPressure:MemoryPressure?=nil) {
+    public let additionalSensors:[HardwareSensorReading]?
+    public init(date:Date,cpuUsage:Double?,sensors:[SensorReading],fans:[FanReading],speedLimit:Int?,schedulerLimit:Int?,availableCPUs:Int?,totalCPUs:Int,thermalState:Int,thermalWarning:Int?,turbo:TurboState,acPower:Bool?,lowPower:Bool,smcAvailable:Bool,memoryPressure:MemoryPressure?=nil,additionalSensors:[HardwareSensorReading]?=nil) {
         self.date=date;self.cpuUsage=cpuUsage;self.sensors=sensors;self.fans=fans
         self.speedLimit=speedLimit;self.schedulerLimit=schedulerLimit;self.availableCPUs=availableCPUs;self.totalCPUs=totalCPUs
         self.thermalState=thermalState;self.thermalWarning=thermalWarning;self.turbo=turbo;self.acPower=acPower;self.lowPower=lowPower;self.smcAvailable=smcAvailable
         self.memoryPressure=memoryPressure
+        self.additionalSensors=additionalSensors
     }
     public var id: Date { date }
     public var cpuTemperature: Double? { sensors.filter { $0.key.hasPrefix("TC") }.map(\.celsius).max() }

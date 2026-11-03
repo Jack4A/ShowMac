@@ -42,6 +42,7 @@ public struct DiagnosticMetrics:Equatable {
     public let thermalTitle:String
     public let performanceLimited:Bool?
     public let processFresh:Bool
+    public let wakeRequestsKnown:Bool
     public let processSeconds:Double
     public let cpuSource:DiagnosticSource?
     public let diskSource:DiagnosticSource?
@@ -53,7 +54,7 @@ public struct DiagnosticMetrics:Equatable {
         memoryPressure=sample.memoryPressure;thermalTitle=sample.thermalTitle
         performanceLimited=sample.limitKnown ? sample.limited:nil
         let fresh=input.processDate.map{let age=sample.date.timeIntervalSince($0);return age>=(-1) && age<=12} ?? false
-        processFresh=fresh
+        processFresh=fresh;wakeRequestsKnown=input.blockers != nil
         let seconds=fresh && input.processSeconds.isFinite && input.processSeconds>0 ? min(60,input.processSeconds):0
         processSeconds=seconds
         cpuSource=seconds>0 ? input.sources.filter{$0.averageCPU.isFinite && $0.averageCPU>=0 && $0.currentCPU.isFinite && $0.currentCPU>=0}.max(by:{$0.averageCPU<$1.averageCPU}):nil

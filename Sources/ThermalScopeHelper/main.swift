@@ -19,6 +19,9 @@ func cooling(_ args: [String],duration:Double=300) throws {
     print("散热会话结束，已确认风扇恢复系统自动。")
 }
 func setTurbo(disable:Bool) throws {
+    #if arch(arm64)
+    throw ScopeError.message("Intel 睿频不适用于 Apple Silicon")
+    #else
     if ts_turbo_driver_state()==(disable ? 1:0) { return }
     var result=try ProcessRunner.run("/usr/bin/kmutil",[disable ? "load":"unload","-b","com.rugarciap.DisableTurboBoost"],timeout:90)
     if disable && result.status != 0 {
@@ -31,6 +34,7 @@ func setTurbo(disable:Bool) throws {
     guard result.status==0,ts_turbo_driver_state()==(disable ? 1:0) else {
         throw ScopeError.message("睿频操作未确认。需要已安装且获得系统批准的驱动。\n"+result.output)
     }
+    #endif
 }
 func profile(_ args:[String]) throws {
     guard args.count==7,let pid=Int32(args[3]),pid>1,let uid=UInt32(args[4]),uid>0,
@@ -73,11 +77,19 @@ func profile(_ args:[String]) throws {
 
 let args=CommandLine.arguments
 #if arch(arm64)
-// Refuse every write-capable entry point, including the persistent serve protocol.
-if args.dropFirst().first != "probe" {
-    fail("Apple Silicon 实验版仅支持监测，硬件控制尚未支持 / Experimental Apple Silicon build: monitoring only; hardware control is unavailable.")
+let command=args.dropFirst().first ?? ""
+let fanCommands=["probe","fan-probe","serve","cooling","test-fans","auto"]
+if !fanCommands.contains(command) && !(command=="profile" && args.count>2 && args[2]=="custom") {
+    fail("Apple Silicon 当前仅支持独立风扇控制")
 }
 #endif
+if args.count==2 && args[1]=="fan-probe" {
+    let smc=SMC()
+    let keys=["FNum","F0Md","F0md","F0Tg","F0Ac","F0Mn","F0Mx","Ftst","FS! "]
+    let values=Dictionary(uniqueKeysWithValues:keys.compactMap {key in smc.number(key).map {(key,$0)}})
+    do {let data=try JSONEncoder().encode(values);FileHandle.standardOutput.write(data);print()} catch {fail(error.localizedDescription)}
+    exit(0)
+}
 if args.count==4 && args[1]=="serve" {
     do { try runControlSession(args) } catch { fail(error.localizedDescription) }
     exit(0)
