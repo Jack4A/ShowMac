@@ -21,62 +21,97 @@ struct TimelineEvent: Identifiable {
     var languageChanged:(()->Void)?
     var statusMenuRequested:(()->Void)?
     let readings=LiveReadings()
+    let fanControl=FanControlReadings()
     var snapshot:Snapshot? {readings.snapshot}
     var telemetry:SystemTelemetry? {readings.telemetry}
     let timeline=TemperatureTimelineStore()
     let metricHistory=MetricHistoryStore()
+    let sensorHistory=SensorHistoryStore()
     let widgetPublisher=WidgetPublisher()
     private let controller=NativeControlClient()
+    private let fanPreview=CommandLine.arguments.contains("--ui-check") ? FanControlPreview():nil
+    var isFanControlPreview:Bool {fanPreview != nil}
     @Published var authorizationReady=false
     private var lastHelperPoll=Date.distantPast
     @Published var menuItems:[MenuMetric]=(UserDefaults.standard.stringArray(forKey:"menuItems") ?? ["temperature","cpu"]).compactMap(MenuMetric.init(rawValue:)) {
-        didSet { UserDefaults.standard.set(menuItems.map(\.rawValue),forKey:"menuItems");updateMenu() }
+        didSet { persistMenuSetting(menuItems.map(\.rawValue),forKey:"menuItems");updateMenu() }
     }
     @Published var menuStyle=UserDefaults.standard.string(forKey:"menuStyle") ?? "custom" {
-        didSet { UserDefaults.standard.set(menuStyle,forKey:"menuStyle");updateMenu() }
+        didSet { persistMenuSetting(menuStyle,forKey:"menuStyle");updateMenu() }
+    }
+    @Published var menuComposition=MenuBarComponent.decode(UserDefaults.standard.data(forKey:"menuComposition")) {
+        didSet {
+            if let menuComposition,let data=try? JSONEncoder().encode(menuComposition) {persistMenuSetting(data,forKey:"menuComposition")}
+            else if !isFanControlPreview {UserDefaults.standard.removeObject(forKey:"menuComposition")}
+            updateMenu()
+        }
     }
     @Published var menuGraph=(UserDefaults.standard.object(forKey:"menuCPUGraph") as? Bool) ?? true {
-        didSet {UserDefaults.standard.set(menuGraph,forKey:"menuCPUGraph");updateMenu()}
+        didSet {persistMenuSetting(menuGraph,forKey:"menuCPUGraph");updateMenu()}
     }
     @Published var statusMinutes:Int=[2,5,10].contains(UserDefaults.standard.integer(forKey:"statusMinutes")) ? UserDefaults.standard.integer(forKey:"statusMinutes"):2 {
-        didSet {UserDefaults.standard.set(statusMinutes,forKey:"statusMinutes")}
+        didSet {persistMenuSetting(statusMinutes,forKey:"statusMinutes")}
+    }
+    @Published var statusPanel=StatusPanelConfiguration.decode(UserDefaults.standard.data(forKey:"statusPanel")) {
+        didSet {if let data=try? JSONEncoder().encode(statusPanel) {persistMenuSetting(data,forKey:"statusPanel")}}
     }
     @Published var statusTemperature:MetricKind={
         let value=MetricKind(rawValue:UserDefaults.standard.string(forKey:"statusTemperature") ?? "") ?? .cpuTemperature
         return value.sensor != nil ? value:.cpuTemperature
     }() {
-        didSet {UserDefaults.standard.set(statusTemperature.rawValue,forKey:"statusTemperature")}
+        didSet {persistMenuSetting(statusTemperature.rawValue,forKey:"statusTemperature")}
     }
     @Published var menuGraphKind=MetricKind(rawValue:UserDefaults.standard.string(forKey:"menuGraphKind") ?? "") ?? .cpuUsage {
-        didSet {UserDefaults.standard.set(menuGraphKind.rawValue,forKey:"menuGraphKind");updateMenu()}
+        didSet {persistMenuSetting(menuGraphKind.rawValue,forKey:"menuGraphKind");updateMenu()}
     }
     @Published var menuGraphStyle=MenuGraphStyle(rawValue:UserDefaults.standard.string(forKey:"menuGraphStyle") ?? "") ?? .line {
-        didSet {UserDefaults.standard.set(menuGraphStyle.rawValue,forKey:"menuGraphStyle");updateMenu()}
+        didSet {persistMenuSetting(menuGraphStyle.rawValue,forKey:"menuGraphStyle");updateMenu()}
     }
-    @Published var menuGraphWidth:Double=[44.0,66,88].contains(UserDefaults.standard.double(forKey:"menuGraphWidth")) ? UserDefaults.standard.double(forKey:"menuGraphWidth"):44 {
-        didSet {UserDefaults.standard.set(menuGraphWidth,forKey:"menuGraphWidth");updateMenu()}
+    @Published var menuGraphWidth:Double={let n=UserDefaults.standard.double(forKey:"menuGraphWidth");return n.isFinite && (28...100).contains(n) ? n:44}() {
+        didSet {persistMenuSetting(menuGraphWidth,forKey:"menuGraphWidth");updateMenu()}
     }
     @Published var menuTileStyles=(UserDefaults.standard.dictionary(forKey:"menuTileStyles") as? [String:String]) ?? [:] {
-        didSet {UserDefaults.standard.set(menuTileStyles,forKey:"menuTileStyles");updateMenu()}
+        didSet {persistMenuSetting(menuTileStyles,forKey:"menuTileStyles");updateMenu()}
     }
     @Published var menuTileColors=(UserDefaults.standard.dictionary(forKey:"menuTileColors") as? [String:String]) ?? [:] {
-        didSet {UserDefaults.standard.set(menuTileColors,forKey:"menuTileColors");updateMenu()}
+        didSet {persistMenuSetting(menuTileColors,forKey:"menuTileColors");updateMenu()}
     }
-    @Published var menuBarTheme=MenuBarTheme(rawValue:UserDefaults.standard.string(forKey:"menuBarTheme") ?? "") ?? .accent {
-        didSet {UserDefaults.standard.set(menuBarTheme.rawValue,forKey:"menuBarTheme");updateMenu()}
+    @Published var menuSpacing=MenuBarLayout.spacing(UserDefaults.standard.object(forKey:"menuSpacing") as? Double) {
+        didSet {persistMenuSetting(menuSpacing,forKey:"menuSpacing");updateMenu()}
     }
-    @Published var menuSpacing:Double=UserDefaults.standard.double(forKey:"menuSpacing")==9 ? 9:4 {
-        didSet {UserDefaults.standard.set(menuSpacing,forKey:"menuSpacing");updateMenu()}
+    @Published var menuOuterPadding:Double={let n=UserDefaults.standard.object(forKey:"menuOuterPadding") as? Double;return n.flatMap{$0.isFinite ? min(20,max(0,$0)):nil} ?? 0}() {
+        didSet {persistMenuSetting(menuOuterPadding,forKey:"menuOuterPadding");updateMenu()}
+    }
+    @Published var menuInnerPadding:Double={let n=UserDefaults.standard.object(forKey:"menuInnerPadding") as? Double;return n.flatMap{$0.isFinite ? min(20,max(0,$0)):nil} ?? 0}() {
+        didSet {persistMenuSetting(menuInnerPadding,forKey:"menuInnerPadding");updateMenu()}
     }
     @Published var menuGraphBackground=UserDefaults.standard.bool(forKey:"menuGraphBackground") {
-        didSet {UserDefaults.standard.set(menuGraphBackground,forKey:"menuGraphBackground");updateMenu()}
+        didSet {persistMenuSetting(menuGraphBackground,forKey:"menuGraphBackground");updateMenu()}
     }
     @Published var menuCPUWarnings=(UserDefaults.standard.object(forKey:"menuCPUWarnings") as? Bool) ?? true {
-        didSet {UserDefaults.standard.set(menuCPUWarnings,forKey:"menuCPUWarnings");updateMenu()}
+        didSet {persistMenuSetting(menuCPUWarnings,forKey:"menuCPUWarnings");updateMenu()}
+    }
+    @Published var menuTileIcons=(UserDefaults.standard.dictionary(forKey:"menuTileIcons") as? [String:String]) ?? [:] {
+        didSet {persistMenuSetting(menuTileIcons,forKey:"menuTileIcons");updateMenu()}
+    }
+    @Published var menuTileLabels=(UserDefaults.standard.dictionary(forKey:"menuTileLabels") as? [String:String]) ?? [:] {
+        didSet {persistMenuSetting(menuTileLabels,forKey:"menuTileLabels");updateMenu()}
+    }
+    @Published var menuTypography:MenuTypography={
+        guard let data=UserDefaults.standard.data(forKey:"menuTypography"),let value=try? JSONDecoder().decode(MenuTypography.self,from:data) else{return .standard}
+        return value
+    }() {
+        didSet {if let data=try? JSONEncoder().encode(menuTypography) {persistMenuSetting(data,forKey:"menuTypography")};updateMenu()}
+    }
+    @Published var menuDividers=UserDefaults.standard.bool(forKey:"menuDividers") {
+        didSet {persistMenuSetting(menuDividers,forKey:"menuDividers");updateMenu()}
+    }
+    private func persistMenuSetting(_ value:Any,forKey key:String) {
+        if !isFanControlPreview {UserDefaults.standard.set(value,forKey:key)}
     }
     private var batchingMenuAppearance=false
     @Published var theme=UserDefaults.standard.string(forKey:"theme") ?? "system" {
-        didSet { UserDefaults.standard.set(theme,forKey:"theme");applyTheme() }
+        didSet { if !isFanControlPreview {UserDefaults.standard.set(theme,forKey:"theme")};applyTheme() }
     }
     var colorScheme:ColorScheme? { theme == "dark" ? .dark:(theme == "light" ? .light:nil) }
     func applyTheme() { NSApp.appearance=theme == "dark" ? NSAppearance(named:.darkAqua):(theme == "light" ? NSAppearance(named:.aqua):nil) }
@@ -84,9 +119,9 @@ struct TimelineEvent: Identifiable {
     func applyMenuPreset(_ preset:Int) {
         batchingMenuAppearance=true
         defer {batchingMenuAppearance=false;updateMenu()}
-        menuStyle="custom";menuTileColors=[:];menuSpacing=4;menuGraphWidth=44
+        menuComposition=nil;menuStyle="custom";menuTileColors=[:];menuTileIcons=[:];menuTileLabels=[:];menuSpacing=MenuBarLayout.defaultSpacing;menuGraphWidth=44
         let layout=MenuBarPreset(rawValue:preset) ?? .minimal
-        menuItems=layout.items;menuTileStyles=layout.styles;menuBarTheme=layout.theme;menuGraphBackground=layout.background
+        menuItems=layout.items;menuTileStyles=layout.styles;menuGraphBackground=layout.background
     }
     func toggleMenu(_ metric:MenuMetric,_ enabled:Bool) {
         if enabled { if !menuItems.contains(metric) { menuItems.append(metric) } }
@@ -108,7 +143,7 @@ struct TimelineEvent: Identifiable {
         guard enabled != visualUpdatesEnabled else{return}
         visualUpdatesEnabled=enabled
         if enabled {
-            readings.resumeVisualUpdates();metricHistory.resumeVisualUpdates();timeline.resumeVisualUpdates()
+            readings.resumeVisualUpdates();metricHistory.resumeVisualUpdates();sensorHistory.resumeVisualUpdates();timeline.resumeVisualUpdates();fanControl.resumeVisualUpdates()
         }
     }
     private func receiveTelemetry(_ value:SystemTelemetry) {
@@ -121,9 +156,9 @@ struct TimelineEvent: Identifiable {
     @Published var coolingToken:String?
     @Published var message="正在读取本机传感器…"
     @Published var messageIsError=false
+    @Published var noticeVisible=false
     @Published var lastAction="尚未执行硬件控制"
     @Published var confirmedEnergy:ThermalProfile?
-    @Published var manualPercent:Double=50
     @Published var controlName="自定义曲线"
     private var queuedCurve:FanCurve?
     private var queuedName="自定义曲线"
@@ -132,16 +167,15 @@ struct TimelineEvent: Identifiable {
         guard let confirmedEnergy,let state=snapshot?.turbo else { return nil }
         return state == (confirmedEnergy.disablesTurbo ? .disabledDriverLoaded:.driverNotLoaded) ? confirmedEnergy:nil
     }
-    func applyManual() {
-        queuedCurve = .manual(percent:manualPercent);queuedName="手动转速"
-        applyProfile(.custom)
+    func applyFanCurve(_ curve:FanCurve,name:String) {
+        queuedCurve=curve;queuedName=name;applyProfile(.custom)
     }
     func applyCustomCurve() {
         queuedCurve=nil;queuedName="自定义曲线";applyProfile(.custom)
     }
     @Published var tab=0
     @Published var customCurve:FanCurve = .balanced {
-        didSet { if (try? customCurve.validate()) != nil,let data=try? JSONEncoder().encode(customCurve) { UserDefaults.standard.set(data,forKey:"customFanCurve") } }
+        didSet { if !CommandLine.arguments.contains("--ui-check"),(try? customCurve.validate()) != nil,let data=try? JSONEncoder().encode(customCurve) { UserDefaults.standard.set(data,forKey:"customFanCurve") } }
     }
     @Published var requestedProfile:ThermalProfile?
     var activeProfile:ThermalProfile? {
@@ -202,12 +236,14 @@ struct TimelineEvent: Identifiable {
             DispatchQueue.main.async { self?.receive(s) }
         }
     }
-    private func receive(_ sample:Snapshot) {
+    private func receive(_ incoming:Snapshot) {
+        let sample=fanPreview?.decorate(incoming) ?? incoming
         let previous=snapshot
         let stateChanged=previous==nil || previous?.turbo != sample.turbo || previous?.fans.map(\.manual) != sample.fans.map(\.manual) || previous?.smcAvailable != sample.smcAvailable
         if stateChanged {objectWillChange.send()}
         readings.update(sample,publish:visualUpdatesEnabled)
         metricHistory.record(sample,telemetry:telemetry,publish:visualUpdatesEnabled)
+        sensorHistory.record(sample,menuSensors:retainedSensorReferences,publish:visualUpdatesEnabled)
         widgetPublisher.record(sample,mode:coolingStatus,language:AppLocalization.shared.resolvedLanguage,history:metricHistory)
         optimization.record(sample,telemetry:telemetry)
         diagnostics.receive(sample,telemetry:telemetry,processes:processes,power:optimization)
@@ -223,9 +259,10 @@ struct TimelineEvent: Identifiable {
         timeline.append(sample,mode:observedMode,publish:visualUpdatesEnabled)
         if Date().timeIntervalSince(lastHelperPoll)>=3 {
             lastHelperPoll=Date()
-            controller.poll { [weak self] result in
+            if let fanPreview {receiveControl(.success(fanPreview.status()),poll:true)}
+            else {controller.poll { [weak self] result in
                 DispatchQueue.main.async { self?.receiveControl(result,poll:true) }
-            }
+            }}
         }
         history.append(sample)
         let cutoff=Date().addingTimeInterval(-1800)
@@ -251,11 +288,13 @@ struct TimelineEvent: Identifiable {
         switch result {
         case .success(let reply):
             if !authorizationReady {authorizationReady=true}
+            fanControl.update(reply.ok && reply.session != nil ? reply.fanStatus:nil,publish:visualUpdatesEnabled)
             let previous=coolingToken
             if coolingToken != reply.session {coolingToken=reply.session;sessionCurve=nil}
             let nextProfile=reply.profile.flatMap { command in ThermalProfile.allCases.first(where:{$0.command==command}) }
             if requestedProfile != nextProfile {requestedProfile=nextProfile}
             if let label=reply.label,controlName != label { controlName=label }
+            if let fanPreview {sessionCurve=fanPreview.curve}
             if !reply.ok {
                 sessionCurve=nil
                 if !messageIsError || message != reply.message { report(reply.message,error:true);addEvent("硬件控制未完成",detail:reply.message,warning:true) }
@@ -265,6 +304,7 @@ struct TimelineEvent: Identifiable {
             }
             if let mode=requestedProfile,ThermalProfile.energyModes.contains(mode),confirmedEnergy != mode {confirmedEnergy=mode}
         case .failure(let error):
+            fanControl.update(nil,publish:visualUpdatesEnabled)
             authorizationReady=false;coolingToken=nil;requestedProfile=nil;sessionCurve=nil
             report(error.localizedDescription,error:true)
         }
@@ -273,8 +313,15 @@ struct TimelineEvent: Identifiable {
     private func control(_ request:ControlRequest,completion:((Result<ControlReply,Error>)->Void)?=nil) {
         guard !busy else {completion?(.failure(ScopeError.message("另一项操作尚未完成")));return}
         busy=true
-        message=authorizationReady ? "正在应用，等待硬件确认…":"首次控制需要系统授权；本次运行内复用原生连接…"
-        messageIsError=false
+        report(authorizationReady ? "正在应用，等待硬件确认…":"首次控制需要系统授权；本次运行内复用原生连接…",error:false)
+        if let fanPreview {
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds:700_000_000)
+                let result=Result {try fanPreview.handle(request)}
+                self?.receiveControl(result);completion?(result)
+            }
+            return
+        }
         controller.request(request) { [weak self] result in
             DispatchQueue.main.async {self?.receiveControl(result);completion?(result)}
         }
@@ -282,12 +329,25 @@ struct TimelineEvent: Identifiable {
     func startCooling() {startFanTest()}
     func stopCooling() {
         guard coolingToken != nil else {return}
+        if let fanPreview {receiveControl(Result{try fanPreview.handle(ControlRequest("auto"))});return}
         controller.request(ControlRequest("auto"),allowAuthorization:false) { [weak self] result in
             DispatchQueue.main.async {self?.receiveControl(result)}
         }
     }
+    var displayedControlMode:ThermalProfile? {
+        if ControlAvailability.isAppleSilicon,activeProfile == .custom,let curve=sessionCurve {
+            return [ThermalProfile.balanced,.performance,.quiet].first {$0.curve==curve}
+        }
+        if let active=activeProfile,ThermalProfile.energyModes.contains(active) {return active}
+        if coolingToken==nil,let fans=snapshot?.fans,!fans.isEmpty,fans.allSatisfy({$0.manual==false}) {return .automatic}
+        return nil
+    }
     func applyProfile(_ profile:ThermalProfile) {
         if profile == .automatic {restoreAuto();return}
+        if ControlAvailability.isAppleSilicon,profile != .custom {
+            queuedCurve=profile.curve;queuedName=profile.rawValue+"模式"
+            applyProfile(.custom);return
+        }
         if let app=conflictingApp(["Macs Fan Control","smcFanControl","TG Pro"]) {report("请先退出 \(app)，避免争抢风扇控制。",error:true);return}
         if profile != .custom,let app=conflictingApp(["Turbo Boost Switcher"]) {report("请先退出 \(app)，避免自动规则覆盖模式。",error:true);return}
         let curve=profile == .custom ? (queuedCurve ?? customCurve):profile.curve
@@ -330,13 +390,14 @@ struct TimelineEvent: Identifiable {
         case .refresh:refresh()
         }
     }
-    func report(_ text:String,error:Bool) { message=text; messageIsError=error }
+    func report(_ text:String,error:Bool) { message=text; messageIsError=error;noticeVisible=true }
+    func dismissNotice() { noticeVisible=false;messageIsError=false }
     func exportCSV() {
         let panel=NSSavePanel()
         panel.nameFieldStringValue="ThermalScope-\(Date().formatted(.iso8601.year().month().day())) .csv".replacingOccurrences(of:" .csv",with:".csv")
-        panel.title="导出最近 30 分钟监测数据"
+        panel.title=L("导出最近 30 分钟监测数据")
         guard panel.runModal() == .OK,let url=panel.url else { return }
-        do { try Export.csv(history).write(to:url,atomically:true,encoding:.utf8); report("已导出 \(history.count) 条采样。",error:false) }
+        do { try Export.csv(history).write(to:url,atomically:true,encoding:.utf8); report(String(format:L("已导出 %d 条采样。"),history.count),error:false) }
         catch { report(error.localizedDescription,error:true) }
     }
     func shutdown() { widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }

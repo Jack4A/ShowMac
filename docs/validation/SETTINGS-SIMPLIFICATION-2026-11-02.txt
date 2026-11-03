@@ -1,0 +1,36 @@
+设置页整理验证（2026-11-02）
+
+用户反馈与范围
+用户认可所附指标卡片截图，指出设置太乱。该截图作为保留参考，本次未改动仪表盘、指标卡片、字体、侧栏、主题、状态弹窗、采样或控制实现。
+
+实现
+通用页默认打开，按外观、监测分组，统一右侧控件对齐。原生三标签选择靠左与内容对齐。
+状态栏页由单份明暗预览、显示项目、默认折叠的字体与外观三块组成。每行仅复选框、当前样式和编辑按钮。
+项目详细设置移入原生 sheet + grouped Form，保留全部 8 种样式、内置/自定义图片图标、标签、颜色和位置选项。位置改变通过原有相邻 moveMenu 调整，不修改模型排序接口。编辑即时保存，Done/Escape 关闭面板。
+原有兼容布局迁移与至少一个显示项目保护保留。新增 14 个文案键，补齐英语、德语、西语、法语、日语、韩语；既有本地化条目全部保持原值。
+
+构建及静态验证
+最终 native 构建成功；签名和主程序/辅助程序/小组件 SDK 27.0 校验通过。
+保护文件哈希与本轮修改前一致，包括 AppTypography、MonitorAppearance、Palette、MetricsDashboard、Views、ConsoleUI、ConsoleSidebar、SensorInventoryPage、FanControlPage、FanCurveView、StatusOverview、MenuBarAppearance、MenuCustomization、WidgetSettings、AppModel、Main 及 Core/CSMC/Helper 全部源码。
+DiagnosisStore 仅默认 preferencesSection 从 menubar 改为 general，诊断实现原文不变。
+--menu-customization-check --ui-check 通过：144 组浅深色字体/样式/图标组合保持可见与宽度稳定；图片导入、标签归一化、无效图标、字体边界及菜单偏好隔离通过。
+
+原生 UI 验证
+深色中文：通用分组、精简状态栏首屏、原生编辑表单和展开的高级选项均检查。首屏显示所有五个项目及折叠外观入口。
+浅色英文：使用进程参数 -theme light 临时覆盖参数域，未操作实际主题控件；通用页右边缘对齐，状态栏首屏及编辑表单无新增截断或重叠。明暗预览选择能够切换，且不改变应用主题。
+排序测试：CPU 温度由第 1 项移至第 3 项，编辑面板保持打开；关闭后列表和预览同时显示 CPU 使用率、风扇、CPU 温度。
+显示保护测试：关闭其他两项后，最后一项复选框正确禁用。
+样式/图标测试：选 Icons only 后标签输入禁用并显示原因；选择 No icon 后自动改为 Single-line value，避免唯一内容消失。Done 与 Escape 均能关闭 sheet。
+上述修改测试全部运行于 --ui-check，没有写入用户已保存的菜单设置或发起硬件控制。
+
+安装复查
+已更新 /Applications/ThermalScope.app，七项文件哈希（主程序、辅助程序、主/小组件本地化、小组件、Assets.car、Info.plist）与最终构建一致；三个可执行文件 SDK 27.0，签名通过。
+正常应用首次打开设置默认 General；状态栏弹窗的 Settings 仍直接到 Menu bar。保存的深色主题和 CPU 温度/CPU 使用率/风扇原有顺序与样式保持，隔离预览中的重排和 Single-line value 没有泄漏到正常设置。
+正常版只读验证，停留在整理后的状态栏设置页。
+git diff --check 通过。原有 stash@{0} 保留。
+
+源码修改前备份
+/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-settings-before-i5rrgpnn
+
+安装前备份
+/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-settings-installed-before-k3mn6df1/ThermalScope.app

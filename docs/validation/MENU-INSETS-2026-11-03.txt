@@ -1,0 +1,24 @@
+菜单栏组件外边距收紧（2026-11-03）
+
+需求与实现
+用户截图指出顶部菜单栏读数外边距偏大。当前实际组合为CPU使用率与PSTR整机功耗两个单行读数，本次保留这两个组件及其独立身份。
+自定义组合仍以原生NSStatusBarButton显示完整NSImage，长度从NSStatusItem.variableLength调整为ceil(image.width)+8，整组两侧各4pt，最小22pt。图片赋值后再设置length，继续按完整图片宽度计算，未裁剪或缩放图标/数字，也未缩减预留数值位宽。自动黑白、自定义颜色、告警、数值精度及稳定宽度渲染保持。
+用户切换兼容布局时显式恢复variableLength，由系统计算图文组合尺寸，避免沿用前一个自定义图像的固定长度。
+通过现有原生设置滑块，将本机menuSpacing从4pt改为2pt。没有新增设置项、全局菜单栏系统设置或偏好迁移；新安装/快速样式的默认间距不变，其他用户已保存间距不改写。
+只修改Main.swift中的状态图片分支，其他Sources/Resources/Tests受保护哈希保持。上一轮五档对齐、浅色主题与设置入口均保留。
+
+验证
+macOS SDK27.0构建app/helper/widget通过，严格签名验证通过。本机安装的主二进制、helper、两份Localization.json、widget二进制、Assets.car和Info.plist共7项SHA-256与构建产物一致，bundle ID为local.jack.ThermalScope。
+CUA本机检查：原生滑块成功设置为2pt，重启后仍为2pt；两个读数组件的样式/顺序保留，系统字体11.5pt中等、图形底色及告警开关保留。设置中的查看状态面板能正常打开/关闭原生弹窗，自动采样与系统自动风扇状态正常。
+电脑操作工具未能读取SystemUIServer的菜单栏表面，弹窗截图不包含整条系统菜单栏。因此未记录整条菜单栏的前后像素测量或声称已目测相邻应用的系统间距；本次验证覆盖显式原生长度设置、编译/安装、偏好保存和弹窗打开，其他软件的状态项不在修改范围。
+此次为原生状态按钮尺寸及现有间距设置调整，未新增测试文件。git diff --check通过；菜单栏组件存储、图标/颜色/字体、曲线设置偏好哈希对比保持，仅menuSpacing由4变2。
+保留stash@{0} b6d789b，无新stash或提交。未操作真实风扇档位。
+
+API参考
+https://developer.apple.com/documentation/appkit/nsstatusitem/length
+https://developer.apple.com/documentation/appkit/nsstatusitem/variablelength
+
+源文件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-menu-insets-before-rd0krj6n
+构建产物：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-menu-insets-98i8ke2z/ThermalScope.app
+安装前软件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-menu-insets-install-7anmu2t0/ThermalScope.app
+本机：/Applications/ThermalScope.app

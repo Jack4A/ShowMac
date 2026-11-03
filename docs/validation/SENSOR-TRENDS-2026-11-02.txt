@@ -1,0 +1,31 @@
+常用传感器近期趋势 — 2026-11-02
+
+范围
+常用读数卡片显示小曲线，点击打开单项趋势图。时间范围为 5/10/30 分钟。
+卡片和详细图使用同一份聚合结果：已识别温度取最高值、每个风扇独立记录、功耗按原始来源独立记录。
+短历史先显示已记录区间（最小时间轴 30 秒）；有足够采样后滚动保留所选区间。
+图表提供真实采样时间、悬停读数、最低/采样均值/最高与已记录时长。
+仅保留本次运行最近 30 分钟；每项最多 1000 点，退出后清空。
+窗口隐藏时继续采集，但不发布视图刷新；重新显示时一次性跟进。
+未知/缺失值与睡眠断档会打断曲线，绝不补零；合法的零 RPM、零功耗和负功耗均保留。
+所有采样使用已有只读采集器，不引入硬件控制写入。
+
+验证
+完整 Release 构建通过（本机 SDK 26.5），包括应用、辅助程序与小组件。
+95 项核心检查通过，0 失败，其中 3 项新增检查涵盖聚合来源、负功耗/零 RPM、断档、时间窗、保留边界与过期乱序样本。
+120 次隐藏窗口采样检查通过，常用传感器持续记录且没有视图通知，恢复显示后一次跟进。
+新增传感器 UI 英文文案检查通过，8 条新文案均有英/日/韩/德/法/西翻译。
+
+原生 UI 验证
+中文浅色和英文深色布局通过；卡片小曲线、详细图、完整时间轴文字与统计值可见。
+点击曲线显示实际采样时间和数值，竖线/选中点同步；时间范围在卡片与详细图之间同步。
+
+安装核对 2026-11-02T00:55:45
+源与安装包深度严格签名校验通过，5 项 SHA-256 一致：
+Contents/MacOS/ThermalScope: 5555921f418b3dc8b875ac5ab61c535c8d48d54a80892df7cdad3d1b28765ad5
+Contents/Helpers/ThermalScopeHelper: 55afffb546eeac280c272cd5448e60f95ac7dde5ab71abd3e13f9922547f1a83
+Contents/Resources/Localization.json: e5a8c3bc6d0eca5c8e0466124b8b8bc9caff6aa3caecad544e40d8f152fa37a9
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget: 6d78b783c341f0069c8daa14043845bcc10ea1377fdf0db8761a484c5d2362ac
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/Resources/Localization.json: e5a8c3bc6d0eca5c8e0466124b8b8bc9caff6aa3caecad544e40d8f152fa37a9
+旧安装备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-sensor-trends-install-wz4te2q4/ThermalScope.app
+安装后已重新打开中文常用传感器页：6 张卡片的小曲线、记录时长、查看趋势入口及 5/10/30 分钟选择均可见，真实采样继续累积。

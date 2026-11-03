@@ -77,7 +77,7 @@ enum StressBenchmark {
                 let reduced=MetricPlot.decimated(points)
                 let runs=CPULoadBands.runs(points)
                 let tiles=[MenuBarTile(metric:.cpu,style:.historyValue,label:"CPU",value:"50%",number:50,points:points,upper:100,color:colors[batches%2])]
-                let image=MenuBarAppearanceRenderer.image(tiles:tiles,ending:history.end,theme:.multicolor,spacing:4,graphWidth:88,background:true,appearance:NSAppearance(named:batches%2==0 ? .aqua:.darkAqua))
+                let image=MenuBarAppearanceRenderer.image(tiles:tiles,ending:history.end,spacing:4,graphWidth:88,background:true,appearance:NSAppearance(named:batches%2==0 ? .aqua:.darkAqua))
                 checksum &+= reduced.count+runs.count+Int(image.size.width)
                 plotLatencies.append((ProcessInfo.processInfo.systemUptime-plotStart)*1000)
                 check(points.count<=1000,"metric_history_retained_sample_cap_1000")

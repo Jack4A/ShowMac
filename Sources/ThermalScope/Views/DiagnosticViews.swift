@@ -3,8 +3,8 @@ import SwiftUI
 import ThermalCore
 
 extension DiagnosticState {
-    var title:String {switch self {case .sampling:return "正在建立观察基线";case .attention:return "有情况需要关注";case .observing:return "有活动值得观察";case .stable:return "当前无需调整";case .partial:return "部分信息暂不可用"}}
-    var detail:String {switch self {case .sampling:return "先观察持续活动，再生成处理建议。";case .attention:return "先查看证据，再选择适合当前任务的措施。";case .observing:return "当前活动可能属于正常任务，可检查相关来源。";case .stable:return "可用指标未发现需要处理的持续异常。";case .partial:return "当前结论仅覆盖可用指标，缺失读数保持未知。"}}
+    var title:String {switch self {case .sampling:return "正在观察设备状态";case .attention:return "有项目需要关注";case .observing:return "有活动值得观察";case .stable:return "暂未发现持续异常";case .partial:return "可用指标暂未发现持续异常"}}
+    var detail:String {switch self {case .sampling:return "持续观察后再判断，短时负载不直接视为异常。";case .attention:return "先查看下面的项目，再决定是否调整。";case .observing:return "当前活动可能属于正常任务，可在诊断详情中查看来源。";case .stable:return "当前没有需要处理的项目，可继续正常使用。";case .partial:return "部分项目暂无法判断，可展开诊断详情查看。"}}
     var symbol:String {switch self {case .sampling:return "waveform.path";case .attention:return "exclamationmark.circle.fill";case .observing:return "eye.fill";case .stable:return "checkmark.shield.fill";case .partial:return "questionmark.circle.fill"}}
     var tone:Color {switch self {case .attention:return .orange;case .stable:return Palette.violet;case .sampling,.observing:return Palette.violet;case .partial:return .secondary}}
 }
@@ -52,37 +52,6 @@ extension DiagnosticFinding {
         return nil
     }
 }
-struct DiagnosticFindingsPanel:View {
-    @ObservedObject var store:DiagnosisStore
-    let onAction:(DiagnosticAction)->Void
-    @State private var showAll=false
-    var body:some View {
-        VStack(alignment:.leading,spacing:14) {
-            HStack {
-                Label(L("发现与依据"),systemImage:"text.magnifyingglass").font(.system(size:15,weight:.semibold))
-                Spacer()
-                if let date=store.report.date {Text(date,style:.time).font(.system(size:9)).foregroundStyle(.secondary)}
-            }
-            if store.report.findings.isEmpty {Text(L(store.report.state == .sampling ? "持续观察后再生成建议。":"当前没有需要处理的建议。")).font(.system(size:12)).foregroundStyle(.secondary)}
-            ForEach(Array(store.report.findings.prefix(showAll ? 10:3))) {finding in
-                VStack(alignment:.leading,spacing:9) {
-                    HStack(alignment:.top) {
-                        VStack(alignment:.leading,spacing:4) {
-                            Text(L(finding.title)).font(.system(size:13,weight:.semibold))
-                            if let subject=finding.subject {Text(subject).font(.system(size:12)).textSelection(.enabled)}
-                        }
-                        Spacer()
-                        Text(L(finding.confidence == .confirmed ? "已确认":(finding.confidence == .possible ? "可能相关":"数据不足"))).font(.system(size:9)).foregroundStyle(finding.severity == .information ? Color.secondary:Color.orange).padding(.horizontal,7).padding(.vertical,4).background(.primary.opacity(0.045),in:Capsule())
-                    }
-                    if let evidence=finding.evidence {Text(evidence).font(.system(size:10,weight:.medium)).monospacedDigit().foregroundStyle(Palette.violet)}
-                    Text(L(finding.explanation)).font(.system(size:10)).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
-                    Button(L(finding.actionTitle)){onAction(finding.action)}.buttonStyle(.borderless).font(.system(size:11,weight:.medium))
-                }.padding(14).frame(maxWidth:.infinity,alignment:.leading).background((finding.severity == .information ? Palette.violet:Color.orange).opacity(0.045),in:RoundedRectangle(cornerRadius:13))
-            }
-            if store.report.findings.count>3 {Button(L(showAll ? "收起":"查看全部依据")){showAll.toggle()}.buttonStyle(.borderless).font(.caption)}
-        }.padding(22).subtlePanel()
-    }
-}
 struct ApplicationReviewSheet:View {
     @ObservedObject var observer:ProcessObserver
     let groupID:String
@@ -93,16 +62,16 @@ struct ApplicationReviewSheet:View {
     var body:some View {
         VStack(alignment:.leading,spacing:18) {
             HStack {Text(title).font(.title2.bold());Spacer();Button(L("完成"),action:onClose).keyboardShortcut(.cancelAction)}
-            Text(L("以下是当前关联进程。退出应用需要确认，并可能影响正在进行的任务。")).font(.caption).foregroundStyle(.secondary)
+            Text(L("以下是当前关联进程。退出应用需要确认，并可能影响正在进行的任务。")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)
             ScrollView(showsIndicators:false) {
                 VStack(alignment:.leading,spacing:12) {
-                    if matches.isEmpty {Text(L("该应用或进程已结束，当前没有可审阅的读数。")).font(.caption).foregroundStyle(.secondary)}
+                    if matches.isEmpty {Text(L("该应用或进程已结束，当前没有可审阅的读数。")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}
                     ForEach(matches.prefix(30)) {row in
                         HStack {
-                            VStack(alignment:.leading,spacing:3) {Text(row.name).font(.system(size:12,weight:.medium));Text(verbatim:"PID \(row.reading.pid)").font(.system(size:10,design:.monospaced)).foregroundStyle(.secondary)}
+                            VStack(alignment:.leading,spacing:3) {Text(row.name).font(.system(size:12,weight:.medium));Text(verbatim:"PID \(row.reading.pid)").font(.system(size:12,design:.monospaced)).foregroundStyle(Palette.secondaryText)}
                             Spacer();Text(String(format:"%.1f%%",row.reading.cpu)).monospacedDigit().frame(width:70,alignment:.trailing)
                             Text(diskRateText(row.reading.diskRate)).monospacedDigit().frame(width:95,alignment:.trailing)
-                        }.font(.system(size:11)).padding(.vertical,4)
+                        }.font(.system(size:12)).padding(.vertical,4)
                     }
                 }
             }
@@ -114,7 +83,7 @@ struct ApplicationReviewSheet:View {
                 Spacer()
                 Button(L("请求正常退出")){candidate=matches.first(where:{$0.canQuit})}.disabled(!matches.contains(where:{$0.canQuit}))
             }
-            if !observer.actionMessage.isEmpty {Text(L(observer.actionMessage)).font(.caption).foregroundStyle(.secondary)}
+            if !observer.actionMessage.isEmpty {Text(L(observer.actionMessage)).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}
         }.padding(24).frame(width:650,height:500)
             .confirmationDialog(L("请求应用正常退出？"),isPresented:Binding(get:{candidate != nil},set:{if !$0{candidate=nil}}),titleVisibility:.visible) {
                 if let row=candidate {Button(L("退出应用"),role:.destructive){observer.quit(row);candidate=nil}}

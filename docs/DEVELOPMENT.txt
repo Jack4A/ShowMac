@@ -16,6 +16,7 @@ GitHub远程origin：https://github.com/Jackkakaya/ThermalScope.git；初始可�
 
 APP与PERF_OUT可覆盖，例如：
 make build APP=/absolute/path/ThermalScope.app
+指定已安装的 SDK（应用与小组件共用）：THERMALSCOPE_SDK=/absolute/path/MacOSX.sdk make build
 make perf-smoke PERF_OUT=/absolute/path/new-run
 压测目标会追加-smoke/-standard/-soak，目录必须不存在，避免覆盖证据。
 
@@ -38,4 +39,183 @@ ThermalCore保留独立领域逻辑，CSMC保留原生接口。硬件写入只�
 中文README.md与英文README.en.md均为当前使用说明；发布说明和docs/INSTALL.txt为双语。
 
 ARM交叉构建：THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh /absolute/new-arm64-release-dir
-ARM包为未做Apple Silicon真机验证的实验性监测版，硬件控制在客户端及辅助程序入口均禁用。跨架构构建只做静态、架构、签名及归档检查，清单不宣称运行时验证通过。
+当前源码的ARM包包含实验性独立风扇控制；客户端和辅助程序均拒绝Intel睿频、电源写入及组合性能模式。硬件验证范围见APPLE_SILICON_FANS.txt。跨架构构建只做静态、架构、签名及归档检查，清单不宣称运行时验证通过。
+
+界面组件（用户明确偏好，2026-11-02）
+优先采用 SwiftUI/AppKit 的原生组件和系统语义颜色：侧栏 List、分段 Picker、NSSearchField、Button、Menu、GroupBox、ProgressView、Apple Charts。
+不手工绘制系统已有的分段切换、搜索清除按钮、侧栏选中背景或进度条；通用容器外观遵循下方用户最新指定的原版 UI 基线，不新增悬停描边。
+保留必要的业务交互（例如风扇曲线拖动）和状态栏图片渲染；不能借外观整理改变采样、控制确认或安全恢复逻辑。
+
+侧栏布局与构建外观（恢复阶段，2026-11-02；样板页面以末尾最新授权为准）
+用户否定分散分组、放大彩色图标的侧栏，明确要求改回原版 UI 并以原版为基础优化。原版参考 docs/screenshots/thermal-control.png，Git 最早保存为 bb18f27（1.16），原侧栏源码与 HEAD 修改前一致。保留独立 ConsoleSidebar，但恢复连续导航、单色图标（原生 listItemTint(.monochrome)）、紧凑 13 pt 字体与默认 220 pt 宽度；设置紧接导航列表，底部仅本机实时监测。不显示分组标题，不手绘选中背景。恢复原版紫色、自适应浅/深背景与卡片表面；统一页面 28 pt 左右边距，刷新和返回使用原生工具栏。新功能继续保留，不能再借原生化或重构另起整体视觉方案。
+默认构建在命令行工具缺少 SwiftUI 宏时，仅为本次进程选择已安装的完整 Xcode，不修改 xcode-select 的全局设置。
+使用经验证的 SwiftPM native 构建后端与显式 SDK；打包时校验主程序、辅助程序和小组件的 Mach-O SDK 标记与实际 SDK 一致，防止退回旧兼容外观。
+macOS 27 侧栏参考：https://developer.apple.com/videos/play/wwdc2026/289/
+
+状态栏弹窗（用户指定原版，2026-11-02）
+以 docs/screenshots/status-panel.png 和 HEAD 原版 StatusOverview 为基线，保留三张纵向完整趋势卡片、右侧数值、固定刻度、每个风扇读数/进度和 CPU 占用排行。不要再缩成三行微型曲线。
+恢复 390 pt 宽、最大 650 pt 高，窄屏/低屏幕继续滚动；底部固定打开温控台、温度控制、设置、更多。风扇快速档位保留在风扇卡片内，控制保护不变；Apple Silicon 显示热压力，不显示不适用的 Intel 睿频。
+弹窗关闭仍释放视图和订阅，不暂停后台采样；原生分段 Picker、ProgressView、系统材质和 Apple Charts 继续使用。
+
+Apple Music 对齐样板（用户授权开始，2026-11-02）
+用户在查看 Apple Music 1.7/macOS 27.0 和 HIG 对照方案后明确要求开始实施。首轮仅实时监测概览与状态栏弹窗。
+MonitorAppearance 定义系统中性画布、系统强调色、平实分组表面和数字/单位排版；neutralPanels 环境默认 false，仅在概览内容和弹窗打开。其余页面继续保留恢复阶段的样式，不调整侧栏导航顺序、宽度或图标。
+概览主画布使用系统中性背景与轻微灰度层次，分组圆角 12 pt、系统 controlBackgroundColor 表面和轻边界，无装饰渐变/阴影。三项主读数与主趋势各自形成清楚的区域。数字与单位分开，数字等宽。
+只有一个运行模式时省略重复图例；多模式保留图例和切换标记，自动/均衡/安静/自定义分别用强调色/靛蓝/青绿/紫色。常规交互只用系统强调色，告警继续橙/红。
+状态弹窗保留 390×最大 650 pt、三张完整趋势图、每个风扇的读数/进度、五档原生 Picker、CPU 排行和底部入口。只调整表面、颜色、数字单位层级，量程仍显示。
+概览图表选项放在读数摘要后，保留原生 DisclosureGroup 和暂停、刻度、面积控制。详情入口、采样、控制安全逻辑不变。
+参考：https://developer.apple.com/design/human-interface-guidelines/color
+参考：https://developer.apple.com/design/human-interface-guidelines/materials
+参考：https://developer.apple.com/cn/design/human-interface-guidelines/typography
+
+展示层次优化（用户认可字体，要求继续优化其他视觉，2026-11-02）
+保留 AppTypography 和 MetricValue 的字体定义及现有侧栏。继续优化实时监测和状态栏两个样板；不将样式扩散到尚未评审的页面。
+遵循展示型仪表盘的主次关系：三个关键读数在前，主趋势及其最新/均温/最高读数合为一个区域，次要指标在后；用间距和中性表面区分区域。
+三项读数加入最近 2 分钟的真实小趋势，使用已有 MetricHistoryStore；缺测段不连线，初始采样不回填假数据。温度/CPU 使用率/风扇分别使用系统强调色/靛蓝/青绿，与状态栏同类数据一致，告警语义保留橙/红。小趋势自动量程只用于看变化，需精确刻度时点击查看详情。
+概览主图初始选择面积图，原生图表选项如实显示该状态，用户仍可切换折线。详情页默认折线保持不变。图表填充仅表达真实数据，不添加装饰曲线或整窗彩色渐变。
+参考：https://www.carbondesignsystem.com/building-blocks/data-visualization/dashboards
+参考：https://atlassian.design/foundations/color-new/data-visualization-color/
+参考：https://developer.apple.com/design/human-interface-guidelines/charts
+
+侧栏比例修正（用户指出当前侧栏丑陋，2026-11-02）
+用户最新反馈针对侧栏图标与文字比例。保留连续导航顺序、220 pt 默认宽度、13 pt 系统字体、底部本机实时监测和原生 List 选中态。
+侧栏单独使用原生 sidebarRowSize.small，使 Label 的图标和行尺寸保持协调；删除图标单独的字体、18×18 框和 primary 颜色覆盖，让系统处理布局及选中/非选中颜色。选中文字不再额外加粗。不得因此更改系统全局侧边栏图标大小。
+导航与设置合为一个连续列表，删除空 Section 导致的间隙。不添加分组标题、手绘选中背景或独立悬停效果。其他页面、主指标字体和状态栏弹窗保留本轮修改前状态。
+参考：https://developer.apple.com/documentation/swiftui/environmentvalues/sidebarrowsize
+
+CleanMyMac 参考落地（用户明确要求参考，2026-11-02）
+用户在查看官方 My Tools、Performance、My Activity 截图分析后要求按此参考实施。本节替代先前“只改两个样板”的视觉范围限制：主窗口所有目的页、详情、设置及状态弹窗统一颜色和卡片表面，但不重排功能或改动采样/控制逻辑。
+保留 AppTypography、MetricValue 的字体定义、连续导航顺序和默认 220 pt 侧栏。图标统一 16×16 pt 原生 SF Symbols，行内容最小 26 pt 加上下各 3 pt 原生行内边距；不额外叠加横向内边距，以免挤掉英文长标题。原生 List 负责选中、焦点与键盘导航，不手绘选中背景。
+Palette 使用低饱和灰紫画布、稍深的同色侧栏、清楚的卡片表面与轻边界；主图、传感器、风扇控制、诊断和设置共用，统一卡片圆角为 14 pt。撤掉旧卡片的装饰渐变和厚阴影。图表的数据填充保留。
+原生控件的强调色通过 Appearance.xcassets/AccentColor 和 Info.plist NSAccentColorName 注册，构建时以 actool 编译 Assets.car，不修改全局系统设置。移除根视图及弹窗的额外 tint 覆盖，让系统处理控件文字、选中及禁用状态。深色原生选中底与白字保持对比，图表/文字强调使用更亮的同色系，避免把一个 RGB 硬套到所有角色。
+显示层的运行模式颜色集中到 Palette.mode；温度使用品牌强调色，CPU 使用率和风扇仍保留靛蓝/青绿数据类型区分，告警橙/红不变。状态弹窗继续保留三张完整趋势图与原生五档选择。
+参考：https://macpaw.com/support/cleanmymac/knowledgebase/my-tools
+参考：https://macpaw.com/news/my-activity-cleanmymac
+原生强调色：https://developer.apple.com/documentation/bundleresources/information-property-list/nsaccentcolorname
+
+设置页整理（用户认可指标卡片，指出设置混乱，2026-11-02）
+用户所附指标卡片截图作为保留参考，本次仅调整设置界面；实时监测、传感器、字体、侧栏、颜色体系和风扇控制实现不改动。
+设置默认进入通用页，外观（语言/主题）与监测（采样频率）分组，控件靠右对齐。状态栏弹窗的设置入口仍明确跳到状态栏标签。
+状态栏设置首屏仅放单份明暗可切换预览、显示项目列表与默认折叠的字体/外观选项。项目行保留原生复选框、样式摘要和编辑按钮。
+项目编辑使用固定尺寸的原生 sheet + grouped Form，分为显示方式、标签与颜色、排列。使用位置 Picker，通过原有相邻 moveMenu 调整顺序。至少一个显示项目、去掉唯一图标后保留数值、标签上限、颜色和图片导入规则均沿用原有模型。
+所有修改仍立即保存，未增加应用/取消流程。明暗预览只改变组件内部状态，不改变应用主题。测试使用 --ui-check 隔离菜单设置；浅色验证通过进程参数 -theme light 提供临时 UserDefaults 参数域覆盖，不修改保存的主题。
+新增文案补齐六种语言，现有本地化条目保持原样；繁体继续使用原有自动转换。
+
+设置与状态栏进一步精简（2026-11-02，用户最新要求优先于上节）
+取消通用/状态栏/小组件三个标签页，设置合为一页；状态栏组合放在首位，语言/采样频率为两条原生行，字体外观及系统小组件默认折叠。
+全局工具栏只保留一个太阳/月亮外观入口，点击切换明暗，原生 Menu 的长按菜单保留跟随系统。预览不再有第二个明暗控件。
+菜单栏组件只展示图标、数值、趋势三个基础拖动入口。每次添加有独立 ID，同一指标可以重复放置、独立编辑颜色/图标，并可拖动排序或拖到垃圾桶移除；至少保留一项。仍使用一个组合 NSStatusItem，不宣称支持多个独立 macOS 状态栏条目的 Command 拖动。
+旧配置按原顺序、图标与颜色生成初始组合；旧双行数值转换为横向图标加数值，曲线/圆环的数值同样只占一行。双行标签编辑从界面移除，旧存储字段仅为兼容保留。字体定义、主窗口指标卡片、侧栏和硬件控制代码不改动。
+原生 NSItemProvider/onDrag/onDrop 在放下后提交；只允许内部有效组件令牌，取消、失效目标、超出上限或唯一项移除不改变布局。菜单配置与主题在 --ui-check 中隔离保存，用于交互验证。
+模型检查：ThermalScope --menu-composition-check --ui-check；现有图标/排版检查：ThermalScope --menu-customization-check --ui-check。
+参考：https://register.bjango.com/help/istatmenus7/hiddenitems/
+参考：https://register.bjango.com/help/istatmenus7/menubarclock/
+参考：https://developer.apple.com/documentation/swiftui/adopting-drag-and-drop-using-swiftui
+
+全部传感器加入状态栏（2026-11-02）
+状态栏的来源从固定五项扩展为 SensorInventory 的全部实际读数，涵盖温度、各个风扇、功耗、电压和电流。常用卡片的温度汇总也可加入，其计算沿用 SensorCatalog；原有 CPU 使用率/电量及旧组件配置兼容。
+设置仍为单页，原指标选择器替换为原生搜索弹窗和分类 List；名称、编号、当前读数和单位在同一行展示。传感器页的常用卡片和完整读数均提供原生右键“在状态栏显示”，直接追加单行数值。未添加新 Tab 或常驻操作按钮。
+MenuSensorReference 以 kind+key 标识实际探头，常用汇总使用独立 common 身份；不持久化某次读数，也不以本地化名称或列表下标查值。探头暂时消失时保留组件并显示破折号，恢复后仍读取原编号。未识别探头与传感器页共用 NamedSensor 人类可读标题，并保留原始编号用于区分。
+温度/风扇/功耗/电压/电流分别沿用 1/0/2/3/3 位小数与 °C/RPM/W/V/A 单位，保留零转速和合法负功耗/电流。菜单渲染的名称、默认图标、颜色、预留宽度和悬停说明均匹配传感器类型；CPU 高负载警示不套用到硬件传感器。
+仅为已加入菜单的物理传感器保留有界 MetricHistory，最多随现有 24 个组件去重，未选探头不额外积累历史。采集和菜单刷新在窗口隐藏时继续，只有视图通知遵循原有可见性门控。常用汇总复用已有历史，不重复建库。缺测/睡眠保持原有分段，带符号的趋势使用含零的有符号量程。
+新增隔离检查：ThermalScope --menu-sensor-check --ui-check；覆盖全部种类、原始探头与汇总、独立身份、名称/精度/单位、负值/零/缺测、JSON/拖动令牌、像素/悬停说明和历史释放。HiddenViewUpdateCheck 补查物理传感器在后台保留真实历史。
+先前鼠标拖拽未验收的问题仍单独保留，本次可用点按和传感器右键添加，不将令牌模型检查等同于鼠标拖放验收。
+
+状态栏弹窗视觉整理（2026-11-03，用户指出大白卡片与底部布局丑陋）
+只改 StatusOverview 和弹窗最大高度，不扩散到主窗口、字体体系、侧栏、状态栏组件、传感器或控制后端。本节替代此前弹窗独立卡片/底部四入口的布局要求。
+弹窗仍为390 pt宽，最大高度从650降为600 pt，按可用屏幕收缩；三张完整横向趋势及固定刻度保留。删除每张独立白色圆角卡片，使用连续系统材质和原生细分隔线；数据读数加大，图标和辅助说明弱化，普通曲线统一为低饱和紫色，CPU橙/红告警语义保持。
+单风扇只在趋势标题显示一次实际RPM，状态行显示风扇编号、自动/手动和原生进度条；多风扇仍逐项显示RPM。正常可控制状态保留原生五档Picker、忙碌、实际剩余时间和高温保护状态；不可控制时仅显示恢复系统自动的原生按钮，调用原有choose/system路径，不更改控制业务。
+CPU前三项保留，标题明确单核100%；CPU趋势旁保留全部核心100%说明，避免单位语义混淆。所有卡片继续是原生Button，能打开指标详情，无障碍标签包含读数、量程与核心解释。
+底栏合并为打开温控台、采样时间、设置、更多；温度控制通过顶部当前模式入口进入。移除底部重复温度图标及单独采样说明行。时间过期继续橙色提示，无障碍可读实际时间及失效状态。缺测曲线明确显示暂无读数，已有读数尚无历史时显示积累提示，不伪造曲线。
+
+CleanMyMac 截图侧栏参考（2026-11-03）
+用户明确提供 CleanMyMac 截图，红框标出侧栏；本轮通过只读查看本机 com.macpaw.CleanMyMac-mas 的原生表格、选中态和布局对照。用户随后明确选择沿用当前紫色，未改全局品牌色或原生强调色资源。本节替代此前32pt连续紧凑侧栏及设置紧邻导航的布局要求。
+ConsoleSidebar改用原生NSTableView，52pt行距、220pt默认宽度，设置通过同一表格的弹性留白固定在底部。原生表格负责鼠标、方向键、选中状态和无障碍；页序不变。标题使用同一系统字体的13pt medium，长标题最多两行；使用原生文字单元格测量，避免英文Performance diagnosis被裁切。
+选中态由原生NSVisualEffectView与轻薄高光边界构成，关闭表格默认选中绘制以免叠两层。图标是原生SF Symbols的柔和紫色渐层渲染，不使用第三方图标或插图。符号遮罩使用不透明黑色调色板，避免原生层级透明度再次冲淡颜色。
+主窗口的侧栏与内容区共用静态紫色背景；指标卡片保持原有表面。macOS14及以上通过原生toolbar(removing:.sidebarToggle)去掉重复折叠入口，主导航始终展开呈现；较早系统保留原生回退。保留太阳/月亮和刷新按钮。
+当前项重复点击仍清除指标详情并返回对应页面；文字单元格明确不可编辑/不可选择且不接收第一响应，避免截获表格的点击。Footer与主导航共用同一绑定，方向键可跨弹性留白进入/退出设置。
+不改AppTypography/MetricValue、指标卡片实现、状态栏弹窗/自定义组合、传感器或硬件控制。UI预览副本使用独立SidebarPreview标识和--ui-check，正式偏好保持不变。
+
+底部说明与图标颜色（2026-11-03）
+用户要求删除“本机实时监控”并改善图标颜色。删除侧栏底部监测说明，设置仍固定底部，保留12pt边距。
+侧栏保留当前紫色、字体与原生布局，仅提高浅色图标深度与深色图标亮度。顶部菜单栏“统一紫”采用随状态按钮实际明暗变化的灰紫，替换systemPurple；系统单色、自定义色与CPU告警不变，不改写用户已有配色选择。
+验证见docs/validation/NAVIGATION-ICON-COLORS-2026-11-03.txt。
+
+菜单栏黑白默认与配色预设（2026-11-03）
+用户要求默认黑白，预制耐看颜色。新安装/无效偏好的默认与快速布局预设均使用system黑白；已有用户选择仍可恢复，本机通过原生UI明确切回黑白。
+现有原生配色Picker增加雾紫、海蓝、青绿、石墨及明暗色样，保留多彩与自定义项目颜色。accent旧标识兼容雾紫。默认数值保持黑白，告警保持橙红。实现与验证见docs/validation/MENU-COLOR-PRESETS-2026-11-03.txt。
+
+按组件颜色简化（2026-11-03，替代上节整组配色预设）
+用户最终要求默认黑白，每个组件独立选色即可。删除全局配色与数值染色开关；组件colorHex为空即自动黑白，有值则仅该组件图标/数值/趋势使用该色。原生ColorPicker旁可恢复黑白。旧全局偏好不再参与渲染，已保存的组件colorHex继续有效。验证与本机安装状态见docs/validation/COMPONENT-COLORS-2026-11-03.txt。
+
+组件选色菜单（2026-11-03，用户进一步确认）
+每个组件默认黑白，点击颜色打开原生菜单：黑白（默认）／六个带色样的预置色／自定义…。自定义才打开NSColorPanel，并绑定该组件ID；改预置色、关闭面板或关闭编辑器都清除旧面板回调。此节替代直接色井及独立恢复按钮，不恢复整组配色或新增页面。构建及模型/像素检查通过。用户解锁后，CUA实测预置色、自定义RGB十六进制、明暗显示和恢复黑白均通过，且不影响其他组件；已安装并保留三个原有组件与布局。见docs/validation/COMPONENT-COLOR-MENU-2026-11-03.txt。
+
+界面配色协调（2026-11-03，用户要求继续改善颜色）
+保留当前紫色品牌、字体、指标卡片与侧栏布局，本节替代先前常规指标使用靛蓝/青绿和导航图标渐层的颜色要求。画布减淡、卡片中性化、背景光晕减弱；常规指标符号与趋势统一低饱和紫，运行模式仍保留文字与柔和异色，告警橙红逻辑不变。
+侧栏使用灰紫未选图标、品牌紫选中图标与适配明暗的文字/选中材质；原生表格负责导航，行选中早于单元格建立时通过numberOfColumns保护。设置组合底色接入Palette.inset，不改变原生组件菜单及每组件黑白默认/预设/自定义色。
+已完成SDK27构建、隔离预览明暗与主要页面核对、本机安装/签名/7项产物哈希检查及正式启动和导航验证。字体、数据及控制代码受保护哈希未变。详见docs/validation/COLOR-HARMONY-2026-11-03.txt。
+
+浅色主题精修（2026-11-03，用户要求进一步优化白色主题）
+浅色画布改中性白灰，白卡片与珍珠灰侧栏形成层次，移除浅色整窗渐变/紫色光晕。浅色选中态保留淡紫并减弱描边，常规图标与数据仍使用既有品牌紫。卡片轻边界和极轻表面阴影仅在浅色正常对比度出现；深色配色及高对比度边界参数保留。辅助文字加深，主指标卡片标题及说明统一辅助色。
+不更改字体、数字/单位、布局、导航机制、原生控件或菜单栏每组件的黑白默认/预设/自定义颜色。已完成SDK27构建、正式安装的签名/产物哈希验证，以及浅色主要页面和真实采样趋势检查。详情见docs/validation/LIGHT-THEME-2026-11-03.txt。
+
+顶部入口收纳（2026-11-03，用户要求主题和刷新放进设置）
+本节替代此前太阳/月亮与刷新常驻工具栏的要求。移除全局工具栏的主题与刷新项；设置现有偏好组增加原生主题Picker，支持跟随系统/浅色/深色，手动刷新放在采样频率旁。指标详情的返回按钮保留，删除无调用的ThemeQuickButton，沿用原有主题偏好与刷新/忙碌逻辑，不增加标签页或分组。
+已构建并安装，实测设置中的明暗切换并恢复原来的浅色，主页面顶部无两项常驻按钮。详细验证及手动刷新点击回执限制见docs/validation/SETTINGS-ACTIONS-2026-11-03.txt。上轮白色主题、字体和菜单栏组件代码受保护哈希未变。
+
+温度控制档位两端对齐（2026-11-03）
+主页面五档独占一行，删除420pt宽度限制，采用原生NSSegmentedControl.fillEqually将五项等宽铺满，左右边缘与曲线卡片对齐。查看传感器移到下方辅助操作区，状态弹窗compact选择条沿用原有实现。
+原生控件保留selected/nil、busy、不可用禁用、帮助和无障碍语义，仍调用原有choose；不更改曲线、控制、采样、字体、主题或设置。已构建并安装、核对正式页面实际两端对齐及自动状态，未操作真实风扇模式。详情与验证范围见docs/validation/FAN-ALIGNMENT-2026-11-03.txt。
+
+菜单栏组合外边距（2026-11-03）
+自定义组合使用原生状态按钮显示完整图片，length按ceil(image.width)+8设置，整组左右各4pt、最小22pt；兼容图文布局恢复variableLength。保留数值预留位宽、字体、颜色、图标和绘制逻辑，不修改系统全局菜单栏或其他应用。
+按用户要求，通过现有原生滑块将本机项目间距由4pt收为2pt，不改变其他用户保存的偏好或预设默认。已构建、安装并验证2pt持久化、组件偏好保持及弹窗打开。菜单栏整条截图工具限制和验证范围见docs/validation/MENU-INSETS-2026-11-03.txt。
+
+同类分段选择靠左（2026-11-03）
+传感器显示范围去掉200pt固定宽度，按自然尺寸靠左排列，搜索框紧接原有12pt行间距。弹窗compact档位、小组件尺寸与优化工作区分段Picker采用leading对齐；图表选项的Spacer移至末尾，操作组靠左。主页面五档继续原生等宽铺满，与曲线保持两端对齐。
+修改只涉及原生控件的尺寸和对齐，绑定、回调、字体、颜色与数据逻辑保持。已构建并安装，完成传感器最终版、图表选项、弹窗、小组件尺寸及主页面五档的本机视觉核对。详见docs/validation/LEADING-CONTROLS-2026-11-03.txt。
+
+状态弹窗五档等宽铺满（2026-11-03）
+本节替代此前弹窗compact分支维持自然宽度的要求。弹窗与主页面复用同一个原生NSSegmentedControl.fillEqually，五个档位等宽铺满、与内容两端对齐；主页面regular、弹窗small。删除重复的compact SwiftUI Picker，原有原生回调、状态与禁用逻辑保持。
+已构建并安装、本机打开状态弹窗检查五档宽度与自动选中状态。未操作真实控制模式，字体、配色、传感器对齐和菜单栏2pt间距保留。详见docs/validation/POPOVER-FAN-WIDTH-2026-11-03.txt。
+
+可调整体外边距（2026-11-03，用户明确纠正整组留白应可调）
+本节替代“整体左右固定4pt”的实现。设置→字体与外观增加原生整体外边距滑块，左右同步0–20pt、步长1pt，显示左右各Npt，默认4pt，立即生效并保存。原有项目间距保持独立，本机仍2pt。
+渲染器对整组一次性增加左右透明空间，状态项长度取完整图片宽度；移除旧固定+8及22pt下限，使0pt有效。逐组件预览默认不增加整体外边距，快速组件预设保留该全局几何偏好。
+已完成明暗真实像素检查：内容和内部间距不变、只增加对称外边距；既有144组渲染、组合与隔离检查通过。已安装并在本机实测0/12pt及重启保存，最后恢复4pt并展开设置供用户调整。详见docs/validation/ADJUSTABLE-MENU-INSETS-2026-11-03.txt。
+
+零默认留白与曲线告警（2026-11-03）
+本节替代此前默认4pt、最大位数预留宽度与数值居中的要求。整体外边距、组件内边距、项目间距的缺省值均为0，现有有效用户设置继续保留。设置→字体与外观增加原生组件内边距滑块，左右各0–20pt；整组外边距与项目间距保持独立。自定义菜单按实际显示的数字宽度绘制，去掉隐藏的前缀/图形空隙和分隔线强制附加间距；数字位数变化会相应改变组件宽度。快速样式默认项目间距0，保留独立内外边距。
+新增MetricWarningBands显示规则，CPU使用率沿用≥70%橙色、持续≥90%十秒红色；CPU温度≥80/90°C、GPU温度≥75/85°C分为橙红两级，数值与现有诊断规则一致。菜单、弹窗、指标卡片、详情、常用传感器及温度时间线复用这些规则，保留缺测与真实分段；功耗、风扇、存储等没有明确规则的指标不套用温度告警。曲线告警色开关沿用原有偏好，默认开启。仅修改显示，不修改风扇编辑曲线、控制或保护阈值。
+已构建安装并完成95项核心检查、144组菜单像素检查、组合/传感器检查及新增告警像素检查。正式应用实测内边距0→8→0独立变化，实际CPU温度超过80°C的图表与状态弹窗曲线段显示橙色，正常段仍紫色。全部109个受保护源码文件与原有本地化条目保持。用户随后自行调整项目间距，保留该选择，不再覆盖。详见docs/validation/ZERO-INSETS-ALERT-CURVES-2026-11-03.txt。
+
+菜单栏间距与相邻图标对齐（2026-11-03）
+用户进一步要求整排间距对齐并作为默认配置。本节替代此前项目间距默认为0的要求：默认项目间距18pt，组件内边距与整组外边距仍为0。依据实际2倍截图，原10pt组内可见间隔约23像素，两侧及相邻应用约39–40像素；18pt使组内增加16像素，接近一致。共享MenuBarLayout定义18pt缺省值和0–24pt可调范围，模型、渲染器、原生滑块与快速样式保持一致，仍支持手动设置为0。数字继续按实际宽度显示。
+已构建安装，通过144组渲染检查和组合检查，当前设置也已应用18/0/0并确认保存；其他组件、字体、颜色与硬件逻辑保持不变。详见docs/validation/ALIGNED-MENU-DEFAULTS-2026-11-03.txt。
+
+菜单栏曲线参考（2026-11-03）
+按用户提供的白线/橙红高负载/淡面积截图，菜单栏曲线改为透明背景与向下渐隐的填充，移除原整块矩形底色；图形底色开关关闭时只保留曲线。保留正常段自动黑白或组件自选色、既有告警阈值及缺测分段，旧面积图也复用渐隐填充，线条和柱形保持各自样式。
+已构建安装并通过告警像素、144组菜单渲染及CPU告警检查。通过原生设置加入CPU趋势并移到原CPU数值和功耗前方，原两项配置及18/0/0间距保留。生成的明暗效果图明确为生产渲染器的测试数据预览，不冒充真实菜单栏截图；当前真实趋势已在设置中核对。125个受保护文件保持，详情见docs/validation/MENU-CURVE-REFERENCE-2026-11-03.txt。
+
+浅色主题层次整理（2026-11-03）
+用户认可黑色主题，要求改善白色。本节替代此前浅色侧栏保持单色珍珠灰的要求：浅色侧栏用淡紫静态渐变，选中项用白底与清晰紫色文字/图标；主区为浅灰背景、白卡片，边框减轻并以克制阴影区分层次。浅色原生强调色、图标、链接与普通曲线统一#7650A8，辅助文字#6D6578。既有字体、布局、字号、原生组件和交互不改动。
+深色所有调色板/导航/材质参数、运行模式颜色与深色原生强调色保持原值；高对比度原有边界逻辑保留。已构建安装并检查浅色各主要页面和状态弹窗，随后恢复原深色偏好并核对。122个受保护文件与保存的外观/菜单设置保持，菜单栏18/0/0间距及三项组件未变。详见docs/validation/LIGHT-THEME-POLISH-2026-11-03.txt。
+
+主内容区靠侧栏的圆弧（2026-11-03）
+主内容区左上、左下采用18pt连续圆弧，右侧仍沿用窗口外框。复用SwiftUI原生RoundedRectangle路径形成装饰性角部遮罩，只处理两个角，不移动内容或替换整块背景。浅色衔接现有侧栏渐变，深色用接近侧栏的中性色，避免额外材质采入桌面颜色。装饰层不接收点击、不进入无障碍树，字体、布局、配色和页面交互保持。
+已构建安装并核对明暗圆角、设置与页面切换，恢复原来的浅色主题。125个受保护文件及保存的外观/菜单偏好保持，签名和7项安装产物校验通过。详见docs/validation/DETAIL-CORNERS-2026-11-03.txt。
+
+原生液态玻璃增强（2026-11-03）
+按用户要求，侧栏选中项在macOS26+使用NSGlassEffectView.regular，macOS27开启原生交互反馈；移除覆盖原生玻璃的自绘高光，旧系统保留原NSVisualEffectView回退。状态栏组件编辑和图标/数值/趋势按钮采用SwiftUI原生glassEffect，并由GlassEffectContainer分组处理；控件尺寸、回调与拖动令牌保持。主内容区18pt圆弧增加柔和边缘高光，图表与数据卡片保持清晰底面。
+保留减少透明度/增强对比度下的清晰回退，不增加设置开关。已构建安装，检查明暗效果、侧栏点击与方向键导航、组件编辑开关，并恢复原浅色主题。124个受保护文件、保存的外观/菜单配置、三项组件和18/0/0间距保持。详见docs/validation/NATIVE-LIQUID-GLASS-2026-11-03.txt。
+
+2026-11-03: Menu-bar popover now uses configurable compact cards (separate from the top-menu composition). Edit in place to add/search/reorder/remove metrics or sensors and toggle fan/process sections. Shared sensor history retains the union of both selections. Validate with --status-cards-check --ui-check; see docs/validation/COMPACT-STATUS-CARDS-2026-11-03.txt.
+
+2026-11-03: Settings now embeds the shared popover-card editor under 弹窗卡片 (add/search/reorder/remove and fan/process visibility). Shared native List selection commits picker choices in both entry points. Release/isolated checks pass. Native settings addition/reorder and reverse popover deletion synchronization were verified after unlock; test PSTR was removed and the user-added storage card preserved. See docs/validation/SETTINGS-POPOVER-CARDS-2026-11-03.txt.
+
+2026-11-03: Popover visual polish aligns its canvas/surfaces with the application palette, tightens paired cards to 78 points, and uses a 58-point spanning final card for odd counts. Actual trend samples/scales/warnings and all saved configuration remain unchanged. Native light/dark five-card layouts verified; user-selected light theme retained. See docs/validation/POPOVER-CARD-POLISH-2026-11-03.txt.
+
+2026-11-03: Refined light mode to silver canvas/sidebar/insets, white cards, neutral borders and graphite secondary labels. Purple stays with selection and data/actions; shadows and popover translucency are quieter. Native overview/sensors/settings/popover checked; saved preferences and dark palette branches preserved. See docs/validation/CLEAN-LIGHT-PALETTE-2026-11-03.txt.
+
+2026-11-03: Removed large content headings that repeat selected sidebar destination names. Root pages retain the existing quiet descriptive line; metric details retain their specific heading and return control. Native overview/sensors/settings/detail navigation verified. See docs/validation/REMOVE-DUPLICATE-PAGE-TITLES-2026-11-03.txt.

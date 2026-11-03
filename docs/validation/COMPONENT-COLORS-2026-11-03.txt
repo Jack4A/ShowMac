@@ -1,0 +1,33 @@
+菜单栏按组件配色简化 · 2026-11-03
+
+用户最终要求
+默认黑白，每个组件可单独自定义颜色，不需要整组预设。
+本记录替代本日MENU-COLOR-PRESETS的配色方案；历史文件仅记录之前的实现和验证。
+
+实现
+- 删除整组配色枚举、全局配色Picker、数值跟随全局颜色开关和对应模型属性，旧全局偏好不再参与渲染。
+- MenuBarTile.color为可选值：没有组件colorHex时使用自动黑白，不再根据指标/传感器类型赋默认彩色。
+- 组件有自己的colorHex时，只有本组件的图标、数值和曲线使用该色。重复同一指标的不同组件也互不影响。
+- 组件编辑器保留原生ColorPicker，增加“恢复黑白”按钮，清除当前组件的colorHex。
+- 所有组件自动黑白且无CPU告警时使用原生NSImage模板；混合颜色时根据状态按钮实际外观绘制未设色的组件。
+- 保留组件已有颜色、顺序、来源、样式、图标、数值精度与缺测处理。保留CPU橙红告警，不修改风扇控制。
+- 删除上一轮新增的五条预设文案，增加恢复黑白的六语翻译；其余翻译保持原样。
+- 主窗口侧栏、全局字体、指标卡片和状态弹窗内容未修改。
+
+通过的检查
+- --menu-appearance-check：192组合，自动/自定义颜色、8种样式、3种宽度、明暗与实际/缺测样本；模板和数值像素通过。
+- --menu-composition-check --ui-check：重复CPU数值组件只给第一个染蓝，明暗实际像素验证第二个仍黑/白；清除颜色后恢复模板且其他组件不变；存储兼容、重复组件、布局命令和偏好隔离通过。
+- --menu-sensor-check --ui-check：所有传感器默认无自定义色，单个电流探头改色不影响其他组件，恢复后配置等于原配置；单位、精度、零/负/缺测读数回归通过。
+- --menu-customization-check --ui-check：144字体/样式/导入图标组合通过。
+- --cpu-warning-check：明暗图表的正常、橙、红及禁用告警回归通过。
+- 构建app/helper/widget SDK27.0通过，深度严格签名校验通过，保护清单中的其他源文件/资源/测试哈希不变。
+- 独立原生预览：组件编辑器展示默认黑色色井和禁用的恢复黑白按钮，布局无溢出。
+
+后续收尾（已完成）
+- 用户进一步要求组件内预置色与自定义菜单，详见COMPONENT-COLOR-MENU-2026-11-03.txt，替代本文件早期的直接色井和恢复按钮。
+- 用户解锁后已完成预置色、系统调色板十六进制自定义、明暗独立颜色、恢复黑白的原生UI实测；最新版已安装到/Applications/ThermalScope.app，三个既有组件及布局保留。
+
+构建：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-component-colors-u9o1_yar/ThermalScope.app
+当前安装：/Applications/ThermalScope.app（已更新为后续组件颜色菜单版本）
+安装前备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-component-colors-install-wsryjtia/ThermalScope.app
+源码备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-component-colors-before-jov766dg

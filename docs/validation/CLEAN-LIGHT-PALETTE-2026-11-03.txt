@@ -1,0 +1,25 @@
+Clean light palette — 2026-11-03
+
+Scope
+Light-mode color/surface refinement in Palette.swift, MonitorAppearance.swift, StatusCards.swift and StatusOverview.swift only. Typography, window/sidebar/card geometry, native controls, source configuration, sampling and control callbacks are unchanged.
+
+Changes
+Large-area lavender fills were replaced with silver/neutral surfaces: light canvas approximately #F4F5F7, sidebar #ECEEF4 to #F3F4F8, inset #ECEFF3, neutral borders #D9DEE7. Surfaces remain white. Purple is retained for selection, actions, icons with metric roles, curves and controls. Unselected sidebar icons/text use neutral graphite colors. Secondary text is #5D6470; computed contrast is 5.96:1 on white, 5.47:1 on canvas and 5.14:1 on the darker sidebar tone.
+Main panel shadows are lighter and tighter. Popover cards use flat white surfaces with a quieter shadow and restrained hover border. The light popover canvas is more opaque over the existing native material, reducing muddy/translucent gray variation. Increased-contrast/reduced-transparency branches remain available. All ten adaptive dark color triples and the dark navigation color branches match the pre-task source; dark surface parameters were preserved.
+
+Verification
+Release build succeeded against SDK 27.0; app/helper/widget SDK stamps verified.
+Strict deep codesign verification passed; all seven installed artifacts match the build.
+--curve-warning-check --ui-check: PASS, including light/dark warning line/area/bar behavior and real gap preservation.
+--menu-customization-check --ui-check: PASS, including 144 light/dark style/font/icon combinations, default spacing, zero overrides and isolated preferences.
+Native screenshots checked in the installed app: main overview, common sensors, settings and the menu popover. White card edges remain visible against the silver canvas; labels/values are readable; native sidebar glass selection and the existing controls remain functional. Five-card popover still fits the fan controls and three CPU contributor rows. No actual fan modes/curves or application preferences were changed during verification.
+All saved preferences match the pre-task snapshot semantically, including light theme, five card sources/order/visibility and menu components/spacing/colors. 126 protected existing source/resource/test files and the existing stash are unchanged. git diff --check passed.
+
+Limits
+Native verification was on macOS 27.0 in light mode. Dark values and branches were compared in source and existing rendering diagnostics passed; dark app UI was not rechecked by toggling the user's theme. Global accessibility preferences were not changed.
+
+Backups
+/tmp/thermalscope-clean-light-before.txt
+/tmp/thermalscope-clean-light-install-before.txt
+/tmp/thermalscope-clean-light-app.txt
+/tmp/thermalscope-clean-light-build.log

@@ -8,14 +8,14 @@ enum MenuGraphStyle:String,CaseIterable,Identifiable {
     var title:String {switch self {case .line:return "线条";case .area:return "面积";case .bars:return "柱形"}}
 }
 enum MenuCPUGraph {
-    static func image(points:[MetricPoint],ending:Date,width:Double=44,upper:Double=100,style:MenuGraphStyle = .line,warningsEnabled:Bool=false,appearance:NSAppearance?=nil)->NSImage {
+    static func image(points:[MetricPoint],ending:Date,width:Double=44,upper:Double=100,style:MenuGraphStyle = .line,warningsEnabled:Bool=false,appearance:NSAppearance?=nil,kind:MetricKind = .cpuUsage)->NSImage {
         let image=NSImage(size:NSSize(width:width,height:16),flipped:false) {rect in
             let context=appearance ?? NSAppearance.currentDrawing()
             let foreground:NSColor=context.bestMatch(from:[.darkAqua,.aqua]) == .darkAqua ? .white:.black
-            context.performAsCurrentDrawingAppearance {MenuBarAppearanceRenderer.drawHistory(points,ending:ending,rect:rect.insetBy(dx:1,dy:1),upper:upper,color:foreground,bars:style == .bars,background:false,cpuWarnings:warningsEnabled,fillArea:style == .area)}
+            context.performAsCurrentDrawingAppearance {MenuBarAppearanceRenderer.drawHistory(points,ending:ending,rect:rect.insetBy(dx:1,dy:1),upper:upper,color:foreground,bars:style == .bars,background:false,fillArea:style == .area,warningKind:warningsEnabled ? kind:nil)}
             return true
         }
-        image.isTemplate = !warningsEnabled || !CPULoadBands.samples(points).contains{$0.level > .normal}
+        image.isTemplate = !warningsEnabled || !MetricWarningBands.samples(points,kind:kind).contains{$0.level > .normal}
         return image
     }
 }
@@ -26,7 +26,7 @@ struct MenuCPUPreview:View {
     var width:Double=44
     var warningsEnabled=true
     var points:[MetricPoint] {history.points(kind,minutes:2)}
-    var body:some View {Image(nsImage:MenuCPUGraph.image(points:points,ending:history.end,width:width,upper:max(kind.fixedUpper,points.compactMap(\.value).max() ?? 0),style:style,warningsEnabled:warningsEnabled && kind == .cpuUsage)).accessibilityLabel(L(kind.title)+" · "+L("趋势图"))}
+    var body:some View {Image(nsImage:MenuCPUGraph.image(points:points,ending:history.end,width:width,upper:max(kind.fixedUpper,points.compactMap(\.value).max() ?? 0),style:style,warningsEnabled:warningsEnabled,kind:kind)).accessibilityLabel(L(kind.title)+" · "+L("趋势图"))}
 }
 struct MetricSparkline:View {
     @ObservedObject var history:MetricHistoryStore
@@ -34,7 +34,7 @@ struct MetricSparkline:View {
     let kind:MetricKind
     var body:some View {
         let points=history.points(kind,minutes:2),end=history.end,upper=max(kind.fixedUpper,points.compactMap(\.value).max() ?? 0)
-        let runs=kind == .cpuUsage && warningsEnabled ? CPULoadBands.runs(points):[CPULoadRun(id:0,level:.normal,points:points)]
+        let runs=MetricWarningBands.runs(points,kind:kind,enabled:warningsEnabled)
         Canvas {context,size in
             for run in runs {
                 var line=Path(),area=Path(),previous:Int?,first:CGPoint?,last:CGPoint?

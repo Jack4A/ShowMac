@@ -1,7 +1,7 @@
 import SwiftUI
 import ThermalCore
 
-enum MetricKind:String,Identifiable,CaseIterable {
+enum MetricKind:String,Identifiable,CaseIterable,Codable {
     case cpuTemperature,gpuTemperature,storageTemperature,cpuUsage,memory,fan,battery
     var id:String {rawValue}
     var title:String {switch self {case .cpuTemperature:return "CPU 温度";case .gpuTemperature:return "GPU 温度";case .storageTemperature:return "存储温度";case .cpuUsage:return "CPU 使用率";case .memory:return "内存";case .fan:return "风扇转速";case .battery:return "电池"}}

@@ -1,0 +1,36 @@
+Sidebar-facing content corners — 2026-11-03
+
+User asked for two rounded corners where the main content meets the sidebar.
+ConsoleShell now applies one decorative modifier to the detail column. It
+forms 18 pt continuous top-left/bottom-left corners using the native SwiftUI
+RoundedRectangle path with square trailing corners, compatible with macOS 13.
+Only the small corner cutouts are painted: the existing content canvas,
+gradients, fonts, margins, native toolbar and child content remain intact.
+The overlay ignores top/bottom safe areas, passes through hit testing and is
+hidden from accessibility. It introduces no controls or saved preferences.
+
+Light cutouts use the existing sidebar gradient. Dark cutouts use neutral
+sidebar tones (#2A282E to #25232A), avoiding desktop colors from vibrancy.
+No extra visual-effect view or blur layer remains in the final implementation.
+All existing global palette values and sidebar layout/selection are unchanged.
+
+SDK 27.0 release app/helper/widget build and strict signatures pass. All seven
+installed build artifacts match. All 125 protected source/resource/test files
+are unchanged. ConsoleUI is byte-identical except the one modifier call; the
+previous ConsoleWindowBackdrop implementation is preserved alongside the new
+decorative types. No new test files were needed for this appearance change.
+
+CUA inspected the installed light overview and Settings, checked final dark
+corners, then restored the original light theme and checked Sensors and the
+overview again. Both left corners are visible without shifting page content;
+native navigation and theme selection remain usable. Real samples continued;
+fan modes/curves were not operated. Original appearance/menu preferences,
+three menu components and 18/0/0 spacing remain unchanged. Evidence consists
+of native app-window screenshots, not mockups or a claimed desktop capture.
+Existing stash b6d789b retained; no new stash, commit or push.
+
+Source backup: /tmp/thermalscope-detail-corners-before.txt
+Previous app: /tmp/thermalscope-detail-corners-install-before.txt
+Build output: /tmp/thermalscope-detail-corners-app.txt
+Build log: /tmp/thermalscope-detail-corners-build.log
+Installed app: /Applications/ThermalScope.app

@@ -14,6 +14,10 @@ import ThermalCore
     private(set) var modes:[String]=[]
     private(set) var average:Double?
     private(set) var latest:Double?
+    private(set) var isPreview=false
+    init() {
+        if let seeded=TemperatureTimelinePreview.samples() {samples=seeded;isPreview=true;rebuild()}
+    }
     func append(_ sample:Snapshot,mode:String?,publish:Bool=true) {
         guard sample.date.timeIntervalSince1970.isFinite,
               samples.last.map({sample.date>$0.snapshot.date}) ?? true else{return}

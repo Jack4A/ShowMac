@@ -1,0 +1,32 @@
+Pre-push validation — 2026-11-03
+
+Scope: accumulated Apple Silicon fan/sensor support, native UI/navigation,
+complete sensor inventory/history, configurable menu components and popover
+cards, light-theme refinement, diagnostic UI, translations, build scripts
+and their validation notes. Existing published release archives are unchanged.
+
+Final checks
+DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer make check
+- 95 ThermalCore domain checks passed, 0 failures; no hardware writes.
+- 18 Python performance-tool tests passed.
+- Hidden view update check passed: 120 samples retained without view
+  notifications and caught up once when visible.
+
+Six isolated application diagnostics passed:
+--status-cards-check --ui-check
+--curve-warning-check --ui-check
+--menu-sensor-check --ui-check
+--menu-composition-check --ui-check
+--menu-customization-check --ui-check
+--cpu-warning-check
+These checks use fixtures and do not modify saved settings or real controls.
+
+The final source also passed release packaging with SDK 27.0 in the app,
+helper and widget and strict deep codesign verification. Native UI/layout
+verification and hardware validation limits are documented by their individual
+records. Chinese/English README descriptions were brought up to date with the
+horizontal menu components and configurable 1–8 popover cards.
+
+git diff --check passed. Only project sources/resources/tests/scripts/docs and
+README files are staged; ignored build/app/performance/signing outputs are not
+included. The existing pre-review stash is retained.

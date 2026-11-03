@@ -1,0 +1,20 @@
+同类分段控件靠左对齐（2026-11-03）
+
+需求与实现
+用户指出传感器“常用读数/全部传感器”切换条左侧有多余空白，要求其他同类控件一致靠左。
+传感器显示范围Picker去掉200pt固定宽度，使用原生自然宽度，左缘与标题、统计及卡片区域一致，搜索框紧接原有12pt行间距。
+状态弹窗的compact档位Picker、小组件预览的尺寸Picker以及优化工作区的措施/效果Picker明确以leading对齐其内容区域。温度控制主页面原生五档仍fillEqually等宽铺满，左右两端保持与曲线卡片对齐。
+图表选项将弹性Spacer移到末尾，使暂停、纵轴刻度、图形样式形成靠左的连续操作组。未改变选择值、控件类型、绑定或回调；表单右侧的语言/主题等下拉字段保留原有行布局。
+修改范围为SensorInventoryPage.swift、FanStrategySelector.swift、WidgetSettings.swift、EnergyInsights.swift、Views.swift，均限于显示尺寸和对齐。
+
+构建与验证
+macOS SDK27.0构建app/helper/widget成功，安装后严格签名验证通过；主二进制、helper、两份Localization.json、widget二进制、Assets.car与Info.plist共7项SHA-256与最终构建产物一致。
+CUA在本机安装版核对传感器左边线、图表选项、小组件尺寸切换和状态弹窗的compact五档条，均已靠左；未新增UI测试文件。首次核对后进一步移除传感器固定宽度，重新完整构建安装，最终复验切换条与标题左缘对齐、搜索框衔接紧凑，6项常用读数及296项总数正常。
+最终版另行核对温度控制主页面，五档等宽铺满及曲线两端对齐仍正常，状态为系统自动；没有点击真实档位或拖动曲线。优化工作区旧视图同步改了leading并通过编译，本轮未进入其运行页面，不将其记录为原生视觉实测。
+120个受保护Sources/Resources/Tests文件哈希未变；字体、颜色、采集及硬件控制均保持。上轮Main中的菜单栏左右4pt和原有数值渲染受保护，所有menu/theme/language/interval偏好哈希与本轮前一致，当前两组件及2pt项目间距保留。
+git diff --check通过，保留stash@{0} b6d789b，无新提交或stash。
+
+源文件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-leading-controls-before-pzkfx47p
+最终构建：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-leading-controls-aeu3cne_/ThermalScope.app
+安装前软件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-leading-controls-install-z36fktym/ThermalScope.app
+本机：/Applications/ThermalScope.app

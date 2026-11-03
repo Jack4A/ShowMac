@@ -1,0 +1,15 @@
+Remove repeated page headings — 2026-11-03
+
+Only ConsoleUI.swift changed. Main destinations and Settings no longer repeat their selected sidebar name as a large content heading. Existing descriptive text remains as a 12-point secondary line. Root-page top inset is 20 points, releasing the space previously used by the heading/gap. Actual metric-detail pages retain their specific 25-point heading, detail subtitle, return toolbar control and previous 25-point top inset. Sidebar labels, typography elsewhere, controls, page routing and telemetry are unchanged.
+
+Verification
+Release build succeeded with SDK 27.0; app/helper/widget SDK stamps passed.
+Strict deep codesign verification passed; all 7 installed artifacts matched the build.
+Native UI: overview screenshot has only the descriptive line above cards; sensors and Settings no longer duplicate their sidebar names in the detail header. Opening CPU temperature retained CPU 温度 / 指标详情 and the return control. Sidebar navigation returned correctly to root destinations. The app is left on the overview.
+All saved preferences and the original stash matched the pre-task snapshot semantically. Protected existing source/resource/test files matched their hashes. git diff --check passed. No new tests were added for this reversible presentation-only change; release compilation and native navigation/layout verification were used. No real fan controls were invoked.
+
+Backups
+/tmp/thermalscope-page-heading-before.txt
+/tmp/thermalscope-page-heading-install-before.txt
+/tmp/thermalscope-page-heading-app.txt
+/tmp/thermalscope-page-heading-build.log

@@ -35,6 +35,8 @@
 	<false/>
 	<key>NSHighResolutionCapable</key>
 	<true/>
+	<key>NSAccentColorName</key>
+	<string>AccentColor</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>ThermalScope — local Intel Mac utility</string>
 </dict>

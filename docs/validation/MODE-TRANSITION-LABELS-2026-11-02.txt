@@ -1,0 +1,21 @@
+模式切换标签重叠修复 — 2026-11-02
+
+原因：温度图每个切换 RuleMark 都在同一高度显示常驻 annotation，密集切换会堆叠文字。
+修复：移除常驻文字，保留轻量切换竖线；点击/悬停真实采样，在固定读数区显示温度、时间和模式。
+过短的模式分段以实际采样点显示，避免单点分段消失；切换标记来自完整记录。
+保留 Apple Charts 和原有分段、模式、睿频样式；不改变采集、平均值或硬件控制。
+
+验证：显式 --ui-check + THERMALSCOPE_PREVIEW_TIMELINE=dense 注入最后约 80 秒连续切换的隔离场景，并标注模拟。
+默认曲线无重叠文字，所有切换标记可见；点选密集区域显示 56.0°C、01:18:21、均衡，读数与选中点同步。
+120 次隐藏采样检查通过；正常构造历史存储不启用预览。
+完整 Release 构建通过（SDK 26.5），包含应用、辅助程序和小组件。
+
+安装核对 2026-11-02T01:20:24
+源/安装签名深度严格校验通过，5 项 SHA-256 一致：
+Contents/MacOS/ThermalScope: 8908cf6775c18cc90d4b4acaf23022112de5641f9076ce0ec43f83dd0abc84b3
+Contents/Helpers/ThermalScopeHelper: 5a6ef0a7159bb346c99473aef94f890dd08c54f3da15c3f773b2d3958481b946
+Contents/Resources/Localization.json: 80481ed19794ab03920453f8aa65513c4d8fa3a1bbbfd61d247ff52faebcc8e2
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget: 5589bad438ed5c54acfc737711f39a3a9f3cfafaa2d0507eae59bdad240c7067
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/Resources/Localization.json: 80481ed19794ab03920453f8aa65513c4d8fa3a1bbbfd61d247ff52faebcc8e2
+旧安装备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-transition-label-install-jk7z8e4w/ThermalScope.app
+安装后已确认真实温度曲线正常采集，显示点击读数提示，无模拟标记；窗口停在实时监测页。

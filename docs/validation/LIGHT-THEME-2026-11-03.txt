@@ -1,0 +1,22 @@
+浅色主题优化验证（2026-11-03）
+
+用户要求
+白色主题仍需继续优化。保留紫色品牌、字体、布局和原生控件；本轮重点处理紫色底光、灰白层次和辅助文字偏淡。
+
+实现
+浅色画布使用接近#F6F6F8的中性白灰，卡片纯白，侧栏使用接近#F1F0F4的珍珠灰。浅色不再绘制整窗紫色渐变与光晕；侧栏原有尺寸、行距、导航和底部设置保持。
+选中背景使用#EBE4F4柔和淡紫，减弱外框；紫色图标、曲线和原生控件强调色保留。未选中图标转为中性灰紫，文字层次更清楚。
+卡片边界在浅色中略加强，仅表面增加低透明度阴影，文字本身没有阴影；高对比度模式仍使用原有强边界并关闭新增阴影。辅助文字使用#696773，主指标卡片标题及说明接入同一辅助色；字体、数字和单位布局不变。
+深色调色板RGB及导航深色值与本轮前比较一致，原有深色背景、边界、材质参数保留；辅助文字深色回到系统secondaryLabelColor。本轮未切换正式实例的主题。
+
+构建与检查
+macOS SDK 27.0构建app/helper/widget成功；签名严格验证通过。安装后主二进制、helper、两份Localization.json、widget二进制、Assets.car与Info.plist共7项SHA-256与构建产物一致；bundle ID仍为local.jack.ThermalScope。
+120个受保护Sources/Resources/Tests文件哈希不变；AppTypography受保护，MetricValue定义与本轮前逐字一致。采集、风扇控制、传感器处理、菜单栏组件颜色及保存逻辑未更改。浅色相关修改无需新增测试文件，使用构建和原生视觉验证；git diff --check通过。
+CUA实测本机安装版启动、实时监测、常用传感器、设置、温度控制和性能诊断；点击导航选中状态正确。实时监测启动初期等待采样后，CPU读数和真实温度趋势正常出现，缺测没有显示为零。
+设置仍保留三个既有组件的顺序、样式和5秒采样偏好。正式实例始终为系统自动，未点击风扇模式或拖动控制曲线，未调整组件颜色。
+保留stash@{0} b6d789b，无新提交或stash。
+
+源文件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-light-theme-before-y2mb7h5f
+构建产物：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-light-theme-agb8xt03/ThermalScope.app
+安装前软件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-light-theme-install-g5qgql52/ThermalScope.app
+本机：/Applications/ThermalScope.app

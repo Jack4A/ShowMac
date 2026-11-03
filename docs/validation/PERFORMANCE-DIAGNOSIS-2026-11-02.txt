@@ -1,0 +1,31 @@
+性能诊断原生界面重构 — 2026-11-02
+
+展示
+单一结论区展示诊断状态、观察时长与采样时间；需要关注的条目在结论下直接显示证据和审阅入口。
+五行当前读数替代六张嵌套指标卡片，使用原生 Grid、GroupBox 和 Button。
+负载来源、日常磁盘/保持唤醒活动和规则放在“诊断详情”，默认折叠；从“查看全部建议”进入时可展开已有观察。
+读数缺失显示未知/暂不可用，部分覆盖时仅说明可用指标，绝不把缺失当作正常。
+Apple Silicon 的节能入口指向系统设置，风扇入口仍指向独立温控页；已有恢复记录和 Intel 优化/恢复入口保留。
+后端诊断阈值、排序、确认与硬件写入边界保持原样。报告只增加唤醒请求可读性元数据，便于展示与该次判定一致的缺失项。
+本次 27 条诊断文案提供英/日/韩/德/法/西翻译。
+
+预览
+仅 --ui-check 配合 THERMALSCOPE_PREVIEW_DIAGNOSIS 启用明确标注“模拟”的 5 种报告场景；正常启动使用真实诊断数据。
+已核对中文稳定/需要关注页面；读数、证据与操作可见，详情默认收起。
+点击内存建议后进入真实只读进程列表，排序为内存。
+
+核对结果
+95 项核心检查通过（含唤醒请求可读性与该次判定一致的断言），0 失败。
+120 次隐藏采样检查通过。中文浅色需关注/普通观察、英文深色缺失状态布局已检查；观察默认收起，缺失项不显示为零或正常。
+内存建议跳到内存排序，温度入口跳到温度曲线；总览“查看全部建议”正常进入并展开已有观察。
+完整 Release 构建通过，使用本机 SDK 26.5，包含应用、辅助程序与小组件。
+
+安装核对 2026-11-02T01:15:49
+源包与安装包深度严格签名校验通过，以下 5 项 SHA-256 一致：
+Contents/MacOS/ThermalScope: 9b4a0ccf9001adeb86bc21ecb685ea656ec79dfe14125a87703fb4372d2e6de6
+Contents/Helpers/ThermalScopeHelper: 5a6ef0a7159bb346c99473aef94f890dd08c54f3da15c3f773b2d3958481b946
+Contents/Resources/Localization.json: 80481ed19794ab03920453f8aa65513c4d8fa3a1bbbfd61d247ff52faebcc8e2
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget: 5589bad438ed5c54acfc737711f39a3a9f3cfafaa2d0507eae59bdad240c7067
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/Resources/Localization.json: 80481ed19794ab03920453f8aa65513c4d8fa3a1bbbfd61d247ff52faebcc8e2
+旧安装备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-diagnosis-install-h5xhjqm5/ThermalScope.app
+安装后已打开真实性能诊断页：无模拟标记，观察进度、5 行实际读数、缺失状态和默认收起的诊断详情均可见。

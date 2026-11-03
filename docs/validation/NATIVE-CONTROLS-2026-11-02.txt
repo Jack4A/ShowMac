@@ -1,0 +1,40 @@
+macOS 原生控件整理 — 2026-11-02
+
+实现
+主侧栏：原生 List(sidebar)，系统处理选中、焦点与键盘导航。
+风扇档位、设置页签、常用/全部读数：原生分段 Picker，保留选档即生效及忙碌/不可用状态。
+传感器与进程搜索：NSSearchField，使用系统清除按钮及实时编辑通知。
+共享面板与传感器容器：GroupBox，移除手画圆角、渐变、投影和悬停描边。
+预设选择：标准 Button；负载占比：ProgressView；小趋势与详细图：Apple Charts。
+界面底色、文字、边界与强调色使用系统语义颜色。
+状态栏自定义内容仍由原生 NSStatusItem/NSImage 显示；WidgetKit 预览保留实际卡片外观。
+开发文档记录用户“原生优先”的明确偏好。
+
+原生 UI 验证（隔离 --ui-check，不写入硬件）
+中文浅色：侧栏方向键切换、档位选择安静、状态栏恢复自动、两个入口选中态同步均通过。
+NSSearchField 输入 PSTR 后实时筛出 1 项，点击系统清除按钮后恢复全部读数。
+常用读数 6 张卡片、小曲线与记录时长显示正常；设置页签与通用设置控件显示正常。
+紧凑状态栏弹窗三项曲线与五档原生切换均完整显示。
+
+最终核对
+英文深色布局和状态栏弹窗通过；点击已选中侧栏项可从指标详情返回总览。
+95 项核心检查、120 次隐藏采样和 144 组状态栏定制显示检查通过，无硬件写入。
+完整 Release 构建通过（SDK 26.5），包括应用、辅助程序与小组件。
+源与安装包深度严格签名校验通过；5 项 SHA-256 一致。
+安装时间：2026-11-02T01:02:37
+Contents/MacOS/ThermalScope: 6937cc1a3b8d9ead060cdd8f4a3837f492538d742e11109187ede7d682a657c7
+Contents/Helpers/ThermalScopeHelper: 55afffb546eeac280c272cd5448e60f95ac7dde5ab71abd3e13f9922547f1a83
+Contents/Resources/Localization.json: e5a8c3bc6d0eca5c8e0466124b8b8bc9caff6aa3caecad544e40d8f152fa37a9
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget: 6d78b783c341f0069c8daa14043845bcc10ea1377fdf0db8761a484c5d2362ac
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/Resources/Localization.json: e5a8c3bc6d0eca5c8e0466124b8b8bc9caff6aa3caecad544e40d8f152fa37a9
+旧安装备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-native-controls-install-f3y22j5n/ThermalScope.app
+
+最终强调色适配
+SwiftUI 控件采用原生 Color.accentColor，避免跨 AppKit 桥接动态强调色造成下拉箭头异色。
+最终交付构建/安装 2026-11-02T01:03:32，深度严格签名通过；以下 5 项 SHA-256 与源包一致：
+Contents/MacOS/ThermalScope: 708002eb19b1fe66f68d740bec10d7c4cee006f7d0ed9f52e73426992d5db49a
+Contents/Helpers/ThermalScopeHelper: 55afffb546eeac280c272cd5448e60f95ac7dde5ab71abd3e13f9922547f1a83
+Contents/Resources/Localization.json: e5a8c3bc6d0eca5c8e0466124b8b8bc9caff6aa3caecad544e40d8f152fa37a9
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget: 6d78b783c341f0069c8daa14043845bcc10ea1377fdf0db8761a484c5d2362ac
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/Resources/Localization.json: e5a8c3bc6d0eca5c8e0466124b8b8bc9caff6aa3caecad544e40d8f152fa37a9
+安装后已确认中文传感器页的系统侧栏、分段控件、搜索框及 6 个趋势分组正常；下拉控件与系统强调色一致。

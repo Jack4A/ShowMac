@@ -1,0 +1,38 @@
+展示层次优化验证（2026-11-02）
+
+用户反馈
+用户认可当前字体，认为其余视觉不够好看，要求调研并继续优化。保留字体及原版侧栏，不扩大到其他页面。
+
+调研与应用
+Carbon 的 Presentation dashboard 建议以重要数据建立视觉层次、限制首屏指标、统一数据颜色并用留白分组；Apple HIG Charts 强调数据本身与可读的上下文。本轮将三项关键读数、主趋势与摘要、其他指标依次组织，中性背景托起数据表面。
+https://www.carbondesignsystem.com/building-blocks/data-visualization/dashboards
+https://developer.apple.com/design/human-interface-guidelines/charts
+https://atlassian.design/foundations/color-new/data-visualization-color/
+
+改动范围
+Support/MonitorAppearance.swift：系统中性表面、轻灰度画布、数据类型颜色和图标。
+Views/ConsoleUI.swift：仅概览接入历史和面积图初始状态。
+Views/MetricsDashboard.swift：三项读数加入真实 2 分钟小趋势，保留原生按钮详情入口。
+Views/Views.swift：概览主图与摘要合为一个区域，图表设置仍为原生控件。
+MenuBar/StatusOverview.swift：保持原版三张完整图表；按数据类型统一图标、曲线与进度颜色。
+未改动 AppTypography、MetricValue 字体、侧栏、其他页面布局、采样及风扇控制逻辑。
+
+备份
+/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-display-refinement-w71hku3t
+
+静态检查
+保护文件哈希及 MetricValue 原文与本轮修改前一致。
+MetricPlot.decimated 过滤缺测值并保留 segment，小趋势按 segment 分组绘制，不跨缺测连接。无预填数据。
+
+运行验证
+最终应用构建成功（SwiftPM native，SDK 27.0）；主程序、辅助程序、小组件签名校验通过。
+--hidden-view-update-check 通过：120 次隐藏采样保留，视图不产生刷新通知，恢复可见时统一补齐。
+原生 UI 检查：浅色中文总览、深色英文总览、浅/深状态弹窗均检查，无本轮新增的裁切或重叠。密集模式切换使用显式 dense 模拟输入，主图显示“模拟/Simulation”；小趋势仍为真实采样。单一模式的正常实时显示也已检查。
+图表选项原生 DisclosureGroup 可展开，初始面积图被正确选中，可切换折线再恢复面积；概览 CPU 卡片和弹窗 CPU 卡片均可跳到对应详情。
+正常安装版再次只读检查实时读数、主图与三张状态趋势卡片；未切换正常版风扇模式，也未发起硬件写入。
+已安装至 /Applications/ThermalScope.app，主程序/辅助程序/主本地化/小组件/小组件本地化共五项哈希与最终构建一致；三个可执行文件 SDK 27.0 复核通过。保留旧安装备份，见下方。
+原有 stash@{0} 保留。git diff --check 通过。
+
+
+安装前应用备份
+/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-display-install-backup-av087d7i/ThermalScope.app

@@ -4,15 +4,19 @@
 
 <img src="Resources/AppIcon.png" width="96" alt="ThermalScope application icon">
 
-A native macOS temperature, CPU, fan and performance diagnostics utility, with an Intel build and an experimental Apple Silicon monitoring build. Current application version: **1.16 / build 260**, including the subsequent Dock behavior, icon and stress-test fixes.
+A native macOS temperature, CPU, fan and performance diagnostics utility, with an Intel build and an experimental Apple Silicon fan-control build. Current application version: **1.16 / build 260**, including the subsequent Dock behavior, icon and stress-test fixes.
 
 ## Features
 
 - Menu bar readings and a popover with temperature, CPU usage and fan history.
 - A console for live metrics, sensors, CPU/memory/disk process activity and evidence-based diagnostics.
-- System automatic, energy saving, performance and quiet modes, plus editable temperature-to-fan-speed curves.
+- Performance diagnosis puts actionable findings first, with a compact readings list and expandable activity sources, routine observations and rules.
+- A sensor overview with readable names and explanations, 5/10/30-minute trends on common cards and detailed charts. The last 30 minutes are kept for the current session and cleared on quit. Complete temperature, fan, power, voltage and current readings are searchable by name, type and ID; probes with unconfirmed purposes are grouped separately.
+- Auto, Quiet, Balanced, Boost and Custom fan presets, plus editable temperature-to-fan-speed curves.
 - Independent Intel Turbo Boost control, operation history and sample export.
 - System/light/dark appearance, language selection, configurable menu bar and WidgetKit widgets.
+- Drag menu-bar components to combine and reorder icons, values and trends from any readable sensor. Each component has its own icon, color and style; black/white and horizontal labels are the defaults. Inner and outer padding can both be zero.
+- Choose 1–8 popover cards from either the popover editor or Settings → Popover cards, with ordering, removal and automatic saving. Fan controls and top CPU processes can be shown independently.
 - Seeded synthetic stress tests, performance budgets, raw captures and baseline comparisons.
 
 ## Screenshots
@@ -27,7 +31,7 @@ Left-click the menu bar item for temperature, CPU and fan trends, with links int
 
 ### Temperature and fan control
 
-Edit the curve draft first, then explicitly apply it. Opening the editor does not change fan control.
+Current source applies a mode immediately, or applies a curve when a dragged point is released. The image below retains the earlier interface.
 
 ![Thermal modes, fan curve entry and Intel Turbo Boost controls](docs/screenshots/thermal-control.png)
 
@@ -76,10 +80,12 @@ open build/ThermalScope.app
 1. **Monitor:** startup begins monitoring in the menu bar without automatically opening the console. Monitoring is read-only by default and does not require an administrator password.
 2. **View graphs:** left-click the menu bar item for temperature, CPU usage and fan curves. Right-click for the actions menu.
 3. **Open the console:** use “Open ThermalScope” in the popover, or click the Dock icon. Navigate to live monitoring, performance diagnosis or process activity.
-4. **Adjust cooling:** choose a mode under Temperature Control, or open the temperature curve editor, review the draft and explicitly apply it. Hardware operations require macOS administrator authorization.
+4. **Adjust cooling:** choose Auto, Quiet, Balanced, Boost or Custom under Temperature Control. Drag a curve point and release to apply it automatically. First use requires macOS administrator authorization; control returns to automatic after 30 minutes.
 5. **Restore automatic control:** use the system automatic fan action, then check whether the operation is confirmed.
 6. **Keep monitoring:** closing the main window hides the Dock icon while the menu bar continues monitoring. Opening the console brings the Dock icon back. Use Quit from the application or menu bar menu to fully exit.
 7. **Change language:** choose English, Simplified Chinese or Follow System in Settings → Language; changing the system language is unnecessary.
+
+The console prioritizes CPU temperature, fan speed, CPU usage and the full temperature trend, with other metrics below. Return from metric details using the visible back button or Live Monitoring in the sidebar. Process Activity searches app names, raw process names and PIDs, and can show every readable process. Fan control uses one mode selector and one RPM curve. Modes take effect immediately; curve edits apply on release. Remaining time and thermal-protection state appear above the selector.
 
 ### Fan and Turbo Boost dependencies
 
@@ -173,3 +179,7 @@ Current usage documentation is available in [简体中文](README.md) / [English
 - [Archived pre-organization usage guide](docs/archive/README-1.16.md)
 
 The main branch is `main`; a separate commit and the `pre-organization` tag preserve the original snapshot. Build caches, app bundles, raw performance output, editor state and local signing credentials are ignored. The GitHub repository is `Jackkakaya/ThermalScope`, initially **Private**.
+
+### UI availability and compact monitoring
+
+Current source supports fan-only presets, draggable fan curves and a five-second fan test on Apple Silicon after administrator authorization. Intel Turbo Boost and power-setting controls remain unavailable. The published v1.16.0 ARM archive is the original monitoring-only build and does not include the current source changes. See docs/APPLE_SILICON_FANS.txt for validation scope. The status popover uses two columns of compact cards, with an odd final card spanning the row, a shared time range and an update timestamp. Real trends use the existing warning thresholds. Fan presets are available below; click a metric for details. Missing readings and incomplete history are identified explicitly. Settings manages top-menu components and popover cards separately, with typography and appearance options in a disclosure section.

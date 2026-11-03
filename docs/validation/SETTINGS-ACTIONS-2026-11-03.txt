@@ -1,0 +1,18 @@
+主题与刷新移入设置（2026-11-03）
+
+需求与实现
+用户指出月亮和刷新不应一直存在于顶部。移除ConsoleShell中的两个primaryAction工具栏项；指标详情的返回入口仍按原有条件显示。
+设置现有偏好组增加原生主题Picker，直接绑定原有model.theme，提供跟随系统/浅色/深色。采样频率旁增加原生带图标的“刷新读数”按钮，沿用model.refresh()和model.busy禁用条件。删除无调用的ThemeQuickButton.swift，不新增标签页、设置分组或偏好键。沿用已有本地化条目。
+自动采样、刷新实现、主题持久化、白色主题配色、菜单栏组件及风扇控制保持原样。
+
+验证
+macOS SDK27.0构建app/helper/widget成功；本机安装签名严格检查通过，主二进制、helper、两份Localization.json、widget二进制、Assets.car和Info.plist共7项SHA-256与构建产物一致，bundle ID仍为local.jack.ThermalScope。
+123个受保护Sources/Resources/Tests文件哈希不变，包含上轮浅色主题全部颜色/字体代码、AppModel、数据采集与控制代码；git diff --check通过。此次为现有控件迁移，未新增实现镜像测试。
+CUA检查本机实时监测顶部无主题和刷新按钮；设置页主题/语言/采样与刷新排列正常，三个原有菜单栏组件顺序和样式、5秒采样偏好保留。
+原生主题菜单三项正常显示，实测浅色切到深色并恢复原来的浅色，页面与组件正确适配。尝试点击刷新时电脑操作工具报告用户已切换页面；重新读取后确认用户返回实时监测，读数与曲线持续自动更新。本次未取得手动刷新按钮的实际点击回执；该按钮源码直接调用原有刷新方法，构建与入口显示通过。
+未操作风扇档位或控制曲线。保留stash@{0} b6d789b，无新stash或提交。
+
+源文件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-settings-actions-before-sf9z2fye
+构建产物：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-settings-actions-_vjxvgoz/ThermalScope.app
+安装前软件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-settings-actions-install-17zme5kk/ThermalScope.app
+本机：/Applications/ThermalScope.app

@@ -13,7 +13,8 @@ if [[ -n "$GROUP" && "$IDENTITY" == "-" ]]; then
 fi
 EXT="$APP/Contents/PlugIns/ThermalScopeWidget.appex"
 mkdir -p "$EXT/Contents/MacOS" "$EXT/Contents/Resources"
-xcrun swiftc -parse-as-library -application-extension -O -target "$ARCH-apple-macosx13.0" -sdk "$(xcrun --sdk macosx --show-sdk-path)" -I "$BIN/Modules" -L "$BIN" -lWidgetUI -lWidgetShared -framework SwiftUI -framework WidgetKit -Xlinker -e -Xlinker _NSExtensionMain "$ROOT/Widgets/ThermalScopeWidget.swift" -o "$EXT/Contents/MacOS/ThermalScopeWidget"
+SDK="${THERMALSCOPE_SDK:-$(xcrun --sdk macosx --show-sdk-path)}"
+xcrun swiftc -parse-as-library -application-extension -O -target "$ARCH-apple-macosx13.0" -sdk "$SDK" -I "$BIN/Modules" -I "$BIN" -L "$BIN" -lWidgetUI -lWidgetShared -framework SwiftUI -framework WidgetKit -Xlinker -e -Xlinker _NSExtensionMain "$ROOT/Widgets/ThermalScopeWidget.swift" -o "$EXT/Contents/MacOS/ThermalScopeWidget"
 python3 - "$APP" "$EXT" "$GROUP" "$BIN" <<'PY'
 import plistlib,sys
 from pathlib import Path

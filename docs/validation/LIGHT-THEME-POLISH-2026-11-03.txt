@@ -1,0 +1,38 @@
+Light theme polish — 2026-11-03
+
+The user approved the dark theme and asked to improve the white theme.
+Light appearance now has a pale lavender sidebar gradient, white selected
+row, clear plum selected text/icon, white cards on a neutral light canvas,
+lighter half-point card borders and restrained soft shadows. Native controls,
+links, icons and normal curves share the #7650A8 light accent. Secondary text
+uses #6D6578. Navigation layout, typography and functionality remain unchanged.
+
+All dark adaptive palette values, navigation colors, mode colors and native
+dark accent variants compare equal to the source backup. Dark row material,
+gradient opacity, border alpha, panel border/shadow parameters and window
+backdrop remain unchanged. MetricValue compares byte-for-byte equal. All 122
+protected source/resource/test files are unchanged, including fonts, sensor,
+sampling, fan control, menu curve, component and spacing code. High-contrast
+card boundaries and native accent entries retain their existing behavior.
+
+SDK 27.0 release app/helper/widget build and strict signatures pass. All seven
+installed binary/resource hashes match the build. Whitespace checks pass.
+Light text/background contrast ratios: selected navigation 10.38, other
+navigation 5.81, secondary text 5.01, accent on white 6.03.
+
+CUA inspected the installed light overview, common sensors, temperature
+control, performance diagnosis, Settings and status popover. Selected rows,
+native segmented controls, cards and real samples render correctly. Startup
+CPU/history placeholders resolved as real samples accumulated. Fan controls
+were not operated. Three menu components and 18/0/0 spacing were preserved.
+The original saved dark theme was restored through native Settings and
+visually checked on the overview. Saved appearance preferences match the
+pre-work backup. Evidence is from native app-window screenshots, not mockups.
+No new test files were added for these reversible appearance-only changes.
+Stash b6d789b retained; no new stash, commit or push.
+
+Source backup marker: /tmp/thermalscope-light-theme-polish-before.txt
+Build marker: /tmp/thermalscope-light-theme-polish-app.txt
+Prior app marker: /tmp/thermalscope-light-theme-polish-install-before.txt
+Build log: /tmp/thermalscope-light-theme-polish-build.log
+Installed app: /Applications/ThermalScope.app

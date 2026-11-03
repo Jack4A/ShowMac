@@ -1,0 +1,33 @@
+2026-11-02 全部传感器状态栏验证
+
+范围：所有 SensorInventory 读数均可作为状态栏来源；常用温度汇总也可加入。保留单页设置、横排数值和原有组合。没有改硬件读取/控制、字体、侧栏、指标卡片或状态弹窗布局。
+
+实现：
+- MenuSensorReference 持久化种类、原始 key 和汇总/物理身份，不保存某次读数或本地化名称作为查值依据。
+- 搜索弹窗使用原生 List selection，显示人类可读名称、原始编号、实时数值/单位，按种类分组；空分组省略，无结果时显示提示。
+- 常用卡片及完整传感器卡片原生右键“在状态栏显示”直接加入单行数值。仍沿用最多24个同时显示组件的上限，来源列表不做数量截断。
+- 温度/风扇/功耗/电压/电流分别 °C/RPM/W/V/A，精度1/0/2/3/3。零/负值保留；缺测显示破折号，恢复后仍对应原探头。
+- 只为已选物理传感器保存有界趋势，去重重复组件；取消选择后释放历史。常用汇总复用已有历史。窗口隐藏时继续采集和状态栏刷新，视图通知仍受原可见性门控。
+
+自动检查全部通过：
+1. --menu-sensor-check --ui-check：种类全覆盖、原始探头与常用汇总、易读名称、精度/单位、探头独立、负值/零/缺测、JSON往返、令牌编码、图像/悬停说明、缺测分段、取消选择释放历史、偏好隔离。
+2. --menu-composition-check --ui-check：旧配置、横排、重复指标、独立编辑、增删/排序命令、拒绝异常令牌/失效目标、边界与预设。
+3. --menu-customization-check --ui-check：144组明暗/字体/样式/图标像素与宽度。
+4. --hidden-view-update-check：120份后台样本无视图通知；新增单探头菜单历史校验。
+5. --cpu-warning-check：CPU橙/红/普通像素与模板渲染保持，传感器不误用CPU警示。
+
+原生 UI：
+- 当前真实设备传感器页列出296项；选择器直接接入同一完整清单。
+- 简体中文浅色：搜索VD0R，用原生列表键盘选中后点数值，预览显示12.561 V；搜索ID0R添加电流，显示约1.305 A。
+- 传感器页常用内存附近温度右键添加成功，约47.3 °C；完整列表搜索PSTR，原生右键添加成功，约15.90 W。组合中这些不同来源同时显示并随采样变化。
+- 深色英文：voltage 搜索列出各个电压探头，名称/编号/单位和对比可读，长名称两行。
+- 安装后的正式应用保留原来的两个组件，搜索VD0R返回直流输入电压12.559 V，且仅显示“电压”匹配分组；没有在正式偏好里加入测试组件。
+- 自动鼠标点击弹窗行的观察不可靠，改用原生键盘选择验证后成功。右键添加使用真实鼠标菜单已通过。
+- 上次遗留的拖拽验收未在本次宣称通过，令牌检查不等于鼠标拖拽验收。
+
+构建/安装：SDK 27.0 的应用、helper、widget 构建通过；签名验证通过；安装7项关键文件哈希与构建一致。
+核心/CSMC/helper、字体、侧栏、指标主页面和状态面板受保护文件哈希保持不变。git diff --check 通过，旧stash保留。
+构建：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-all-sensors-release-bsniw8ej/ThermalScope.app
+安装：/Applications/ThermalScope.app
+安装前备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-all-menu-sensors-install-cpq7ep_8/ThermalScope.app
+源文件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-all-menu-sensors-before-3baan0th

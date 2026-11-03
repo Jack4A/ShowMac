@@ -34,11 +34,15 @@ import WidgetUI
             guard let self else { return }
             if self.model.menuStyle == "custom" {
                 self.statusItem.button?.attributedTitle=NSAttributedString(string:"")
-                self.statusItem.button?.image=MenuBarAppearanceRenderer.image(tiles:MenuBarAppearanceRenderer.tiles(model:self.model),ending:self.model.metricHistory.end,theme:self.model.menuBarTheme,spacing:self.model.menuSpacing,graphWidth:self.model.menuGraphWidth,background:self.model.menuGraphBackground,appearance:self.statusItem.button?.effectiveAppearance,warningsEnabled:self.model.menuCPUWarnings)
+                let image=MenuBarAppearanceRenderer.image(tiles:MenuBarAppearanceRenderer.tiles(model:self.model),ending:self.model.metricHistory.end,spacing:self.model.menuSpacing,graphWidth:self.model.menuGraphWidth,background:self.model.menuGraphBackground,appearance:self.statusItem.button?.effectiveAppearance,warningsEnabled:self.model.menuCPUWarnings,typography:self.model.menuTypography,dividers:self.model.menuDividers,outerPadding:self.model.menuOuterPadding,innerPadding:self.model.menuInnerPadding)
+                self.statusItem.button?.image=image
                 self.statusItem.button?.imagePosition = .imageOnly
+                // The complete image includes the user's padding on both outer edges.
+                self.statusItem.length=max(1,ceil(image.size.width))
                 self.statusItem.button?.toolTip=self.statusItem.button?.image?.accessibilityDescription
                 return
             }
+            self.statusItem.length=NSStatusItem.variableLength
             let output=NSMutableAttributedString()
             for (index,metric) in self.model.menuItems.enumerated() {
                 if index>0 { output.append(NSAttributedString(string:"  ")) }
@@ -54,7 +58,7 @@ import WidgetUI
             self.statusItem.button?.attributedTitle=self.model.menuStyle == "stacked" ? NSAttributedString(string:""):output
             let graphPoints=self.model.metricHistory.points(self.model.menuGraphKind,minutes:2)
             let graphUpper=max(self.model.menuGraphKind.fixedUpper,graphPoints.compactMap(\.value).max() ?? 0)
-            let graph=self.model.menuGraph ? MenuCPUGraph.image(points:graphPoints,ending:self.model.metricHistory.end,width:self.model.menuGraphWidth,upper:graphUpper,style:self.model.menuGraphStyle,warningsEnabled:self.model.menuCPUWarnings && self.model.menuGraphKind == .cpuUsage,appearance:self.statusItem.button?.effectiveAppearance):nil
+            let graph=self.model.menuGraph ? MenuCPUGraph.image(points:graphPoints,ending:self.model.metricHistory.end,width:self.model.menuGraphWidth,upper:graphUpper,style:self.model.menuGraphStyle,warningsEnabled:self.model.menuCPUWarnings,appearance:self.statusItem.button?.effectiveAppearance,kind:self.model.menuGraphKind):nil
             if self.model.menuStyle == "stacked" {
                 let values=MenuStackedValues.image(self.model.menuItems.map{($0.shortTitle,$0.value(self.model.readings))},appearance:self.statusItem.button?.effectiveAppearance)
                 if let graph {
@@ -89,7 +93,14 @@ import WidgetUI
         if CommandLine.arguments.contains("--ui-check") {
             // UI smoke renders never invoke hardware controls.
             let environment=ProcessInfo.processInfo.environment
-            if let page=environment["THERMALSCOPE_PREVIEW_PAGE"],let tab=Int(page) { model.tab=tab }
+            if let page=environment["THERMALSCOPE_PREVIEW_PAGE"] {
+                if let tab=Int(page) {model.tab=tab}
+                else if let destination=ConsolePage(rawValue:page) {model.navigation.page=destination}
+                else if let metric=MetricKind(rawValue:page) {model.navigation.showMetric(metric);if let sensor=metric.sensor {model.timeline.sensor=sensor}}
+            }
+            if environment["THERMALSCOPE_PREVIEW_NOTICE"] == "success" {model.report("界面验证示例：设置已保存。",error:false)}
+            if environment["THERMALSCOPE_PREVIEW_NOTICE"] == "busy" {model.busy=true;model.report("界面验证示例：正在等待确认…",error:false)}
+            if let language=environment["THERMALSCOPE_PREVIEW_LANGUAGE"] {AppLocalization.shared.set(language)}
             if let theme=environment["THERMALSCOPE_PREVIEW_THEME"] {
                 NSApp.appearance=NSAppearance(named:theme == "dark" ? .darkAqua:.aqua)
             }
@@ -108,12 +119,14 @@ import WidgetUI
         if statusPopover.isShown {statusPopover.performClose(nil);return}
         guard let button=statusItem.button else{return}
         let available=button.window?.screen?.visibleFrame.height ?? 800
-        let height=min(650,max(320,available-32))
+        let height=min(540,max(320,available-32))
         let view=StatusOverview(model:model,height:height,onNavigate:{[weak self] value in
             self?.statusPopover.performClose(nil);self?.navigateStatusDestination(value)
         },onSettings:{[weak self] in
-            self?.statusPopover.performClose(nil);self?.showPreferences()
-        },onActions:{[weak self] in self?.showStatusActions()})
+            self?.statusPopover.performClose(nil);self?.model.navigation.preferencesSection = .menubar;self?.showPreferences()
+        },onActions:{[weak self] in self?.showStatusActions()},onResize:{[weak self] height in
+            self?.statusPopover.contentSize=NSSize(width:390,height:height)
+        })
         model.setVisualUpdatesEnabled(true)
         statusPopover.contentViewController=NSHostingController(rootView:view)
         statusPopover.contentSize=NSSize(width:390,height:height)
@@ -160,7 +173,7 @@ import WidgetUI
         if let snapshot=model.snapshot {
             info(L("运行模式")+"  "+L(model.coolingStatus),"thermal")
             let turboText=snapshot.turbo == .disabledDriverLoaded ? L("已关闭"):(snapshot.turbo == .driverNotLoaded ? L("允许开启"):L("状态不可用"))
-            info(L("睿频")+"  "+turboText,"thermal")
+            if !ControlAvailability.isAppleSilicon {info(L("睿频")+"  "+turboText,"thermal")}
             info(L("系统低电量模式")+"  "+L(snapshot.lowPower ? "开启":"关闭"),"optimization")
             info(L("GPU 温度")+"  "+valueText(snapshot.temperature(.gpu))+"°C",MetricKind.gpuTemperature.rawValue)
             info(L("硬盘温度")+"  "+valueText(snapshot.temperature(.storage))+"°C",MetricKind.storageTemperature.rawValue)
@@ -179,18 +192,20 @@ import WidgetUI
         menu.addItem(.separator())
         let modes=NSMenu(title:L("温度控制"))
         modes.autoenablesItems=false
-        for mode in [.automatic]+ThermalProfile.energyModes {
-            let item=NSMenuItem(title:L(mode.rawValue),action:#selector(selectMode(_:)),keyEquivalent:"")
-            item.target=self;item.representedObject=mode.command;item.isEnabled = !model.busy
-            item.state=model.activeProfile==mode || (mode == .automatic && model.coolingStatus=="系统自动") ? .on:.off
+        for mode in FanStrategy.presets {
+            let item=NSMenuItem(title:L(mode.title),action:#selector(selectMode(_:)),keyEquivalent:"")
+            item.target=self;item.representedObject=mode.rawValue;item.isEnabled = !model.busy && (mode == .system || ControlAvailability.fansAvailable(model.snapshot))
+            item.state=model.activeFanStrategy==mode ? .on:.off
             modes.addItem(item)
         }
         let modeItem=NSMenuItem(title:model.busy ? L("温度控制 · 操作中…"):L("温度控制"),action:nil,keyEquivalent:"")
         modeItem.submenu=modes;menu.addItem(modeItem)
         action(L("恢复系统自动风扇"),#selector(restoreFans))
-        action(L("验证风扇控制 · 5 秒"),#selector(testFans),nil,!model.busy)
+        action(L("风扇故障排查")+"…",#selector(testFans),nil,!model.busy)
+        if !ControlAvailability.isAppleSilicon {
         action(L("关闭睿频"),#selector(disableTurbo),nil,!model.busy)
         action(L("允许睿频"),#selector(enableTurbo),nil,!model.busy)
+        }
         if model.messageIsError { action("⚠ "+L(model.operationIssue.title)+"…",#selector(showIssue)) }
         if model.snapshot?.limited==true { info(L("系统正在限制性能")) }
         menu.addItem(.separator())
@@ -217,10 +232,10 @@ import WidgetUI
         switch route {case .overview:navigateStatusDestination("metrics");case .thermal:navigateStatusDestination("thermal");case .metric(let kind):navigateStatusDestination(kind.rawValue)}
     }
     @objc func selectMode(_ sender:NSMenuItem) {
-        guard let value=sender.representedObject as? String,let mode=ThermalProfile.allCases.first(where:{$0.command==value}) else { return }
-        model.applyProfile(mode)
+        guard let value=sender.representedObject as? String,let mode=FanStrategy(rawValue:value) else{return}
+        model.applyFanStrategy(mode)
     }
-    @objc func testFans() { model.startFanTest() }
+    @objc func testFans() {model.navigation.showFanTroubleshooting=true;navigateStatusDestination("thermal")}
     @objc func disableTurbo() { model.changeTurbo(disable:true) }
     @objc func enableTurbo() { model.changeTurbo(disable:false) }
     @objc func restoreFans() { model.restoreAuto() }
@@ -270,6 +285,11 @@ import WidgetUI
 @main struct Entry {
     @MainActor static func main() {
         let args=CommandLine.arguments
+        if args.contains("--status-cards-check") {StatusCardsCheck.run();return}
+        if args.contains("--curve-warning-check") {CurveWarningCheck.run();return}
+        if args.contains("--menu-sensor-check") {MenuSensorCheck.run();return}
+        if args.contains("--menu-composition-check") {MenuCompositionCheck.run();return}
+        if args.contains("--menu-customization-check") {MenuCustomizationCheck.run();return}
         if args.contains("--stress-check") {StressBenchmark.run();return}
         if args.count==2 && args[1]=="--hidden-view-update-check" {HiddenViewUpdateCheck.run();return}
         if args.count==2 && args[1]=="--render-performance-check" {RenderPerformanceBenchmark.run();return}
@@ -280,8 +300,8 @@ import WidgetUI
             for (i,n) in [20.0,35,75,85,95,96,97,30].enumerated(){h.append(n,at:Date(timeIntervalSince1970:1000+Double(i*5)))}
             let ending=h.points.last!.date
             for dark in [false,true] {for style in [MenuTileStyle.historyValue,.bars] {
-                let tile=MenuBarTile(metric:.cpu,style:style,label:"CPU",value:"30%",number:30,points:h.points,upper:100,color:.systemBlue)
-                let image=MenuBarAppearanceRenderer.image(tiles:[tile],ending:ending,theme:.system,spacing:4,graphWidth:88,background:false,appearance:NSAppearance(named:dark ? .darkAqua:.aqua))
+                let tile=MenuBarTile(metric:.cpu,style:style,label:"CPU",value:"30%",number:30,points:h.points,upper:100)
+                let image=MenuBarAppearanceRenderer.image(tiles:[tile],ending:ending,spacing:4,graphWidth:88,background:false,appearance:NSAppearance(named:dark ? .darkAqua:.aqua))
                 guard !image.isTemplate,let data=image.tiffRepresentation,let bitmap=NSBitmapImageRep(data:data) else{exit(2)}
                 var red=0,orange=0,neutral=0
                 for y in 0..<bitmap.pixelsHigh {for x in 0..<bitmap.pixelsWide {
@@ -291,10 +311,10 @@ import WidgetUI
                     if abs(c.redComponent-c.greenComponent)<0.05 && abs(c.greenComponent-c.blueComponent)<0.05 {neutral+=1}
                 }}
                 guard red>0,orange>0,neutral>0 else{print("Color pixels missing: \(style) red=\(red) orange=\(orange) neutral=\(neutral)");exit(3)}
-                let disabled=MenuBarAppearanceRenderer.image(tiles:[tile],ending:ending,theme:.system,spacing:4,graphWidth:88,background:false,warningsEnabled:false)
+                let disabled=MenuBarAppearanceRenderer.image(tiles:[tile],ending:ending,spacing:4,graphWidth:88,background:false,warningsEnabled:false)
                 guard disabled.isTemplate else{exit(4)}
-                let other=MenuBarTile(metric:.gpu,style:style,label:"GPU",value:"97°",number:97,points:h.points,upper:130,color:.systemBlue)
-                guard MenuBarAppearanceRenderer.image(tiles:[other],ending:ending,theme:.system,spacing:4,graphWidth:88,background:false).isTemplate else{exit(5)}
+                let other=MenuBarTile(metric:.fan,style:style,label:"RPM",value:"97",number:97,points:h.points,upper:6000)
+                guard MenuBarAppearanceRenderer.image(tiles:[other],ending:ending,spacing:4,graphWidth:88,background:false).isTemplate else{exit(5)}
             }}
             for style in MenuGraphStyle.allCases {
                 guard !MenuCPUGraph.image(points:h.points,ending:ending,width:88,style:style,warningsEnabled:true).isTemplate,MenuCPUGraph.image(points:h.points,ending:ending,width:88,style:style,warningsEnabled:false).isTemplate else{exit(6)}
@@ -307,23 +327,23 @@ import WidgetUI
             let sampler=HardwareSampler();_=sampler.sample();Thread.sleep(forTimeInterval:0.25)
             let sample=sampler.sample();var history=MetricHistory();history.append(sample.cpuUsage,at:sample.date)
             var count=0
-            for missing in [false,true] {for style in MenuTileStyle.allCases {for theme in MenuBarTheme.allCases {for width in [44.0,66,88] {
+            for dark in [false,true] {for missing in [false,true] {for style in MenuTileStyle.allCases {for colored in [false,true] {for width in [44.0,66,88] {
                 let n=missing ? nil:sample.cpuUsage
-                let tile=MenuBarTile(metric:.cpu,style:style,label:"CPU",value:n.map{String(format:"%.0f%%",$0)} ?? "—%",number:n,points:missing ? []:history.points,upper:100,color:.systemBlue)
-                let image=MenuBarAppearanceRenderer.image(tiles:[tile],ending:sample.date,theme:theme,spacing:4,graphWidth:width,background:true,appearance:NSAppearance(named:.darkAqua),warningsEnabled:false)
-                guard image.size.height==22,image.size.width.isFinite,image.size.width>0,image.size.width<200,image.isTemplate == (theme == .system),image.tiffRepresentation != nil else{exit(2)}
+                let tile=MenuBarTile(metric:.cpu,style:style,label:"CPU",value:n.map{String(format:"%.0f%%",$0)} ?? "—%",number:n,points:missing ? []:history.points,upper:100,color:colored ? .systemBlue:nil)
+                let image=MenuBarAppearanceRenderer.image(tiles:[tile],ending:sample.date,spacing:4,graphWidth:width,background:true,appearance:NSAppearance(named:dark ? .darkAqua:.aqua),warningsEnabled:false)
+                guard image.size.height==22,image.size.width.isFinite,image.size.width>0,image.size.width<200,image.isTemplate == !colored,image.tiffRepresentation != nil else{exit(2)}
                 count+=1
-            }}}}
-            guard MenuBarAppearanceRenderer.hex(NSColor(srgbRed:1,green:0,blue:0,alpha:1))=="FF0000",MenuBarAppearanceRenderer.hex(MenuBarAppearanceRenderer.color(hex:"invalid",fallback:NSColor(srgbRed:1,green:0,blue:0,alpha:1)))=="FF0000" else{exit(3)}
+            }}}}}
+            guard MenuBarAppearanceRenderer.hex(NSColor(srgbRed:1,green:0,blue:0,alpha:1))=="FF0000",MenuBarAppearanceRenderer.color(hex:"invalid")==nil else{exit(3)}
             for dark in [false,true] {
-                let tile=MenuBarTile(metric:.cpu,style:.stacked,label:"CPU",value:sample.cpuUsage.map{String(format:"%.0f%%",$0)} ?? "—%",number:sample.cpuUsage,points:[],upper:100,color:.systemBlue)
-                let image=MenuBarAppearanceRenderer.image(tiles:[tile],ending:sample.date,theme:.accent,spacing:4,graphWidth:44,background:false,appearance:NSAppearance(named:dark ? .darkAqua:.aqua))
+                let tile=MenuBarTile(metric:.cpu,style:.stacked,label:"CPU",value:sample.cpuUsage.map{String(format:"%.0f%%",$0)} ?? "—%",number:sample.cpuUsage,points:[],upper:100)
+                let image=MenuBarAppearanceRenderer.image(tiles:[tile],ending:sample.date,spacing:4,graphWidth:44,background:false,appearance:NSAppearance(named:dark ? .darkAqua:.aqua))
                 guard let data=image.tiffRepresentation,let bitmap=NSBitmapImageRep(data:data) else{exit(4)}
                 var total=0.0,pixels=0.0
                 for y in 0..<bitmap.pixelsHigh {for x in 0..<bitmap.pixelsWide {if let c=bitmap.colorAt(x:x,y:y)?.usingColorSpace(.sRGB),c.alphaComponent>0.5 {total+=(c.redComponent+c.greenComponent+c.blueComponent)/3;pixels+=1}}}
                 guard pixels>0,(dark ? total/pixels>0.75:total/pixels<0.25) else{exit(5)}
             }
-            print("\(count) native menu images rendered, with actual/missing samples, 7 styles, 3 themes and 3 widths; color encoding and light/dark text pixels passed. No preferences or hardware writes.")
+            print("\(count) native menu images rendered, with actual/missing samples, \(MenuTileStyle.allCases.count) styles, automatic/custom component colors, 3 widths and light/dark appearances; color encoding and light/dark text pixels passed. No preferences or hardware writes.")
             return
         }
         if args.count==2 && args[1]=="--status-menu-check" {

@@ -1,0 +1,25 @@
+可调菜单栏整体外边距（2026-11-03）
+
+用户纠正与结果
+用户明确指出要调整整组菜单栏组件最左、最右两端的外边距，先前固定4pt及项目间距调整没有完成此需求。
+设置→字体与外观新增一个原生“整体外边距”滑块，范围0–20pt、步长1pt，显示“左右各 N pt”。一个值同步控制整组两端，独立于原有“项目间距”。调整通过原有updateMenu路径立即刷新并写入menuOuterPadding偏好，默认4pt保持上版外观。
+本机已安装，设置组保持展开供用户直接调节；实测0pt、12pt，退出并重启后12pt仍保留，最后恢复默认4pt。原项目间距仍为2pt。
+
+实现
+AppModel新增有限值/范围校验的menuOuterPadding偏好，使用原有isFanControlPreview隔离写入机制。快速组件预设保留用户整体外边距，不将其当作单个组件样式重置。
+MenuBarAppearanceRenderer对整组图片一次性增加左右透明留白，所有组件统一平移一个inset，图片总宽增加2×inset；数字预留宽度、组件间距、字体、颜色及图形绘制保持。默认参数0使逐组件编辑预览等旧调用保持原来宽度。
+Main按完整图片宽度设置原生NSStatusItem.length，移除固定+8及22pt下限，使0pt不被旧限制额外撑大；兼容图文布局继续使用系统variableLength。没有替换原生状态按钮或改动系统全局菜单栏设置。
+新增三条文案覆盖en/ja/ko/de/fr/es，繁体沿用已有转换；所有原有翻译逐项保持。
+
+验证
+macOS SDK27.0构建app/helper/widget成功，安装后严格签名通过；主二进制、helper、两份Localization.json、widget二进制、Assets.car和Info.plist共7项SHA-256与构建产物一致，bundle ID为local.jack.ThermalScope。
+--menu-customization-check --ui-check通过：既有144组明暗字体/样式/图标渲染，以及新增整组外边距像素核对。针对用户的CPU数值+PSTR功耗组合、全部8种样式组合，在明暗模式比较0pt与12pt：两端对称透明，宽度增加24pt，移除外边距后每个内容像素及组件间距保持，自动黑白/自定义颜色模式一致；预设不覆盖整体外边距，UI检查无偏好写入。
+--menu-composition-check --ui-check通过：组合、独立颜色、缺省黑白、拖动命令、存储及偏好隔离既有检查通过。两个CLI检查均退出0；过程中有系统sandbox_extension_issue_file_to_process非致命诊断，未影响断言或GUI运行。
+CUA本机核对新滑块与独立2pt项目间距可同时显示；设0及12时数值正确，重启恢复12，随后回到4。CPU与整机功耗两个单行组件、字体11.5pt中等、曲线44pt、原颜色与背景/告警偏好均保留。设置页无新增标签或页面。
+未获取整条系统菜单栏的前后截图，不声称测量其他应用的系统间距；渲染像素验证覆盖本软件整组图片的外边距。未操作真实风扇控制，正常运行保持系统自动。
+119个受保护Sources/Resources/Tests文件哈希不变；所有本轮前menu/theme/appLanguage/interval偏好哈希保持，仅新增menuOuterPadding=4。git diff --check通过，保留stash@{0} b6d789b，无新提交或stash。
+
+源文件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-adjustable-menu-insets-before-xdfcky2z
+构建产物：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-adjustable-menu-insets-qkxi3crv/ThermalScope.app
+安装前软件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-adjustable-menu-insets-install-erm85qv9/ThermalScope.app
+本机：/Applications/ThermalScope.app

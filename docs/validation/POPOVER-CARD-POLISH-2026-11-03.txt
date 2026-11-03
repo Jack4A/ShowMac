@@ -1,0 +1,28 @@
+Popover card visual polish — 2026-11-03
+
+Presentation
+Only StatusCards.swift and StatusOverview.swift changed. Existing card configuration, source reading/history code, native editor/settings controls and control callbacks remain intact.
+
+- Replaced the strong gray popover background with the existing application canvas over native ultra-thin material; reduced-transparency uses opaque canvas. Both light and dark now share the main application's plum/neutral hierarchy.
+- Metric cards use 12-point continuous corners, an opaque surface with a restrained highlight, a 0.6-point border and a light shadow. Increased-contrast borders remain stronger and shadows are disabled.
+- Paired cards are 78 points high instead of 92; 8-point gaps replace 10-point gaps. Names and values remain on one row. Labels use 11-point medium system text and values use the existing MetricValue typography at 21 points with 10-point units.
+- An odd final card spans the row at 58 points high, with its real trend to the right of the reading. Five cards no longer leave an empty sixth cell. Saved source order is preserved.
+- Curves keep the same actual samples, time ranges, units, scale, gap segments and warning colors. Line weight is 1.7 points, fill fades to clear, and the last actual sample gets an endpoint marker. Endpoint lookup is performed once per chart, not per point.
+- Fan controls share the quieter surface and retain the native equal-width segmented control. Removed the repeated fan heading and the extra divider above process rankings. With the current five-card setup, all three process rows are visible at the same time.
+
+Verification
+Release build succeeded with SDK 27.0; app/helper/widget SDK stamps verified.
+Strict deep codesign verification passed; all 7 installed artifacts match the build.
+--status-cards-check --ui-check: PASS.
+--curve-warning-check --ui-check: PASS.
+Native screenshots checked in dark and light themes: five cards have aligned readable title/value/unit rows, the storage-temperature card fills the final row, and fan controls plus all three CPU contributors fit in the popover. No real fan mode/curve actions were performed. Existing five sources/order and both optional-section flags were unchanged.
+The user changed the theme from dark to light while the agent was checking the settings location. Preserved the new light selection. Every other preference matches the pre-task snapshot semantically. 128 protected source/resource/test files and the original stash are unchanged. git diff --check passed.
+
+Limits
+Native verification was on macOS 27.0, with the current five-card configuration. Higher counts scroll within the existing maximum popover height; minimum-card and older-OS configurations were reviewed in code, not exercised natively. Accessibility environment fallbacks were reviewed without changing the user's system settings.
+
+Backups
+/tmp/thermalscope-card-polish-before.txt
+/tmp/thermalscope-card-polish-install-before.txt
+/tmp/thermalscope-card-polish-app.txt
+/tmp/thermalscope-card-polish-build.log

@@ -1,0 +1,56 @@
+ThermalScope 侧栏、字体与状态栏定制 · 2026-11-02（Asia/Shanghai）
+
+调研
+参考 iStat Menus 官方的逐项配置、组合模式、双行标签、配色和顺序设置。
+本次聚焦 ThermalScope 已有的温度、CPU、GPU、电池与风扇项目；未复制其他软件的图标资产或界面。
+https://bjango.com/mac/istatmenus/
+https://bjango.com/help/istatmenus7/welcome/
+
+界面
+移除侧栏“监测与诊断”“温度与控制”标题，保留原有六个功能入口。
+统一系统字体层级：页面标题 22 pt 半粗，侧栏 13 pt 中等，正文 13 pt，说明 12 pt。
+主要数值改为系统字形与等宽数字；状态栏默认 11.5 pt 中等，并提供系统、圆角、等宽字体。
+数值支持 10 / 11 / 11.5 / 12 / 13 pt 和常规、中等、半粗字重。
+设置分为通用、状态栏、小组件，状态栏设置直接显示预览、预设、字体与逐项配置。
+
+定制
+8 种样式：双行、单行、图标、图标与数值、面积历史、柱形历史、圆环与数值、曲线与数值。
+每项可显示/隐藏、调整顺序、选内置图标或导入图片；双行样式可编辑最多 8 字的标签。
+可调整项目颜色、数值着色、间距、分隔线、图表宽度、图形底色和 CPU 高负载警示。
+浅色和深色预览使用与实际状态栏相同的绘制代码与设置，保持实际尺寸。
+正常应用中的修改自动保存；--ui-check 使用内存设置与独立临时图标目录，不覆盖原外观。
+兼容旧显示布局；仅在用户选择“启用逐项定制”后切换到新布局。
+
+图片图标
+原生文件选择器允许 PNG、JPEG、TIFF、PDF；导入时检查 5 MB 文件上限与图片画布尺寸。
+按比例规范为 64×64 透明 PNG，保存到应用自己的图标目录，仅以 UUID 引用。
+状态栏使用透明度轮廓着色；设置菜单使用 14×14 模板缩略图，避免原图撑大原生按钮。
+未知符号、无效图片编号和丢失文件回退到默认图标；仅图标模式移除图标时保留数值。
+图表没有可读历史且无图标时显示 —，避免不可见的状态栏入口。
+
+验证
+92 项核心检查、18 项 Python 性能测试通过。
+144 组字体/字号/样式/图片图标组合通过：深浅色、稳定宽度、有可见像素。
+144 组有值/缺失值、8 样式、3 配色、3 宽度的实际状态栏图片检查通过。
+CPU 警示色、单色模板、禁用警示、非 CPU 与旧图形样式回归通过。
+120 次隐藏采样检查通过。
+原生图片生成与 bitmap 绘制的 CPU 侧 p95 约 0.306 ms（200 次，不代表窗口 FPS 或 GPU 性能）。
+格式非法字体、标签规范化、图片导入、无效图标编号、14 pt 缩略图和 UI 偏好隔离均通过。
+中文实际交互：内置温度图标切换火焰；原生文件选择器导入透明图片；13 pt 字号即时预览；
+标签改成 CHIP 后预览同步；调整顺序后图像描述与项目次序同步。
+修订后导入图标的设置按钮恢复正常尺寸；中文浅色、英文深色布局已检查。
+
+构建
+使用 THERMALSCOPE_SDK 指向本机 SDK 26.5，完整构建应用、辅助程序及小组件。
+新增定制 UI 与错误文案提供中文、英文；常用控件提供其他语言，长说明沿用英文回退。
+
+安装核对（2026-11-02T00:48:35）
+已替换 /Applications/ThermalScope.app；旧安装备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-menu-customization-wvlgcdmo/ThermalScope.app
+codesign --verify --deep --strict 通过。以下源/安装 SHA-256 一致：
+Contents/MacOS/ThermalScope: ad5b51c24401ba3e3470bea6649df5cbd43bd50de141bd0799f9a5509cea7407
+Contents/Helpers/ThermalScopeHelper: 68895895f6c48d69bce2c42cc16660feb16d28b75a6523bb00093d1de470db15
+Contents/Resources/Localization.json: 1c6fd846d8a1f13f51cffba8d073adcc51edd9d137b2cc2e5bc2543f3a5c5d8f
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget: 5337dd07d4a0bcd3a3644cc29e404e84af0eedd05988645c7f398a3958ee1da0
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/Resources/Localization.json: 1c6fd846d8a1f13f51cffba8d073adcc51edd9d137b2cc2e5bc2543f3a5c5d8f
+最终交付包的 144 组定制检查通过，未写入硬件或真实菜单偏好。
+安装后原生界面复核：侧栏分组标题已移除；设置默认打开状态栏页签，字体、显示样式、图标、名称与顺序入口可见；保留用户原有菜单配置。

@@ -1,0 +1,30 @@
+底部说明与图标颜色优化 · 2026-11-03
+
+范围
+- 删除侧栏底部“本机实时监测”文字与无线图标，保留底部设置，底部间距12pt。
+- 延续用户选择的紫色：侧栏浅色渐层加深，深色渐层提亮；不改变现有字体、图标尺寸、行距和原生选中面板。
+- 顶部菜单栏“统一紫”改用随菜单栏effectiveAppearance变化的灰紫（浅色#664A96，深色#C2ABE6）。系统单色模板、自定义项目颜色与CPU橙红告警保留。
+- 仅三个展示源文件变化：ConsoleSidebar.swift、SidebarNavigationTable.swift、MenuBarAppearance.swift。
+
+验证
+- 中文浅色/深色独立bundle预览：底部说明消失，设置固定底部，图标与背景对比清楚；单层选中面板保留。
+- 原生设置入口点击通过；从设置按Up跳过留白进入操作记录。
+- 同一菜单栏renderer的设置组合预览核对“统一紫”浅深色，数值仍按原设置黑/白。
+- --menu-customization-check --ui-check：144字体/样式/图标组合通过。
+- --menu-appearance-check：144原生菜单图像、缺测、三种配色和明暗数值像素检查通过。
+- --cpu-warning-check：明暗趋势的正常/橙/红、关闭告警及非CPU回归通过。
+- 构建通过，app/helper/widget SDK27.0；深度严格签名验证通过；安装7个关键文件SHA256匹配构建。
+- 修改前保护清单中其他源文件、资源、全局配色与字体哈希一致。git diff --check通过。
+- 正式安装版原生UI再次确认：底部说明已移除，设置入口正常。保存的CPU温度/CPU使用率组合、系统单色、字号11.5、中等字重、5秒采样保留；系统自动模式保留。未操作真实风扇控制。
+- --ui-check只用于独立预览；原版偏好未重置。
+
+构建：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-sidebar-icon-colors-ys4q5akp/ThermalScope.app
+安装：/Applications/ThermalScope.app
+安装前备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-navigation-colors-install-65jjjqo8/ThermalScope.app
+源码备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-navigation-colors-before-jj8xm9_e
+
+后续用户澄清（2026-11-03）
+用户回复此前异步问题，明确“图标颜色”指屏幕顶部菜单栏图标。本轮不再修改侧栏。
+已在正常安装版原生设置中将菜单栏配色由“系统单色”切换为“统一紫”，使已安装的自适应灰紫实际应用；“数值使用项目颜色”保持关闭，CPU高负载警示保持开启，温度/CPU使用率两个图标与数值组件不变。
+设置原生预览显示紫色图标与黑色数值；打开状态面板显示读数和系统自动，收起后配色仍为“统一紫”。没有操作风扇档位。
+本次仅修改现有配色偏好，没有改动实现、重新构建或重新安装。截图工具能观察窗口和弹窗，未取得包含顶部状态图标的整屏截图；不将设置预览等同于顶部整屏的视觉验证。

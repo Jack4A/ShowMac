@@ -1,0 +1,33 @@
+组件颜色入口：黑白默认／预置色／自定义 · 2026-11-03
+
+用户最新确认
+每个组件默认黑白；点击颜色后弹出多个预置颜色与自定义入口。
+本记录补充COMPONENT-COLORS并替代其中“直接色井加恢复黑白按钮”的交互；不恢复全局配色主题。
+
+改动
+- 组件编辑器的颜色行改为单一原生菜单。首项黑白（默认），随后六个有色样的预置色：雾紫、海蓝、青绿、石墨、玫瑰、暖金；末尾自定义…。
+- 菜单中的原生内联Picker显示当前选中的勾选。选黑白清空本组件colorHex；选预置色只写本组件hex。
+- 自定义…才显式打开原生NSColorPanel。初始化颜色在绑定动作前完成，单纯打开面板不改变黑白默认；改变颜色实时写入打开面板的组件ID。
+- 更换预置色、关闭编辑器或关闭颜色面板时解绑回调，避免旧面板继续修改其他组件。
+- 不增加全局配色模式、Tab或额外设置页面。默认黑白、组件独立颜色与渲染逻辑保持上一版检查通过的实现。
+- 新文件MenuComponentColors.swift包含组件预置色样和原生颜色面板生命周期；其余变化限于MenuAppearanceSettings.swift与本地化。
+
+检查
+- app/helper/widget SDK27.0构建通过，深度严格签名校验通过。
+- --menu-composition-check --ui-check通过：默认黑白，重复组件独立染色的明暗真实像素、黑白重置、存储兼容、布局命令及偏好隔离。
+- --menu-customization-check --ui-check通过：144明暗字体/样式/图标组合。
+- 本轮保护清单中其他源文件、资源与测试文件哈希不变；原有翻译未改写；git diff --check通过。
+- 用户回复已解锁后完成CUA实测：温度组件菜单展示黑白默认、六个预置色和自定义…；选择海蓝后只有温度图标与数字变蓝，CPU使用率曲线/数值仍黑白。
+- 自定义…打开原生NSColorPanel；RGB滑块的十六进制输入2D916B后，组件菜单显示自定义，预览只有温度组件变绿。
+- 关闭颜色面板回到编辑器，再完成编辑，颜色仍正确；切换深色，未设颜色的CPU使用率为白色，温度组件保持自定义色。
+- 再选黑白（默认）后温度组件恢复自动白色，与另一个黑白组件一致；没有修改正常版组件颜色。
+- 已退出隔离预览及旧正常版，备份并替换/Applications/ThermalScope.app；严格深度签名和7项关键文件SHA256与构建一致。
+- 更新后正常版保留三个组件：CPU温度（图标与数值）、CPU使用率（曲线与数值）、风扇转速（图标与数值），图形底色开关为开启。系统字体11.5中等、间距4pt、曲线44pt、告警开关、跟随系统语言和5秒采样均保留。
+- 正常版字体与外观中确认全局配色及全局数值染色开关已移除；打开风扇组件颜色菜单，默认黑白勾选、六个预置色和自定义入口均可见。
+- 安装前后观察均为系统自动，没有改变真实风扇控制。
+
+构建：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-component-color-menu-jcbh9ag_/ThermalScope.app
+隔离预览：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-component-color-menu-preview-mhfccdc8/ThermalScope Component Color Menu Preview.app
+源码备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-component-color-menu-before-apgor382
+当前正常安装：/Applications/ThermalScope.app（已更新并实测）
+安装前备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-component-color-menu-install-44t6nt01/ThermalScope.app

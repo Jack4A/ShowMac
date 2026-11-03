@@ -1,0 +1,18 @@
+状态弹窗风扇档位等宽铺满（2026-11-03）
+
+需求与实现
+用户指出状态弹窗的风扇档位条仍需优化。将自动/安静/均衡/强劲/自定义五项等宽铺满内容宽度，两端与风扇状态和趋势图对齐。
+FanStrategySelector的compact分支改为复用现有FullWidthFanStrategyControl，删除单独的SwiftUI Picker分支。主页面和弹窗均使用原生NSSegmentedControl.fillEqually；主页面为regular，弹窗为small，保留原生尺寸和强调色。compact仅决定控件尺寸，不再决定布局实现。
+原生目标回调Coordinator与本轮前逐字一致；selected/nil、busy、available、帮助文字与无障碍均沿用现有路径。StatusOverview、风扇进度条、曲线、控制后端与采样逻辑均未改动。
+
+验证
+macOS SDK27.0构建app/helper/widget成功。正式安装签名严格验证通过，主二进制、helper、两份Localization.json、widget二进制、Assets.car和Info.plist共7项SHA-256与构建产物一致；bundle ID为local.jack.ThermalScope。
+CUA本机检查：启动与自动采样正常；设置中的两个原有菜单栏组件保留；打开状态弹窗后五个原生单选项等宽铺满，左右与风扇读数和趋势图对齐，自动项正确选中，帮助及语义仍可读。
+未点击真实风扇档位或拖动曲线。本轮验收为布局和选中状态的视觉核对，不记录为控制命令执行验证。没有新增测试文件。
+124个受保护Sources/Resources/Tests文件哈希不变，字体/配色、传感器左对齐、菜单栏留白及设置入口保留；menu/theme/language/interval偏好哈希与本轮前一致，项目间距仍为2pt。
+git diff --check通过，原stash@{0} b6d789b保留，无新提交或stash。最终将状态弹窗打开，便于用户直接查看结果。
+
+源文件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-popover-fan-width-before-5n_72mmy
+构建产物：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-popover-fan-width-zxqenw_g/ThermalScope.app
+安装前软件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-popover-fan-width-install-hibq3t4l/ThermalScope.app
+本机：/Applications/ThermalScope.app

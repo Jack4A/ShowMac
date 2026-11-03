@@ -1,0 +1,26 @@
+2026-11-02 设置与状态栏简化验证
+
+用户最新要求：减少复杂度和 Tab；取消温度标签在上、数值在下的显示。
+实现：设置一页；状态栏图标/数值/趋势三个入口；太阳/月亮原生 Menu primaryAction，长按选择跟随系统；旧双行样式转横排，曲线/圆环旁的数值也只显示一行。
+
+构建与模型：
+- scripts/build.sh 完成，应用/helper/widget 均为 SDK 27.0，签名验证通过。
+- --menu-composition-check --ui-check 通过：旧配置读取、双行转横排、重复指标、独立编辑、排序/插入/移除命令、错误令牌/目标拒绝、JSON往返、渲染顺序、最少/最多项、预设和偏好隔离。
+- --menu-customization-check --ui-check 通过：144 组明暗/字体/样式/图标组合的像素与稳定宽度，图片导入及边界处理。
+- 本轮备份 protected.json 所列核心、传感器、风扇、侧栏、字体和主指标页面哈希全部不变；原有 stash 保留。
+
+原生 UI 已观察：
+- 900×760 窗口，简体中文浅色与深色，设置页无分段 Tab，字体外观与小组件默认收起。
+- 原有温度/CPU 使用率组件显示为横向图标及数值。
+- 工具栏点击切换深色/浅色，长按出现跟随系统/浅色/深色原生菜单。
+- 点按图标入口增加独立 CPU 图标，点开组件显示精简原生表单；点击移除后恢复两项。
+- 安装版本重新打开设置，确认单页、横排和三个基础入口；未改动保存的主题或菜单配置。
+
+未通过的交互验收：
+- CUA 自动拖入/重排多次未观察到预期布局提交，期间还出现目标改变/超时。已分别尝试 SwiftUI Transferable 与 NSItemProvider/onDrop，实现目前采用后者，并保留点按添加、原生编辑及右键移动/移除。
+- 不能把模型命令通过等同于鼠标拖放通过。目前没有足够证据确定是自动化拖放方式还是应用交互实现的问题；拖拽仍需进一步实机验证。
+
+安装：/Applications/ThermalScope.app
+构建副本：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-menu-simple-native-kqnj3uoa/ThermalScope.app
+安装前备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-simple-menu-b8_7m06x/ThermalScope.app
+安装7项关键文件哈希与构建副本一致，codesign --verify --deep --strict 通过。

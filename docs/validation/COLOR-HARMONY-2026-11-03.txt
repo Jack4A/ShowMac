@@ -1,0 +1,31 @@
+界面颜色协调验证（2026-11-03）
+
+范围与结果
+用户要求继续优化软件界面颜色。保留紫色品牌、已认可字体、指标卡片布局、52pt原生表格导航及底部设置。主背景减少紫色覆盖，白色/深灰紫卡片与画布形成安静层次；常规指标符号与趋势统一品牌紫，运行模式使用相近饱和度的可区分色，警示仍由原有橙/红语义负责。
+侧栏非选中图标使用灰紫，选中图标使用品牌紫，文字与选中材质分角色适配明暗模式。设置中的状态栏组合底色使用同一Palette.inset，不新增设置项或标签页。
+
+修改文件
+Sources/ThermalScope/Support/Palette.swift
+Sources/ThermalScope/Support/MonitorAppearance.swift
+Sources/ThermalScope/Views/ConsoleWindowBackdrop.swift
+Sources/ThermalScope/Views/SidebarNavigationTable.swift
+Sources/ThermalScope/MenuBar/MenuCompositionCanvas.swift
+
+工程检查
+macOS SDK 27.0完整构建app/helper/widget成功。
+安装后codesign --verify --deep --strict通过；主二进制、helper、两份Localization.json、widget二进制、Assets.car和Info.plist共7项与构建产物SHA-256一致，正式bundle ID为local.jack.ThermalScope。
+本轮前备份中的121个受保护Sources/Resources/Tests文件哈希未变；MetricValue定义与本轮前逐字一致。字体、AccentColor原生资源、组件颜色控制器、数据采集/风扇控制及组件保存逻辑未修改。
+本轮为显示颜色调整，未新增测试文件；完成编译及原生视觉检查。git diff --check通过。
+
+原生UI核对
+使用独立bundle ID的隔离预览与--ui-check检查浅色实时监测、传感器、温度控制、性能诊断、设置和进程活动；深色实时监测、设置及状态弹窗。检查了鼠标/方向键导航选中颜色，已有布局及原生控件保留。
+首次隔离预览发现行选中回调早于单元格创建导致启动异常；在SidebarMaterialRow.isSelected中加入numberOfColumns>0保护，重新完整构建后启动、导航及明暗切换复验通过。异常版本未安装到/Applications。
+正式安装后正常启动，实时读数与系统自动状态正常；设置与实时监测来回导航正常，选中/非选中颜色正确。三个既有菜单栏组件、样式、顺序和5秒采样偏好保留。菜单栏仍默认黑白，每个组件的预置色与自定义入口未更改。
+未操作正式实例的风扇档位。物理鼠标拖放并非本轮验证范围，先前未验收事项不据此视为完成。
+
+备份与产物
+源文件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-color-harmony-before-u4zzxiuq
+完整构建：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-color-harmony-g8p6uq23/ThermalScope.app
+安装前软件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-color-harmony-install-6r0nwqgv/ThermalScope.app
+本机：/Applications/ThermalScope.app
+保留原有stash@{0} b6d789b，不增加stash或提交。

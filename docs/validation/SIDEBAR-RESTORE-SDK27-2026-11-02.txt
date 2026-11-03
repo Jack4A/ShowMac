@@ -1,0 +1,33 @@
+侧栏布局恢复与 macOS 27 原生外观 — 2026-11-02
+
+回溯
+原生组件整理把原先较宽的侧栏替换成紧凑 List，并将“设置”移入主导航，属于不必要的布局改动。
+当前机器是 macOS 27.0。修复前安装包 vtool 显示 minos 13.0 / sdk 13.0，即使编译时传过 SDK 26.5，链接的 SDK 标记仍错误。
+完整 Xcode 的平台目录包含 SwiftUIMacros；使用完整工具链与 native SwiftPM 已验证 State 宏和实际 SDK 27.0 链接成功。
+
+恢复
+侧栏保留系统 NavigationSplitView / List 的选中、图标与材质，恢复 13 pt 字号、40 pt 最小行高配置与底部独立设置，已删除的分组标题不加回。
+主导航和底部设置的双向选中、传感器页往返、设置页与状态栏弹窗已通过原生 UI 检查。
+SDK 27 下系统侧栏切换工具栏按钮、贴边容器、选中加粗与强调色图标均可见；不手画玻璃背景或选中胶囊。
+
+构建
+脚本尊重显式 DEVELOPER_DIR；自动选择只影响构建进程，不改变全局开发者目录。
+默认使用完整 Xcode 的 SDK，主程序/辅助程序/小组件的实际 SDK 标记都为 27.0，部署目标保持 13.0。
+增加真实 SDK 标记校验，标记与所用 SDK 不符即停止打包，不修改现成二进制伪造版本。
+95 项核心检查、120 次隐藏采样与 144 组状态栏显示检查通过，无硬件写入。
+
+官方依据
+https://developer.apple.com/videos/play/wwdc2026/289/
+https://developer.apple.com/videos/play/wwdc2026/102/
+
+安装核对 2026-11-02T10:20:10+08:00
+安装包深度严格签名通过，5 项 SHA-256 与源包一致，三个二进制实际 SDK 均为 27.0：
+Contents/MacOS/ThermalScope: d7c36ac31d0698d043d658ec050feb2d62a9fbc3abec08352d1c812abe084a85
+Contents/Helpers/ThermalScopeHelper: 3e9570109dcf3e948032be46f3653e0f3634db94c103d6180c52bf72179267e2
+Contents/Resources/Localization.json: 80481ed19794ab03920453f8aa65513c4d8fa3a1bbbfd61d247ff52faebcc8e2
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget: 177cc93fbafc13d9bc168b2f637dc52023a08af13625f05e03a8f4e34b8db2ca
+Contents/PlugIns/ThermalScopeWidget.appex/Contents/Resources/Localization.json: 80481ed19794ab03920453f8aa65513c4d8fa3a1bbbfd61d247ff52faebcc8e2
+旧安装备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-sidebar-sdk27-install-dgohtn3c/ThermalScope.app
+安装后重新打开设置页，确认底部设置可选中、原有状态栏配置保留、系统侧栏按钮可见；窗口停在用户原来的状态栏设置页。
+
+用户后续更正：上述恢复不是完整目标版本，仍有其他侧栏修改。当前布局仅为临时恢复，已停止进一步 UI 改动，待定位目标版本后再逐项核对；SDK 27 构建校验结果仍有效。

@@ -11,24 +11,28 @@ struct OperationNotice:View {
     var body:some View {
         VStack(alignment:.leading,spacing:12) {
             HStack(alignment:.top,spacing:12) {
-                Image(systemName:"exclamationmark.circle.fill").font(.system(size:20)).foregroundStyle(.orange)
+                if model.busy {ProgressView().controlSize(.small).frame(width:20,height:24)}
+                else {Image(systemName:model.messageIsError ? "exclamationmark.circle.fill":"checkmark.circle.fill").font(.system(size:20)).foregroundStyle(model.messageIsError ? Color.orange:Palette.violet)}
                 VStack(alignment:.leading,spacing:5) {
-                    Text(L(model.operationIssue.title)).font(.system(size:13,weight:.semibold))
-                    Text(L(model.operationIssue.guidance)).font(.system(size:12)).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
+                    Text(L(model.busy ? "正在应用…":(model.messageIsError ? model.operationIssue.title:"操作已完成"))).font(.system(size:13,weight:.semibold))
+                    Text(L(model.messageIsError ? model.operationIssue.guidance:model.message)).font(.system(size:12)).foregroundStyle(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
                 }
                 Spacer(minLength:8)
-                Button { model.messageIsError=false } label:{Image(systemName:"xmark")}.buttonStyle(.plain).help(L("收起提示（不改变硬件状态）"))
+                if !model.busy {Button { model.dismissNotice() } label:{Image(systemName:"xmark")}.buttonStyle(.borderless).help(L("收起提示（不改变硬件状态）")).accessibilityLabel(L("收起提示（不改变硬件状态）"))}
             }
+            if model.messageIsError {
             HStack(spacing:14) {
                 Button(expanded ? L("收起技术详情"):L("查看技术详情")) { expanded.toggle() }
                 Button(L("复制详情")) { NSPasteboard.general.clearContents();NSPasteboard.general.setString(model.message,forType:.string) }
-            }.font(.system(size:11)).buttonStyle(.borderless)
+            }.font(.system(size:12)).buttonStyle(.borderless)
             if expanded {
-                Text(model.message).font(.system(size:11,design:.monospaced)).foregroundStyle(.secondary).textSelection(.enabled).fixedSize(horizontal:false,vertical:true).frame(maxWidth:.infinity,alignment:.leading).padding(12).background(.primary.opacity(0.035),in:RoundedRectangle(cornerRadius:10))
+                ScrollView {
+                    Text(model.message).font(.system(size:12,design:.monospaced)).foregroundStyle(Palette.secondaryText).textSelection(.enabled).fixedSize(horizontal:false,vertical:true).frame(maxWidth:.infinity,alignment:.leading)
+                }.frame(maxHeight:110).subtlePanel()
             }
-        }.padding(18).frame(maxWidth:.infinity,alignment:.leading)
-            .background(Color.orange.opacity(0.07),in:RoundedRectangle(cornerRadius:18))
-            .overlay(RoundedRectangle(cornerRadius:18).stroke(Color.orange.opacity(0.18),lineWidth:1))
+            }
+        }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel()
+            .onChange(of:model.message){_ in expanded=false}
     }
 }
 struct ThermalStatusCard:View {
@@ -43,18 +47,18 @@ struct ThermalStatusCard:View {
     }
     var body:some View {
         VStack(alignment:.leading,spacing:20) {
-            HStack { Label(L("性能与热状态"),systemImage:"gauge.with.dots.needle.50percent").font(.system(size:14,weight:.semibold));Spacer();Text(L("系统实时报告")).font(.caption).foregroundStyle(.secondary) }
+            HStack { Label(L("性能与热状态"),systemImage:"gauge.with.dots.needle.50percent").font(.system(size:14,weight:.semibold));Spacer();Text(L("系统实时报告")).font(.system(size:12)).foregroundStyle(Palette.secondaryText) }
             HStack(alignment:.top,spacing:24) {
                 status(L("可用性能"),sample.limited ? L("受到限制"):(sample.limitKnown ? L("未检测到限速"):L("数据不完整")),sample.limited ? .orange:(sample.limitKnown ? Palette.violet:.secondary))
                 Rectangle().fill(.primary.opacity(0.08)).frame(width:1,height:52)
                 status(L("热压力"),L(sample.thermalTitle),thermalColor)
                 Spacer(minLength:0)
-                VStack(alignment:.trailing,spacing:8) { Text(L("可用逻辑处理器")).font(.system(size:11)).foregroundStyle(.secondary);Text("\(sample.availableCPUs.map(String.init) ?? "—") / \(sample.totalCPUs)").font(.system(size:23,weight:.medium,design:.rounded)).monospacedDigit() }
+                VStack(alignment:.trailing,spacing:8) { Text(L("可用逻辑处理器")).font(.system(size:12)).foregroundStyle(Palette.secondaryText);Text("\(sample.availableCPUs.map(String.init) ?? "—") / \(sample.totalCPUs)").font(AppTypography.number(23,weight:.medium)).monospacedDigit() }
             }
-            Text(explanation).font(.system(size:12)).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
-        }.padding(22).subtlePanel()
+            Text(explanation).font(.system(size:12)).foregroundStyle(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+        }.subtlePanel()
     }
     func status(_ title:String,_ value:String,_ color:Color)->some View {
-        VStack(alignment:.leading,spacing:10) { Text(title).font(.system(size:11)).foregroundStyle(.secondary);HStack(spacing:7) { Circle().fill(color).frame(width:7,height:7);Text(value).font(.system(size:16,weight:.semibold)).foregroundStyle(color) } }
+        VStack(alignment:.leading,spacing:10) { Text(title).font(.system(size:12)).foregroundStyle(Palette.secondaryText);HStack(spacing:7) { Circle().fill(color).frame(width:7,height:7);Text(value).font(.system(size:16,weight:.semibold)).foregroundStyle(color) } }
     }
 }

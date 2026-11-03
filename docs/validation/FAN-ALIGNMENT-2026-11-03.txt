@@ -1,0 +1,24 @@
+温度控制档位对齐（2026-11-03）
+
+需求与结果
+用户要求温度控制不同档位左右对齐。删除主页面档位条420pt宽度上限及同一行的传感器辅助入口。五个档位独占一行、等宽铺满内容区，两端与下方曲线卡片对齐。
+“查看传感器”移到曲线下方，与“风扇测试…”组成辅助操作区；原有说明继续在左，长说明仍可换行。
+
+实现范围
+仅修改FanControlPage.swift和FanStrategySelector.swift。主页面使用原生NSSegmentedControl的fillEqually分布，NSViewRepresentable根据SwiftUI提出的宽度返回原生控件尺寸，保留原生regular高度、品牌强调色、键盘与无障碍。标签、帮助文字、selected/nil、busy、传感器不可用时非自动禁用均来自原有状态；回调继续进入原有choose和applyFanStrategy。
+状态弹窗继续使用原来的compact小尺寸SwiftUI分段Picker，其布局与选择逻辑保持。数据、曲线编辑器、控制后端、偏好保存、主题及设置入口均未修改。
+
+验证
+macOS SDK27.0构建app/helper/widget成功，本机严格签名验证通过；主二进制、helper、两份Localization.json、widget二进制、Assets.car和Info.plist共7项SHA-256与构建产物一致。
+CUA实测正式安装版启动并进入温度控制，五个原生单选档位均可读，当前自动项选中，左右两端与曲线白卡片对齐；底部两个辅助入口显示完整，页面保持系统自动。未点击正式实例的风扇档位或拖动曲线。
+曾制作独立ID、附加--ui-check参数的临时启动包装副本，但CUA未能打开该副本，未取得模拟选档回执。因此不将本次验证记录为五档点击或控制执行测试；最终视觉验收使用正式安装版，只读检查。包装副本未替换正式构建二进制，且无预览进程遗留。
+受保护Sources/Resources/Tests哈希全部保持，包含字体、上轮白色配色、设置主题/刷新入口、AppModel和硬件控制。此次布局调整未新增测试文件；git diff --check通过。原有stash@{0} b6d789b保留，无新提交或stash。
+
+原生API参考
+https://developer.apple.com/documentation/appkit/nssegmentedcontrol/distribution/fillequally
+https://developer.apple.com/documentation/swiftui/nsviewrepresentable/sizethatfits(_:nsview:context:)
+
+源文件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-fan-alignment-before-uw9ap80o
+构建产物：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-fan-alignment-935s6kv3/ThermalScope.app
+安装前软件备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-fan-alignment-install-u2a25bv9/ThermalScope.app
+本机：/Applications/ThermalScope.app

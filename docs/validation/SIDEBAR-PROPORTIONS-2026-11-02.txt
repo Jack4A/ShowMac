@@ -1,0 +1,24 @@
+侧栏比例修正验证（2026-11-02）
+
+用户反馈
+用户截取传感器页面侧栏，指出当前视觉丑陋。此次仅修正侧栏比例，不扩展到其他页面。
+
+实现
+ConsoleSidebar 使用 sidebarRowSize.small 原生侧栏尺寸；移除图标独立字号、固定框和前景色覆盖，避免原生 Label 图标随环境放大而文字固定为 13 pt 的比例失衡。选中文字不额外加粗。导航与设置合为单一列表，去掉空 Section 的额外间隙。保留默认 220 pt 宽、原导航顺序、单色 SF Symbols、原生选中态和底部本机实时监测。
+不更改系统全局侧边栏图标设置。
+参考：https://developer.apple.com/documentation/swiftui/environmentvalues/sidebarrowsize
+SDK 27 接口已确认该 API 可用 macOS 13，与最低系统版本匹配。
+
+验证
+完整 native 构建成功；主程序、辅助程序、小组件 SDK 均为 27.0；签名校验通过。
+浅色中文与深色英文原生 UI 检查通过。图标比例缩小，原生选中行更紧凑，文字及长英文标题无截断。设置、传感器、进程活动导航均可切换；键盘 Down 从进程活动移至操作记录。
+实际安装版在传感器页再次检查选中态与实时读数。没有触发正常版风扇控制。
+主程序、辅助程序、主本地化、小组件和小组件本地化的五项安装哈希与构建一致。
+AppTypography、MonitorAppearance、主图表、状态弹窗、AppModel、Main、风扇视图及 Core/CSMC/Helper 源码均通过本轮修改前的哈希保护校验。
+git diff --check 通过，原有 stash@{0} 保留。
+
+源码修改前备份
+/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-sidebar-proportion-before-ek_662bq
+
+安装前应用备份
+/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-sidebar-proportion-install-before-60s0wohi/ThermalScope.app

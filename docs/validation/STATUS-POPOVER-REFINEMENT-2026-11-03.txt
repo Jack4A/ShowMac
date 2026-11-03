@@ -1,0 +1,25 @@
+状态栏弹窗整理 · 2026-11-03
+
+修改范围
+StatusOverview.swift；Main.swift仅将最大高度650改为600。390pt宽和屏幕高度适配保留。
+连续材质/细分隔线替代独立白色卡片；完整三张图、范围、五档控制、进程前三项均保留。普通曲线统一紫色，删除单风扇重复RPM；多风扇仍保留独立值。底栏为打开温控台/采样时间/设置/更多，顶部模式可进入温度控制。
+
+原生UI验证
+- 中文浅色：三张图、自动状态、单个风扇进度、原生五档、前三项与固定底栏全部显示；收紧图表和段落间距后无排行裁切。
+- --ui-check隔离模式：选择安静后顶部安静优先、风扇手动状态及剩余30:00同步；恢复自动后系统自动/风扇自动同步。没有真实硬件写入。
+- CPU使用率趋势按钮进入CPU使用率详情并关闭弹窗。
+- 英文深色+multi模拟：两个风扇分别1000/1500RPM及进度条，完整英文档位、排行与固定底栏显示。
+- 底部Settings按钮正常打开设置页。
+- unavailable模拟：CPU温度/风扇显示破折号，空图显示暂无读数，状态未知，档位区仅显示恢复系统自动按钮。
+- 安装版：应用正常启动，中文浅色弹窗三图/五档/完整CPU前三项/固定底栏可见；打开温控台按钮跳回实时监测，重开弹窗成功。未在正式版更改风扇档位。
+- 真实历史从新启动后逐步积累；没有填充或回造旧采样。
+
+检查
+--hidden-view-update-check通过：120条后台采样与一次可见追赶保留。
+构建通过：应用/helper/widget均SDK27.0；codesign --verify --deep --strict通过；安装7个关键文件SHA256与构建包一致。
+保护清单验证：所有其他ThermalScope Swift文件、Core、CSMC和Helper哈希均未变；Main仅高度一行变动；字体/侧栏/指标页/状态栏传感器组合/控制逻辑均未改。git diff --check通过，已有stash保留。
+
+构建：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-popover-refined-final-re9r06er/ThermalScope.app
+安装：/Applications/ThermalScope.app
+安装前备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-refined-popover-install-z91tkyqn/ThermalScope.app
+源码备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-popover-refine-before-5x35ug8e

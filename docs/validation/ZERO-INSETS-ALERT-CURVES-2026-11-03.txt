@@ -1,0 +1,107 @@
+Zero menu insets and warning curves — 2026-11-03
+
+Request
+Make component inner padding adjustable down to zero. All menu padding and
+spacing defaults must be zero. Monitoring curves should use warning colors
+when their readings exceed the applicable thresholds.
+
+Implementation
+Settings > 字体与外观 now has three independent native controls:
+- 整体外边距: left/right padding of the whole menu group, 0–20 pt.
+- 组件内边距: left/right padding within each component, 0–20 pt.
+- 项目间距: spacing between components, 0–16 pt.
+All missing/invalid preference defaults are zero. Existing valid preferences
+remain user-controlled. Quick layouts now default to zero component spacing
+and retain the independently chosen inner/outer padding.
+
+The custom menu renderer measures the actual displayed value. It no longer
+reserves the widest possible number and centers shorter numbers within that
+reservation. Removed hidden prefix and graph/value gaps and forced extra
+divider spacing. Status item length uses the full rendered image width.
+Number widths intentionally change with the displayed digit count. Font,
+units, icons, per-component black/white or custom colors and sensor identity
+are preserved. macOS placement of other applications' status items is not
+controlled by this setting.
+
+MetricWarningBands shares display rules across menu curves, status popover,
+dashboard sparklines, metric details, common sensor trends and the temperature
+timeline. CPU usage retains its existing >=70% orange / sustained >=90% for
+10 seconds red rule. CPU temperature uses >=80°C orange / >=90°C red; GPU
+temperature uses >=75°C orange / >=85°C red, matching the existing diagnostic
+bands. These are display thresholds, not changes to hardware control or safety
+limits. Known raw CPU/GPU temperature probes use the same classification.
+No invented threshold is applied to power, fan RPM, storage, battery, voltage,
+current or memory readings. The fan curve editor is unchanged.
+
+The existing 曲线告警色 preference remains enabled by default. Disabling it
+restores ordinary curve colors. Alert runs preserve real sample dates/values,
+missing-data gaps and segment boundaries; the temperature timeline retains
+normal operating-mode colors. Six new localization keys are complete in all
+six translated languages; all previous localization entries are unchanged.
+
+Validation
+- SDK 27 release build: application, helper, widget and core check runner pass.
+- ThermalCoreChecks: 95 checks, zero failures, no hardware writes.
+- --menu-customization-check --ui-check: 144 light/dark font/style/icon
+  combinations; natural number widths; symmetric whole-group padding;
+  independently applied inner padding; zero preset spacing; preference isolation.
+- --menu-composition-check --ui-check: pass.
+- --menu-sensor-check --ui-check: pass.
+- --cpu-warning-check: pass.
+- --curve-warning-check --ui-check: pass. Tests CPU sustained load, CPU/GPU
+  threshold transitions, original values/dates, missing-data gaps, unclassified
+  power probes, and actual orange/red pixels in light/dark lines, areas and bars.
+  Disabling warnings returns monochrome rendering.
+- Protected-source manifest: all 109 protected files unchanged, including
+  font definitions, palette, sidebar, sensor classification, fan control,
+  helper and existing hardware tests. git diff --check passes.
+
+Installed /Applications/ThermalScope.app. Deep/strict signatures pass; hashes
+of the app binary, helper, widget, both localization resources, Assets.car and
+Info.plist match the release build.
+
+Native CUA verification on the installed normal application:
+- Settings shows all three spacing controls at zero initially.
+- Component inner padding changes independently to 8 pt, then back to zero;
+  whole-group padding and component spacing remain zero during that check.
+- Live CPU temperature exceeded 80°C: orange curve segments were visible in
+  the dashboard sparkline, full temperature trend and status popover; normal
+  sections remained purple. Real fan controls were not changed and no test
+  hardware load was generated.
+- Popover still shows full trends, readouts, process list and equal-width native
+  five-mode strip. Curve warning toggle is enabled and thresholds are readable.
+- After verification, CUA reported a user-initiated application change and the
+  user adjusted component spacing (observed 10 pt). That choice was preserved;
+  default values remain zero. Inner and outer padding remained zero.
+
+Scope of visual evidence: native windows/popover were inspected. The computer
+tool does not expose a full macOS menu-bar screenshot; exact menu geometry and
+warning colors there are verified by renderer pixel checks and installed-image
+identity, not by a claimed full-screen capture. Prior unverified mouse drag/drop
+behavior remains a separate issue.
+
+Build log: /tmp/thermalscope-zero-insets-alert-curves-build.log
+Core log: /tmp/thermalscope-zero-insets-alert-curves-core-checks.log
+Source backup marker: /tmp/thermalscope-zero-insets-alert-curves-before.txt
+Build output marker: /tmp/thermalscope-zero-insets-alert-curves-app.txt
+Prior installed app marker:
+/tmp/thermalscope-zero-insets-alert-curves-install-before.txt
+Existing stash b6d789b is retained. No commit, push or new stash was made.
+
+Follow-up: actual menu-bar screenshot
+The user requested a screenshot with adjacent status items for comparison.
+The native Screenshot application was opened through CUA, set to full-screen
+capture and saved to Desktop. This provides real menu-bar evidence and
+supersedes the earlier capture limitation above. The saved screenshot was
+cropped without scaling or altering pixels:
+- screenshots/menu-bar-spacing-2026-11-03.png: complete menu bar.
+- screenshots/menu-bar-spacing-detail-2026-11-03.png: ThermalScope values and
+  neighboring icons at original resolution.
+At capture time, outer and inner padding were zero; component spacing was the
+user's chosen 10 pt. White-glyph bounds in the detail crop: previous monitor
+icon x39–74; ThermalScope content x114–279; next ChatGPT icon x318–351. Thus
+the visible gaps on either side of the whole group are both 39 pixels, close
+to the 40-pixel body-to-body gap between the adjacent ChatGPT and CleanMyMac
+icons. These pixel measurements include macOS placement and font side bearings;
+they do not redefine the application padding controls. No preferences or code
+were changed for this comparison.

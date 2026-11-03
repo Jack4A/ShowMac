@@ -1,0 +1,64 @@
+Native-aligned menu spacing defaults — 2026-11-03
+
+The user asked to align all component gaps with neighboring menu-bar icons
+and make the resulting configuration the default. This supersedes the prior
+zero component-spacing default. Zero inner/outer padding remains unchanged.
+
+The previous real screenshot showed approximately 39-pixel visible gaps
+between the ThermalScope group and neighboring applications, while the two
+ThermalScope values were separated by approximately 23 pixels at 10 pt item
+spacing. At the captured 2x scale, increasing item spacing to 18 pt adds 16
+pixels between values, matching the surrounding visual rhythm.
+
+MenuBarLayout is the shared source for the 18 pt default and adjustable
+0–24 pt range, used by the model, native slider, renderer and quick layouts.
+Valid saved settings remain adjustable, including zero. Quick layouts adopt
+18 pt spacing while preserving independent inner/outer padding preferences.
+Actual number widths, baseline, font, colors, units and source identity retain
+the preceding implementation. No maximum-digit reservation is restored.
+
+Only four Swift files changed: AppModel, MenuBarAppearance,
+MenuAppearanceSettings and the existing MenuCustomizationCheck. All 123
+protected source/resource/test files are unchanged. No new UI controls or
+translation strings were needed.
+
+Validation
+- SDK 27.0 app/helper/widget release build and strict signatures pass.
+- --menu-customization-check --ui-check: 144 light/dark font/style/icon
+  combinations; verifies full 18 pt spacing is not clipped, zero override,
+  natural value widths, independent padding and isolated saved preferences.
+- --menu-composition-check --ui-check: pass, including component identity,
+  presets, edits/colors, serialization and isolated preferences.
+- Installed build: all seven app/helper/widget/resources hashes match.
+- Native Settings shows item spacing 18 pt, inner/outer padding 0 pt; the
+  persisted values agree. Other saved appearance preferences are unchanged.
+- Existing stash b6d789b retained; no commit, push or new stash.
+
+Final screenshot is pending: the native Screenshot app saved Desktop capture
+截屏2026-11-03 13.46.36.png, but it contains the system "ChatGPT is Using Your
+Mac" privacy screen, not the menu bar. Invalid crops were removed; no corrected
+image was fabricated or presented as visual confirmation. The user was asked
+to restore the desktop so an actual post-change comparison can be captured.
+The 18/0/0 setting was independently confirmed in native AX state and saved
+preferences. Previous screenshot measurements and renderer checks support the
+configuration; exact final on-screen spacing has not yet been remeasured.
+
+Final visual verification after the user restored the desktop
+The real Desktop capture 截屏2026-11-03 14.17.22.png includes the updated CPU
+curve, CPU usage value and power value. The later 14.19 capture contains the
+privacy screen and was not used as visual evidence. Cropped, unscaled menu
+images are screenshots/menu-bar-final-2026-11-03.png and
+screenshots/menu-bar-final-detail-2026-11-03.png.
+In the detail crop, visible white bounds are: previous icon x41–76, CPU curve
+x116–201, CPU value x241–287, power x329–420, next icon x461–492. Four gaps
+are respectively 39, 39, 41 and 40 physical pixels. This confirms the intended
+approximately 40-pixel rhythm across the group and neighboring status items;
+small glyph-side-bearing differences remain. Saved settings still read
+18 pt component spacing, zero inner padding and zero outer padding. No code
+or preferences were changed in this verification turn.
+
+Source backup marker: /tmp/thermalscope-aligned-menu-defaults-before.txt
+Previous installed app marker:
+/tmp/thermalscope-aligned-menu-defaults-install-before.txt
+Build output marker: /tmp/thermalscope-aligned-menu-defaults-app.txt
+Build log: /tmp/thermalscope-aligned-menu-defaults-build.log

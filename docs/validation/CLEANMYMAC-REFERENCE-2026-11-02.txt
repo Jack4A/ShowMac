@@ -1,0 +1,36 @@
+CleanMyMac 参考落地验证（2026-11-02）
+
+授权与范围
+用户在官方 CleanMyMac 界面调研后要求“请你参考这个来”。统一主窗口各页面、侧栏和状态弹窗的视觉体系，保留字体和原生操作。不重排功能、修改采样、控制逻辑或用户偏好。
+
+参考
+https://macpaw.com/support/cleanmymac/knowledgebase/my-tools
+https://macpaw.com/news/my-activity-cleanmymac
+https://macpaw.com/cleanmymac
+采用同色系窗口与导航、统一图标比例、清楚的卡片和弱化次要操作。没有复制第三方图标、插图或品牌资产。
+
+实现
+Palette 和 MonitorAppearance 共用灰紫画布、同色侧栏与卡片表面，统一 14 pt 圆角及轻边界，去掉装饰性渐变和阴影。
+ConsoleSidebar 继续使用原生 List、默认 220 pt 宽和连续导航，原生 SF Symbol 统一为 16×16，行内容最小 26 pt 加上下各 3 pt 行内边距；不额外叠加横向内边距，保证默认宽度下英文长标题能显示完整。选中态与键盘操作由系统处理。
+Appearance.xcassets 的 AccentColor 以 NSAccentColorName 注册，actool 编译 Assets.car。提供浅/深及增强对比四种原生控件强调色，白字与填充色的计算对比均不低于 4.5:1。此项只是颜色组合检查，不等于整应用无障碍验收。
+根视图和弹窗移除强制 tint 覆盖，由原生控件处理文字、选中与禁用颜色。图表和文字强调在深色使用更亮的同色系；模式颜色集中到 Palette.mode。告警色不变。
+
+静态与构建验证
+AppTypography、MetricValue 原文、Core/CSMC/Helper、AppModel、Main、各页面数据与控制布局通过本轮修改前的哈希保护。StatusOverview 与修改前相比仅移除根 tint。
+最终 native 构建成功。签名验证通过；主程序、辅助程序、小组件均为 SDK 27.0。
+Info.plist 正确声明 AccentColor，Assets.car 中存在四个 AccentColor 外观资源。
+--hidden-view-update-check 通过：120 次隐藏采样保留且不通知视图，可见后补齐。
+
+原生界面验证
+浅色中文：总览、传感器、温度控制、设置及状态栏弹窗已检查。原有原生五档选择、主曲线、卡片和菜单入口保留。
+深色英文：诊断、进程、总览和状态弹窗已检查；Performance diagnosis 在 220 pt 侧栏完整显示，键盘 Up/Down 原生导航通过。深色选中底已调暗，原生按钮不再被全局 tint 变成低对比文字。
+密集模式切换使用显式 dense 预览样本，显示 Simulation；图例和切换标记没有新增重叠。正常安装版使用实时采样。
+诊断 View processes 按钮成功进入进程页；弹窗设置入口成功进入设置。正常安装版只读检查，未选择风扇模式或触发硬件写入。
+已安装 /Applications/ThermalScope.app，主程序、辅助程序、主/小组件本地化、小组件、Assets.car、Info.plist 共七项哈希与最终构建一致，三个可执行文件 SDK 27.0 复核通过。
+原有 stash@{0} 保留。git diff --check 通过。
+
+源码修改前备份
+/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-clean-reference-before-x60idi_n
+
+安装前备份
+/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-clean-reference-installed-before-hyuofmjm/ThermalScope.app

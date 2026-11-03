@@ -1,0 +1,27 @@
+Settings entry for menu popover cards — 2026-11-03
+
+Changes
+MenuSettings includes an always-visible 弹窗卡片 section below the existing narrow menu-component canvas, in both custom and compatibility layouts. The section shows the saved 1–8 card list, Add card, move up/down/remove controls, and visibility toggles for fan controls and top CPU processes. It uses the same StatusCardEditor/model/configuration as the menu popover; no new preferences key or settings tab was added. Adding opens the shared searchable native source list. Native List selection commits the selected source and dismisses the picker; already-added sources remain labelled and the model rejects duplicates. Existing menu composition/font/color controls remain separate and unchanged.
+
+Verification completed
+Release build succeeded with SDK 27.0; SDK stamps and strict deep codesign verification passed. All 7 installed artifacts match the final build.
+--status-cards-check --ui-check: PASS.
+--menu-composition-check --ui-check: PASS.
+git diff --check: PASS.
+127 protected existing source/resource/test files and the original stash match the pre-task snapshot. Original theme (dark), menu components/spacing/colors, card sources/order and optional-section visibility are preserved. One localization key (弹窗卡片) was added in all six translations; existing entries are unchanged.
+Native UI: settings section, four existing cards, move/remove buttons, both visibility checkboxes and Add card are visible and fit the dark theme. The search picker opens and finds 整机功耗 · PSTR. A row-click issue in the initial build was corrected by using the same native List(selection:) pattern as the existing menu sensor picker.
+
+Final installed UI verification — completed after unlock
+- Opened Settings → 弹窗卡片 → 添加卡片, searched PSTR, selected 整机功耗 with the native List keyboard selection. Picker dismissed and count changed from 4/8 to 5/8.
+- Used the settings move-up button; opened the menu popover and verified 整机功耗 appeared as the fourth card with its live watt value and real trend, before memory. Settings additions and order synchronized.
+- During the subsequent manual unlock/input pause, a storage-temperature card was added outside agent actions. Preserved that card.
+- Removed only the test 整机功耗 card using the popover editor. Opened Settings again: count 5/8, source order CPU temperature, CPU usage, fan, memory, storage temperature; no PSTR card. Reverse synchronization verified.
+- Saved preferences confirm the expected five sources, both optional sections enabled, and original dark theme. All other preferences match the pre-verification snapshot semantically (JSON object key order ignored).
+- 127 protected files, original stash and all 7 installed artifacts still match. No real fan mode/curve actions.
+- CUA AX row-click did not activate the source-picker row; native keyboard List selection was verified. Pointer row selection was not independently confirmed through automation.
+
+Backups
+/tmp/thermalscope-settings-cards-before.txt
+/tmp/thermalscope-settings-cards-install-before.txt
+/tmp/thermalscope-settings-cards-app.txt
+/tmp/thermalscope-settings-cards-build.log

@@ -82,7 +82,7 @@ enum ProcessSort:String,CaseIterable,Identifiable {case cpu,memory,disk
             case .disk:return (a.reading.diskRate ?? -1)>(b.reading.diskRate ?? -1)
             }
         }
-        rows=Array(sorted.prefix(12))
+        rows=sorted
     }
     func quit(_ row:ObservedProcess) {
         guard row.canQuit,ts_process_identity(row.reading.pid,getuid(),row.reading.started)==1,
@@ -98,35 +98,49 @@ struct ProcessObserverPanel:View {
     @ObservedObject var observer:ProcessObserver
     var onInspect:((String)->Void)?
     @State private var expanded=false
+    @State private var query=""
     @State private var candidate:ObservedProcess?
+    var filtered:[ObservedProcess] {
+        let search=query.trimmingCharacters(in:.whitespacesAndNewlines)
+        return search.isEmpty ? observer.rows:observer.rows.filter {
+            $0.name.localizedStandardContains(search) || $0.reading.name.localizedStandardContains(search) || ($0.application?.localizedName?.localizedStandardContains(search) ?? false) || String($0.reading.pid).contains(search)
+        }
+    }
+    var searching:Bool {!query.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty}
+    var visible:[ObservedProcess] {expanded || searching ? filtered:Array(filtered.prefix(5))}
     var body:some View {
         VStack(alignment:.leading,spacing:14) {
             HStack {
                 Label(L("进程详情"),systemImage:"waveform.path.ecg").font(.system(size:15,weight:.semibold))
                 Spacer()
                 Picker(L("进程排序"),selection:$observer.sort) {ForEach(ProcessSort.allCases){Text($0.title).tag($0)}}.labelsHidden().frame(width:110)
-                Button(L("活动监视器")) {observer.openActivityMonitor()}.buttonStyle(.borderless).font(.caption)
-                Button(expanded ? L("收起"):L("更多")) {expanded.toggle()}.buttonStyle(.borderless).font(.caption)
+                Button(L("活动监视器")) {observer.openActivityMonitor()}.buttonStyle(.borderless).font(.system(size:12))
+                if !searching,observer.rows.count>5 {Button(expanded ? L("仅显示前 5 项"):String(format:L("显示全部 %d 项"),observer.rows.count)) {expanded.toggle()}.buttonStyle(.borderless).font(.system(size:12))}
             }
-            HStack {Text(L("应用 / 进程"));Spacer();Text("CPU").frame(width:60,alignment:.trailing);Text(L("内存")).frame(width:65,alignment:.trailing);Text(L("磁盘读写")).frame(width:85,alignment:.trailing);Color.clear.frame(width:72,height:1)}.font(.system(size:10)).foregroundStyle(.secondary)
-            if observer.rows.isEmpty {Text(L("正在采样进程，约 5 秒后显示排行…")).font(.caption).foregroundStyle(.secondary)}
-            ForEach(Array(observer.rows.prefix(expanded ? 12:5))) {row in
+            NativeSearchField(title:L("搜索应用、进程或 PID"),text:$query).frame(height:24)
+            Text(String(format:L("显示 %d / %d 项可读进程"),visible.count,observer.rows.count)).font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+            HStack {Text(L("应用 / 进程"));Spacer();Text("CPU").frame(width:60,alignment:.trailing);Text(L("内存")).frame(width:65,alignment:.trailing);Text(L("磁盘读写")).frame(width:85,alignment:.trailing);Color.clear.frame(width:72,height:1)}.font(.system(size:12)).foregroundStyle(Palette.secondaryText)
+            if observer.rows.isEmpty {Text(L("正在采样进程，约 5 秒后显示排行…")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}
+            if searching,filtered.isEmpty {Text(L("没有匹配的进程，可尝试应用名称或 PID。")).font(.system(size:13)).foregroundStyle(Palette.secondaryText).padding(.vertical,16)}
+            LazyVStack(spacing:8) {
+            ForEach(visible) {row in
                 HStack(spacing:10) {
                     VStack(alignment:.leading,spacing:3) {
-                        Button(row.name){onInspect?(row.groupID)}.buttonStyle(.plain).font(.system(size:12,weight:.medium)).lineLimit(1).help(L("查看相关应用")).disabled(onInspect==nil)
-                        Text(verbatim:"PID \(row.reading.pid)"+(row.application?.processIdentifier != row.reading.pid ? " · "+(row.application?.localizedName ?? ""):"")).font(.system(size:9,design:.monospaced)).foregroundStyle(.secondary)
+                        Button(row.name){onInspect?(row.groupID)}.buttonStyle(.plain).font(.system(size:12,weight:.medium)).lineLimit(1).help(row.name+" · "+L("查看相关应用")).disabled(onInspect==nil)
+                        Text(verbatim:"PID \(row.reading.pid)"+(row.application.flatMap{$0.processIdentifier != row.reading.pid ? $0.localizedName:nil}.map{" · "+$0} ?? "")).font(.system(size:12,design:.monospaced)).foregroundStyle(Palette.secondaryText)
                     }
                     Spacer(minLength:8)
                     Text(String(format:"%.1f%%",row.reading.cpu)).font(.system(size:12,weight:.semibold,design:.rounded)).monospacedDigit().foregroundStyle(row.reading.cpu>70 ? Color.primary:Color.secondary).frame(width:60,alignment:.trailing)
-                    Text(ByteCountFormatter.string(fromByteCount:Int64(min(row.reading.memory,UInt64(Int64.max))),countStyle:.memory)).font(.system(size:10)).foregroundStyle(.secondary).frame(width:65,alignment:.trailing)
-                    Text(diskRateText(row.reading.diskRate)).font(.system(size:10)).monospacedDigit().foregroundStyle(.secondary).frame(width:85,alignment:.trailing)
+                    Text(ByteCountFormatter.string(fromByteCount:Int64(min(row.reading.memory,UInt64(Int64.max))),countStyle:.memory)).font(.system(size:12)).foregroundStyle(Palette.secondaryText).frame(width:65,alignment:.trailing)
+                    Text(diskRateText(row.reading.diskRate)).font(.system(size:12)).monospacedDigit().foregroundStyle(Palette.secondaryText).frame(width:85,alignment:.trailing)
                     Button(L("退出应用")) {candidate=row}.buttonStyle(.bordered).controlSize(.small).disabled(!row.canQuit).frame(width:72)
                 }.padding(.vertical,3)
             }
-            Text(L("每 5 秒更新；进程 CPU 以单个核心 100% 计，多线程应用可能超过 100%。")).font(.system(size:9)).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
-            if observer.unavailable>0 {Text(L("部分系统进程受 macOS 权限限制，不会当作零占用。")).font(.system(size:9)).foregroundStyle(.secondary)}
-            if !observer.actionMessage.isEmpty {Text(L(observer.actionMessage)).font(.caption).foregroundStyle(.secondary)}
-        }.padding(22).subtlePanel()
+            }
+            Text(L("每 5 秒更新；进程 CPU 以单个核心 100% 计，多线程应用可能超过 100%。")).font(.system(size:12)).foregroundStyle(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+            if observer.unavailable>0 {Text(L("部分系统进程受 macOS 权限限制，不会当作零占用。")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}
+            if !observer.actionMessage.isEmpty {Text(L(observer.actionMessage)).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}
+        }.subtlePanel()
         .confirmationDialog(L("请求应用正常退出？"),isPresented:Binding(get:{candidate != nil},set:{if !$0{candidate=nil}}),titleVisibility:.visible) {
             if let row=candidate {Button(L("退出应用"),role:.destructive) {observer.quit(row);candidate=nil}}
             Button(L("取消"),role:.cancel){candidate=nil}

@@ -1,0 +1,30 @@
+Compact menu popover cards — 2026-11-03
+
+Scope
+Replaces the three full-width graph strips in the menu-bar click popover with a two-column grid of 92-point rounded metric cards. Defaults: CPU temperature, CPU usage, maximum fan RPM, memory usage. Names and values share a row; units and real recent trends remain visible. Purple accents follow the existing light/dark palette. This supersedes earlier wide-strip popover presentation notes only.
+
+Customization
+The popover Edit button replaces the contents with an editor; no settings tab or separate window. Add from all seven built-in metrics or the current hardware inventory, with human-readable names, physical keys, units and search. Native buttons move and remove cards. Configuration saves stable identities/order, 1–8 cards, and independent visibility of fan controls and CPU process rankings. The popover height shrinks when sections/cards are hidden; larger configurations scroll within the available height.
+
+Data behavior
+Card configuration is separate from the narrow top-menu components and leaves their spacing, padding, colors and content unchanged. Sampling retains the union of physical sensors selected for menu components and popover cards. Unselected physical histories are released on the next sample. Existing bounded session history supports the popover 2/5/10-minute ranges. Zero/signed values remain valid; missing samples break lines. Warning colors use the existing CPU/GPU thresholds; no invented thresholds for power/current/fan/etc. Physical-card clicks open the sensor inventory; built-in clicks open the matching metric detail. Fan control callbacks/safety behavior are preserved.
+
+Verification
+- Release build succeeded against SDK 27.0; app/helper/widget SDK stamps verified.
+- codesign --verify --deep --strict passed; all 7 built/installed artifacts matched.
+- --status-cards-check --ui-check: PASS, defaults/limits/deduplication/storage, source identity, telemetry vs CPU, zero/signed/missing readings, all physical kinds/units, order/section visibility/reload, range/gap preservation and shared history retention/release. Isolated preferences; no hardware writes.
+- --menu-sensor-check --ui-check: PASS.
+- --curve-warning-check --ui-check: PASS.
+- Native UI: added PSTR by search (整机功耗), moved it up, viewed its live value/trend, opened the sensor inventory; hid both optional sections; restarted the installed app and verified contents/order/visibility persisted and popover height contracted. Restored the four defaults and both optional sections.
+- Native UI: light and dark screenshots visually checked; title/value/unit rows fit. Cards expose button roles/labels. Original light theme restored. No real fan mode/curve interaction performed.
+- Existing preference values are unchanged; customFanCurve JSON changed serialization key order only, with identical sensor/points. The only new key is statusPanel, restored to defaults after UI checks.
+- 121 protected existing source/resource/test files and the existing stash matched their pre-task hashes. git diff --check passed.
+
+Backups
+Source snapshot marker: /tmp/thermalscope-small-cards-before.txt
+Installed app backup marker: /tmp/thermalscope-small-cards-install-before.txt
+Build output marker: /tmp/thermalscope-small-cards-app.txt
+Build log: /tmp/thermalscope-small-cards-build.log
+
+Limits
+Native UI verified on macOS 27.0; older supported systems were not run. Only selected physical sensors accumulate individual trends, starting with their next actual sample; histories remain session-only. No synthetic preview values or interpolation were added.

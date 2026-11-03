@@ -1,0 +1,45 @@
+Menu curve reference — 2026-11-03
+
+User supplied a menu-bar example with a white normal curve, orange/red high
+load segments and subtle shaded area. The custom menu renderer now uses a
+transparent backdrop and downward-fading area instead of a solid rectangular
+backdrop and flat fill. The existing graph-background toggle controls that
+area; disabling it leaves the line. Legacy area graphs share the gradient,
+while line/bar styles retain their selected rendering behavior. Existing
+CPU/GPU display thresholds, missing-sample gaps and component colors remain.
+
+The installed app's native Settings UI was used to add a CPU history component
+and move it ahead of the original CPU usage and whole-machine power values.
+Both original component records are byte-for-byte equal after decoding. Only
+menuComposition changed; 18 pt spacing, zero inner/outer padding, black/white
+defaults, fonts, graph width and alert preferences were retained.
+
+SDK 27.0 release build and strict signatures pass. CurveWarningCheck verifies
+CPU sustained timing, CPU/GPU temperature thresholds, warning pixels in light
+and dark lines/areas/bars, actual samples/gaps, disabled alerts, transparent
+upper chart area and faint lower fill. Existing 144-combination customization
+check and CPU-warning check pass. All 125 protected files are unchanged. The
+seven installed build artifacts match the release build. Stash b6d789b is kept.
+
+Native Settings shows the real CPU curve component and live samples. No
+artificial hardware load or control changes were used to trigger alerts.
+screenshots/menu-curve-dark.png and menu-curve-light.png are explicitly
+synthetic display fixtures rendered by the production renderer, not captured
+live menu-bar readings. They show the normal/orange/red transitions directly.
+The screenshot privacy-screen limitation from the previous turn is not
+treated as a successful live menu-bar capture.
+
+Backups/build:
+/tmp/thermalscope-menu-curve-reference-before.txt
+/tmp/thermalscope-menu-curve-reference-install-before.txt
+/tmp/thermalscope-menu-curve-reference-app.txt
+/tmp/thermalscope-menu-curve-reference-build.log
+
+Follow-up visual verification: after the user restored the desktop, the actual
+14:17:22 screenshot shows the installed CPU curve followed by 17% CPU usage
+and 20.05 W power, with neighboring menu icons. Saved under
+screenshots/menu-bar-final-detail-2026-11-03.png (unscaled crop). The normal
+curve is white with faint fill, consistent with low live CPU usage. No alert
+was artificially triggered; orange/red states remain covered by the renderer
+fixtures. Visible adjacent gaps are 39/39/41/40 pixels at the current 18/0/0
+settings. The prior screenshot limitation is resolved for this actual capture.

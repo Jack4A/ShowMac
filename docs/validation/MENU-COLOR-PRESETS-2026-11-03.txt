@@ -1,0 +1,31 @@
+菜单栏默认黑白与颜色预设 · 2026-11-03
+
+用户要求
+默认黑白，并提供好看的预设颜色；范围明确为屏幕顶部菜单栏图标。
+
+实现
+- AppModel 缺少或无效配色偏好时默认.system。保留已保存配色，不做全局偏好迁移。
+- 本机当前偏好通过正常版原生配色菜单明确恢复.system，更新后重启显示“黑白（默认）”。
+- 四组有明暗配对的预设：雾紫（保留accent旧标识）、海蓝、青绿、石墨。保留原有多彩/项目自定义色。
+- 同一原生Picker展示名称与原生图像色样；未新增页面、Tab或分段式操作。
+- 快速布局预设也从黑白开始；彩色是用户主动选择的独立配色方案。
+- 图标与曲线使用所选色，数值默认保持黑白。黑白使用NSImage模板自动适配系统；CPU高负载橙/红语义保留。
+- 新增五条文案的英、德、西、法、日、韩翻译，原有翻译完全保留。
+- 不修改侧栏、字体定义、主指标卡片、状态弹窗或风扇控制实现。
+
+验证
+- --menu-appearance-check：576图像通过，覆盖实际/缺测、8样式、6主题、3宽度及明暗两种外观；系统模板和文字像素检查通过。
+- --menu-customization-check --ui-check：144字体/样式/图标组合通过，UI检查不写保存的偏好。
+- --cpu-warning-check：明暗曲线/柱图的正常、橙、红和关闭告警等回归通过。
+- 新独立预览bundle首次进入设置即为“黑白（默认）”；浅色菜单完整显示全部六个选项与色样，点海蓝更新图标且数值保持黑色。
+- 切换深色后海蓝图标变亮、数值为白色；全部预设色样随外观提亮，菜单文字可读。
+- 正式安装版：当前黑白偏好在退出/安装/重新启动后保留；原两个CPU温度/CPU使用率组件、字号11.5、中等字重、5秒采样及CPU告警开关保留。最终打开原生配色菜单展示六个选项与黑白勾选。
+- 正常版安装前后均观察为系统自动；没有操作真实风扇档位。
+- 构建app/helper/widget SDK27.0验证通过；严格深度签名校验、安装7项关键文件SHA256对照通过。
+- 保护清单的其他源文件/资源/测试哈希不变；git diff --check通过。
+- CUA窗口截图覆盖设置预览与弹窗，未取得包含系统顶部状态项的整屏截图，不将预览记录表述为整屏截图验证。
+
+构建：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-menu-color-presets-rl68_9x5/ThermalScope.app
+安装：/Applications/ThermalScope.app
+安装前备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-menu-color-presets-install-99mxocv7/ThermalScope.app
+源码备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-menu-color-presets-before-otaxjtkt

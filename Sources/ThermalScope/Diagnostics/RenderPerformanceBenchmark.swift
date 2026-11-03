@@ -13,7 +13,7 @@ enum RenderPerformanceBenchmark {
         var drawing:[Double]=[],historyCost:[Double]=[]
         for i in 0..<220 {
             let start=ProcessInfo.processInfo.systemUptime
-            let image=MenuBarAppearanceRenderer.image(tiles:tiles,ending:end,theme:.multicolor,spacing:4,graphWidth:88,background:true,appearance:NSAppearance(named:.darkAqua))
+            let image=MenuBarAppearanceRenderer.image(tiles:tiles,ending:end,spacing:4,graphWidth:88,background:true,appearance:NSAppearance(named:.darkAqua))
             NSGraphicsContext.saveGraphicsState();NSGraphicsContext.current=context
             image.draw(in:NSRect(x:0,y:0,width:image.size.width*2,height:44))
             context.flushGraphics();NSGraphicsContext.restoreGraphicsState()

@@ -1,0 +1,44 @@
+Native Liquid Glass refinement — 2026-11-03
+
+The user asked for more Liquid Glass while retaining the existing layout.
+Glass is concentrated in navigation and controls, consistent with Apple's
+materials guidance: https://developer.apple.com/design/human-interface-guidelines/materials
+API reference: https://developer.apple.com/documentation/appkit/nsglasseffectview
+Availability was checked against the installed SDK 27 AppKit headers and
+SwiftUICore swiftinterfaces; the current runtime is macOS 27.0.
+
+Sidebar selected rows use NSGlassEffectView.regular on macOS 26+, with native
+interactive behavior enabled on macOS 27. The previous opaque gradient/border
+overlay is omitted on native glass so it does not hide the system material.
+The existing NSVisualEffectView and its previous styling remain the fallback
+on older systems. Row frames, icons, text and native table navigation remain.
+
+The existing menu-component editing buttons and three component templates
+use SwiftUI glassEffect(.regular.interactive()). GlassEffectContainer(spacing:0)
+batches their effects without merging separate buttons or changing sizes.
+Reduced-transparency/increased-contrast branches use opaque surfaces and
+clear boundaries; earlier macOS versions retain their original backgrounds.
+The main content's existing 18 pt left corners gain a restrained edge highlight,
+disabled when transparency is reduced or contrast is increased. Charts and
+data cards retain their readable surfaces; no whole-window blur was added.
+
+Validation
+- SDK 27 app/helper/widget release build and deep/strict signatures pass.
+- All seven installed build artifacts match the release bundle.
+- All 124 protected source/resource/test files are unchanged, including
+  typography, palette, control code, history, menu rendering and preferences.
+- Native CUA checks on the installed app: light/dark glass surfaces and text,
+  sidebar click navigation, Down-key overview-to-sensors navigation, and opening
+  and closing the existing CPU component editor without editing settings.
+- Original light theme restored; saved appearance/menu preferences match the
+  backup. Three components and 18/0/0 spacing are preserved.
+- Accessibility fallback branches were inspected; no global accessibility
+  settings were changed and no older-runtime validation is claimed.
+- No fabricated screenshots, new test files, fan control actions or new UI
+  settings. Existing b6d789b stash retained; no commit, push or new stash.
+
+Source backup marker: /tmp/thermalscope-native-glass-before.txt
+Build output marker: /tmp/thermalscope-native-glass-app.txt
+Previous app marker: /tmp/thermalscope-native-glass-install-before.txt
+Build log: /tmp/thermalscope-native-glass-build.log
+Installed app: /Applications/ThermalScope.app

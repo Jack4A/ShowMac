@@ -1,0 +1,33 @@
+CleanMyMac 侧栏参考验证 · 2026-11-03
+
+用户指示与参考
+用户提供的CleanMyMac截图红框明确指向侧栏；只读打开本机CleanMyMac(com.macpaw.CleanMyMac-mas)对照表格、行距、图标和玻璃选中态，未触发扫描、清理或系统操作。
+配色澄清已回答：沿用当前紫色。
+
+改动
+- ConsoleSidebar / ConsoleUI，以及新增SidebarNavigationTable / ConsoleWindowBackdrop。
+- 52pt原生表格行、默认220pt宽、底部设置、原生SF渐层图标、单层原生玻璃选中面板、连贯的紫色背景。
+- 根字体与指标卡片实现保持原样；去掉侧栏独立灰底，macOS14+移除默认折叠按钮。
+- 13pt系统medium侧栏字，长标题两行完整显示；原生表格键盘与无障碍名称保留。
+
+原生UI验证
+- 中文浅色：完整六个主导航、底部设置和本机监测说明；设置选中玻璃面板与主项风格一致。
+- 英文深色：Performance diagnosis完整换行显示，无省略；图标与文本对比可读。
+- 独立预览中的七个入口逐项点击通过：Sensors/Thermal control/Performance diagnosis/Process activity/Activity log/Settings/Live metrics，对应页面标题正确。
+- Down原生方向键能从Live metrics切换Sensors。
+- 点击底部Settings进入设置；Up跳过弹性留白返回Activity log。
+- 打开CPU温度详情后，重复点击当前Live metrics返回概览。
+- 最终安装版中文侧栏宽度220；点击传感器正常进入296项读数页面，再点击实时监测返回；已展示实际紫色侧栏。
+- 正式版安装前观察到运行模式为系统自动；正常版只做导航验证，未改变档位或执行硬件控制。
+
+工程验证
+- 构建通过，应用/helper/widget SDK27.0；签名深度严格验证通过。
+- --hidden-view-update-check通过：120条隐藏样本及可见后一次补齐。
+- 修改前保护清单中的全部其他Swift文件、Core/CSMC/Helper、资源、本地化与全局配色哈希不变。
+- git diff --check通过；原stash保留；安装7项关键文件哈希与构建副本一致。
+- 最终代码与安装包均不包含临时预览副本的显示名/标识改动。
+
+构建：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-cmm-sidebar-verified-mrv3kcol/ThermalScope.app
+安装：/Applications/ThermalScope.app
+安装前备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-before-cmm-sidebar-install-9wvk0o5p/ThermalScope.app
+源码备份：/var/folders/9k/qcqnkr812lng64pmkm7yc3fw0000gn/T/thermalscope-cmm-sidebar-before-uxi1brnm
