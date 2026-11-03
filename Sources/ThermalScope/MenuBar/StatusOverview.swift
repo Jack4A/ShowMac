@@ -139,7 +139,9 @@ struct StatusOverview:View {
                     }.font(.system(size:11)).foregroundColor(.secondary).frame(maxWidth:.infinity,alignment:.leading)
                 }
             }
-            if ControlAvailability.fansAvailable(readings.snapshot) {
+            if AppDistribution.isAppStore {
+                Text(L(AppDistribution.monitoringOnlyMessage)).font(.system(size:11)).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
+            } else if ControlAvailability.fansAvailable(readings.snapshot) {
                 FanStrategySelector(selected:selection,busy:model.busy,available:true,compact:true,onSelect:choose)
             } else {
                 Button(L("恢复系统自动")){choose(.system)}.buttonStyle(AppNativeButtonStyle()).appControlSize(.small)

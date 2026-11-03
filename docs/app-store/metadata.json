@@ -1,0 +1,23 @@
+{
+  "name": "showmac",
+  "bundleIdentifier": "com.jackjohn.showmac",
+  "appStoreConnectID": "6830209769",
+  "supportEmail": "920491071@qq.com",
+  "en-US": {
+    "subtitle": "Your Mac in the menu bar",
+    "description": "See your Mac at a glance with showmac. Combine menu bar icons, values and small trend charts, then click to open a panel of the readings you care about.\n\nChoose and reorder metric cards. Inspect temperature, fan RPM, CPU usage, memory and available power, voltage and current sensors. Open the full dashboard for recent history, readable sensor names and performance findings. Customize each menu component's icon, color and spacing. Light and dark appearances and multiple interface languages are included.\n\nHardware readings depend on the Mac and available permissions. Missing or unsupported readings stay unavailable. The App Store edition monitors hardware; fan speed, Turbo Boost and system power settings remain managed by macOS or other tools. It does not request administrator privileges.\n\nMonitoring data stays on your Mac. No app account, advertising or analytics service is required.",
+    "keywords": "menu bar,temperature,sensors,cpu,fan,memory,power,monitor,system,trends",
+    "supportURL": "https://showmac.pages.dev/en/support/",
+    "marketingURL": "https://showmac.pages.dev/en/",
+    "privacyURL": "https://showmac.pages.dev/en/privacy/"
+  },
+  "zh-Hans": {
+    "subtitle": "状态栏里的 Mac 实时监测",
+    "description": "showmac 让你抬眼就能了解 Mac。自由组合状态栏图标、数值与趋势曲线，点击即可打开常用读数卡片。\n\n按自己的习惯选择和排序卡片，查看温度、风扇转速、CPU 使用率、内存，以及本机可提供的功耗、电压与电流传感器。打开完整监控界面，查看近期趋势、可读的传感器名称和性能诊断。每个状态栏组件可独立设置图标、颜色与间距，支持浅深主题和多种界面语言。\n\n硬件读数取决于机型及可用权限，不支持或缺失的读数保持不可用。App Store 版提供硬件监测，风扇调速、睿频与系统电源设置仍由 macOS 或其他工具管理，不请求管理员提权。\n\n监测数据保留在你的 Mac，无需应用账号，没有广告或遥测上传服务。",
+    "keywords": "状态栏,温度,传感器,CPU,风扇,内存,功耗,监测,趋势,性能",
+    "supportURL": "https://showmac.pages.dev/zh/support/",
+    "marketingURL": "https://showmac.pages.dev/zh/",
+    "privacyURL": "https://showmac.pages.dev/zh/privacy/"
+  },
+  "reviewNotes": "This is the original showmac interface with a compile-time Mac App Store channel. It is sandboxed and contains no privileged helper. Fan-control writes and authorization bootstrap functions are compiled out; privileged fan/turbo/power controls are disabled in this channel. Monitoring and menu bar customization do not require an account. The IOKit temporary exception names AppleSMCClient, observed on the development Mac, solely to read local sensor keys and fan telemetry. No SMC writes are made in the Store channel. Read-only probes succeed with this exception on ARM macOS 27; unsupported readings are shown as unavailable. Please evaluate this temporary exception and the read-only AppleSMC interface during review."
+}

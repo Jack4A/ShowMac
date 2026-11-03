@@ -64,6 +64,9 @@ int ts_smc_read(uint32_t connection, const char *key, TSValue *value) {
     return r;
 }
 int ts_smc_write(uint32_t connection, const char *key, const TSValue *value) {
+#if APP_STORE
+    (void)connection; (void)key; (void)value; return -1;
+#else
     if (!connection || !key || strlen(key) != 4 || !value || value->size > 32 || !value->size) return -1;
     // The bridge deliberately only permits fan mode/target keys, never arbitrary SMC writes.
     int fanKey = key[0]=='F' && key[1]>='0' && key[1]<='9' &&
@@ -80,6 +83,7 @@ int ts_smc_write(uint32_t connection, const char *key, const TSValue *value) {
     in.key = fourcc(key); in.command = 6; in.info.size = value->size;
     memcpy(in.bytes, value->bytes, 32);
     return call(connection, &in, &out);
+#endif
 }
 static int hexDigit(unsigned char c) {
     if (c >= '0' && c <= '9') return c - '0';
@@ -179,6 +183,7 @@ int ts_ac_power(void) {
 }
 
 // One native authorization bootstrap per app session; no shell or AppleScript.
+#if !APP_STORE
 #include <Security/Authorization.h>
 #include <Security/AuthorizationTags.h>
 #include <unistd.h>
@@ -206,6 +211,12 @@ int ts_privileged_session_launch(const char *tool,int owner_pid,unsigned int own
     AuthorizationFree(auth,kAuthorizationFlagDefaults);
     return (int)result;
 }
+
+#else
+int ts_privileged_session_launch(const char *tool,int owner_pid,unsigned int owner_uid,int *channel_fd) {
+    (void)tool; (void)owner_pid; (void)owner_uid; if(channel_fd)*channel_fd=-1; return -1;
+}
+#endif
 
 #include <sys/resource.h>
 #include <stdlib.h>

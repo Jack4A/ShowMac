@@ -49,7 +49,7 @@ import ThermalCore
         catch {return error.localizedDescription}
     }
     var canApply:Bool {
-        guard !busy,!reading,backup==nil,let plan,(try? plan.requireReadable(configuration)) != nil,hasChanges else{return false}
+        guard AppDistribution.hardwareControlAvailable,!busy,!reading,backup==nil,let plan,(try? plan.requireReadable(configuration)) != nil,hasChanges else{return false}
         if disableTurbo && turboDisabled==nil {return false}
         return !idleSleep || (sleepKnown && blockers.isEmpty)
     }

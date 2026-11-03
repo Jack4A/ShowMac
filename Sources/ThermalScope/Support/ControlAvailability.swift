@@ -14,7 +14,7 @@ enum ControlAvailability {
 
 extension ControlAvailability {
     static func fansAvailable(_ sample:Snapshot?)->Bool {
-        guard let sample,!sample.fans.isEmpty,sample.cpuTemperature != nil else{return false}
+        guard AppDistribution.hardwareControlAvailable,let sample,!sample.fans.isEmpty,sample.cpuTemperature != nil else{return false}
         return sample.fans.allSatisfy {$0.controllable && $0.minimum != nil && $0.maximum != nil}
     }
 }

@@ -1,0 +1,51 @@
+name: App Store Archive
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['AppStore/**', 'Sources/**', 'WidgetSupport/**', 'Widgets/**', 'Resources/**', 'scripts/verify-app-store.py', 'Tests/AppStore/**', '.github/workflows/app-store.yml']
+  pull_request:
+    paths: ['AppStore/**', 'Sources/**', 'WidgetSupport/**', 'Widgets/**', 'Resources/**', 'scripts/verify-app-store.py', 'Tests/AppStore/**', '.github/workflows/app-store.yml']
+permissions:
+  contents: read
+concurrency:
+  group: app-store-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  archive:
+    runs-on: macos-26-intel
+    timeout-minutes: 40
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Prepare project and prove controls are blocked
+        run: |
+          test "$(xcrun --sdk macosx --show-sdk-version)" = 26.5
+          command -v xcodegen >/dev/null || brew install xcodegen
+          xcodegen generate --spec AppStore/project.yml --project AppStore
+          mkdir -p build
+          xcrun clang -DAPP_STORE=1 -I Sources/CSMC/include Tests/AppStore/hardware-policy.c Sources/CSMC/CSMC.c -framework IOKit -framework CoreFoundation -framework Security -o build/store-policy
+          if nm -u build/store-policy | grep -E 'AuthorizationExecuteWithPrivileges|AuthorizationCopyRights'; then exit 1; fi
+          build/store-policy
+      - name: Archive original UI for Intel and Apple Silicon
+        run: |
+          set -o pipefail
+          xcodebuild -project AppStore/showmac.xcodeproj -scheme showmac -configuration Release -destination 'generic/platform=macOS' -archivePath build/showmac.xcarchive ARCHS='arm64 x86_64' ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO archive 2>&1 | tee build/app-store-archive.log
+          python3 scripts/verify-app-store.py build/showmac.xcarchive/Products/Applications/showmac.app
+          ditto -c -k --sequesterRsrc --keepParent build/showmac.xcarchive build/showmac-app-store-unsigned.zip
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: showmac-app-store-unsigned
+          path: build/showmac-app-store-unsigned.zip
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: app-store-archive-log
+          path: build/app-store-archive.log
+          if-no-files-found: ignore
+          retention-days: 14

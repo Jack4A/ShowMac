@@ -21,7 +21,7 @@ struct FanControlPage:View {
             FanStrategySelector(selected:selected,busy:model.busy,available:ControlAvailability.fansAvailable(readings.snapshot),onSelect:choose)
             FanCurveEditor(curve:$curve,sample:readings.snapshot,automatic:selected == .system || selected==nil,busy:model.busy,onApply:applyCurve)
             HStack(alignment:.top,spacing:12) {
-                Text(L("接管 30 分钟，到期恢复自动；高温保护始终有效。")).font(.system(size:12)).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+                Text(L(AppDistribution.isAppStore ? AppDistribution.monitoringOnlyMessage:"接管 30 分钟，到期恢复自动；高温保护始终有效。")).font(.system(size:12)).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
                 Spacer(minLength:8)
                 HStack(spacing:14) {
                     Button {navigation.page = .sensors} label:{Label(L("查看传感器"),systemImage:AppSymbols.resolve("sensor"))}

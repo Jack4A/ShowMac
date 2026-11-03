@@ -54,9 +54,10 @@ public struct WidgetSnapshot:Codable,Equatable,Sendable {
 public enum WidgetDataError:Error {case invalid}
 public enum WidgetRoute:Equatable {
     case overview,thermal,metric(WidgetMetric)
-    public var url:URL {switch self {case .overview:return URL(string:"thermalscope://overview")!;case .thermal:return URL(string:"thermalscope://thermal")!;case .metric(let kind):return URL(string:"thermalscope://metric/"+kind.rawValue)!}}
+    private var scheme:String {Bundle.main.object(forInfoDictionaryKey:"ThermalScopeURLScheme") as? String ?? "thermalscope"}
+    public var url:URL {switch self {case .overview:return URL(string:scheme+"://overview")!;case .thermal:return URL(string:scheme+"://thermal")!;case .metric(let kind):return URL(string:scheme+"://metric/"+kind.rawValue)!}}
     public init?(_ url:URL) {
-        guard url.scheme=="thermalscope",url.user==nil,url.password==nil,url.port==nil,url.query==nil,url.fragment==nil else{return nil}
+        guard ["thermalscope","showmac-store"].contains(url.scheme ?? ""),url.user==nil,url.password==nil,url.port==nil,url.query==nil,url.fragment==nil else{return nil}
         if url.host=="overview",url.path.isEmpty {self = .overview}
         else if url.host=="thermal",url.path.isEmpty {self = .thermal}
         else if url.host=="metric",let metric=WidgetMetric(rawValue:String(url.path.dropFirst())),url.path=="/"+metric.rawValue {self = .metric(metric)}

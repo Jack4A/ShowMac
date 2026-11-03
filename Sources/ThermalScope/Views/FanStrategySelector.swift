@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import ThermalCore
 
 /// Both entry points share selection states and native segmented controls.
 struct FanStrategySelector:View {
@@ -39,7 +40,7 @@ private struct FullWidthFanStrategyControl:NSViewRepresentable {
             control.setEnabled(strategy == .system || available,forSegment:index)
         }
         control.selectedSegment=selected.flatMap{FanStrategy.allCases.firstIndex(of:$0)} ?? -1
-        control.isEnabled = !busy
+        control.isEnabled = !busy && AppDistribution.hardwareControlAvailable
     }
     @available(macOS 13,*) func sizeThatFits(_ proposal:ProposedViewSize,nsView:NSSegmentedControl,context:Context)->CGSize? {
         CGSize(width:proposal.width ?? nsView.intrinsicContentSize.width,height:nsView.intrinsicContentSize.height)

@@ -29,6 +29,9 @@ final class NativeControlClient {
         }
     }
     private func perform(_ request:ControlRequest,allowAuthorization:Bool) throws ->ControlReply {
+        #if APP_STORE
+        throw ScopeError.message(AppDistribution.monitoringOnlyMessage)
+        #else
         #if arch(arm64)
         try FanControlPolicy.validate(request,appleSilicon:true)
         #else
@@ -52,6 +55,7 @@ final class NativeControlClient {
             if let channel {close(channel.fd)}
             channel=nil;ready=false;throw error
         }
+        #endif
     }
     func shutdown() {
         queue.async { [self] in

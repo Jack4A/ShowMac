@@ -28,13 +28,13 @@ struct FanCurveEditor:View {
             }
             curveChart.frame(height:260)
             HStack {
-                Text(L(automatic ? "拖动曲线，启用自定义调速":"拖动控制点，松手即生效")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
+                Text(L(AppDistribution.isAppStore ? "温度与风扇读数实时更新":(automatic ? "拖动曲线，启用自定义调速":"拖动控制点，松手即生效"))).font(.system(size:12)).foregroundColor(Palette.secondaryText)
                 Spacer(minLength:8)
                 if let index=dragging,curve.points.indices.contains(index) {
                     Text(String(format:"%.0f°C → %.0f RPM",curve.points[index].temperature,rpm(curve.points[index].percent))).font(.system(size:12,weight:.medium)).appMonospacedDigit()
                 }
             }
-            if !available {Text(L("风扇或温度读数不可用，暂不能调速。")).font(.system(size:12)).foregroundColor(.orange)}
+            if !available && !AppDistribution.isAppStore {Text(L("风扇或温度读数不可用，暂不能调速。")).font(.system(size:12)).foregroundColor(.orange)}
         }.subtlePanel()
     }
     @ViewBuilder var curveChart:some View {

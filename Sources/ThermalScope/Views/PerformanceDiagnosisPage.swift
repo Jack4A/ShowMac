@@ -120,7 +120,7 @@ struct PerformanceDiagnosisPage:View {
         }.subtlePanel()
     }
     @ViewBuilder private var adjustments:some View {
-        if ControlAvailability.isAppleSilicon && optimizer.backup==nil {
+        if (AppDistribution.isAppStore || ControlAvailability.isAppleSilicon) && optimizer.backup==nil {
             VStack(alignment:.leading,spacing:8) {
                 Text(L("节能选项在系统设置中调整。")).font(AppTypography.caption).foregroundColor(.secondary)
                 HStack {

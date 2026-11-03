@@ -32,3 +32,7 @@ xcuserdata/
 
 # Website build output and deployment downloads
 website/dist/
+
+# Generated from the shared-source App Store XcodeGen specification.
+AppStore/*.xcodeproj/
+AppStore/Generated/

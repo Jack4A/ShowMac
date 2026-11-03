@@ -311,6 +311,7 @@ struct TimelineEvent: Identifiable {
         if !poll {refresh()}
     }
     private func control(_ request:ControlRequest,completion:((Result<ControlReply,Error>)->Void)?=nil) {
+        guard AppDistribution.hardwareControlAvailable else {let error=ScopeError.message(L(AppDistribution.monitoringOnlyMessage));report(error.localizedDescription,error:true);completion?(.failure(error));return}
         guard !busy else {completion?(.failure(ScopeError.message("另一项操作尚未完成")));return}
         busy=true
         report(authorizationReady ? "正在应用，等待硬件确认…":"首次控制需要系统授权；本次运行内复用原生连接…",error:false)

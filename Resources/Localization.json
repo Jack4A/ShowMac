@@ -6303,5 +6303,11 @@
     "fr": "Noir et blanc (par défaut)",
     "ja": "白黒（デフォルト）",
     "ko": "흑백 (기본값)"
+  },
+  "App Store 版仅监测硬件状态，风扇转速由系统或其他控制器管理。": {
+    "en": "The App Store edition monitors hardware. Fan speed is managed by macOS or another controller."
+  },
+  "温度与风扇读数实时更新": {
+    "en": "Temperature and fan readings update live."
   }
 }

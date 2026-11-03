@@ -196,17 +196,19 @@ import WidgetUI
         modes.autoenablesItems=false
         for mode in FanStrategy.presets {
             let item=NSMenuItem(title:L(mode.title),action:#selector(selectMode(_:)),keyEquivalent:"")
-            item.target=self;item.representedObject=mode.rawValue;item.isEnabled = !model.busy && (mode == .system || ControlAvailability.fansAvailable(model.snapshot))
+            item.target=self;item.representedObject=mode.rawValue;item.isEnabled = AppDistribution.hardwareControlAvailable && !model.busy && (mode == .system || ControlAvailability.fansAvailable(model.snapshot))
             item.state=model.activeFanStrategy==mode ? .on:.off
             modes.addItem(item)
         }
         let modeItem=NSMenuItem(title:model.busy ? L("温度控制 · 操作中…"):L("温度控制"),action:nil,keyEquivalent:"")
         modeItem.submenu=modes;menu.addItem(modeItem)
+        if AppDistribution.hardwareControlAvailable {
         action(L("恢复系统自动风扇"),#selector(restoreFans))
         action(L("风扇故障排查")+"…",#selector(testFans),nil,!model.busy)
         if !ControlAvailability.isAppleSilicon {
         action(L("关闭睿频"),#selector(disableTurbo),nil,!model.busy)
         action(L("允许睿频"),#selector(enableTurbo),nil,!model.busy)
+        }
         }
         if model.messageIsError { action("⚠ "+L(model.operationIssue.title)+"…",#selector(showIssue)) }
         if model.snapshot?.limited==true { info(L("系统正在限制性能")) }

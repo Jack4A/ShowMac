@@ -1,0 +1,132 @@
+name: showmac
+options:
+  deploymentTarget:
+    macOS: '11.0'
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: '5.9'
+    MACOSX_DEPLOYMENT_TARGET: '11.0'
+    DEVELOPMENT_TEAM: 35PQA6NV57
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_ACTIVE_COMPILATION_CONDITIONS: '$(inherited) APP_STORE'
+    GCC_PREPROCESSOR_DEFINITIONS: '$(inherited) APP_STORE=1'
+    ENABLE_HARDENED_RUNTIME: YES
+    ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+    MARKETING_VERSION: '1.18.1'
+    CURRENT_PROJECT_VERSION: '268'
+    SKIP_INSTALL: YES
+    CLANG_ENABLE_MODULES: YES
+    DEFINES_MODULE: YES
+    HEADER_SEARCH_PATHS: '$(SRCROOT)/../Sources/CSMC/include'
+    SWIFT_INCLUDE_PATHS: '$(inherited) $(SRCROOT)/CSMC'
+targets:
+  CSMC:
+    type: library.static
+    platform: macOS
+    sources: [../Sources/CSMC]
+    settings:
+      base:
+        MODULEMAP_FILE: '$(SRCROOT)/CSMC/module.modulemap'
+    dependencies:
+      - sdk: IOKit.framework
+      - sdk: Security.framework
+      - sdk: CoreFoundation.framework
+  ThermalCore:
+    type: library.static
+    platform: macOS
+    sources: [../Sources/ThermalCore]
+    dependencies:
+      - target: CSMC
+  WidgetShared:
+    type: library.static
+    platform: macOS
+    sources: [../WidgetSupport/Shared]
+  WidgetUI:
+    type: library.static
+    platform: macOS
+    sources: [../WidgetSupport/UI]
+    dependencies:
+      - target: WidgetShared
+  showmacWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - ../Widgets
+      - path: ../Resources/Localization.json
+      - path: ../Resources/en.lproj
+      - path: ../Resources/zh-Hans.lproj
+      - path: ../Resources/zh-Hant.lproj
+      - path: ../Resources/ja.lproj
+      - path: ../Resources/ko.lproj
+      - path: ../Resources/de.lproj
+      - path: ../Resources/fr.lproj
+      - path: ../Resources/es.lproj
+    info:
+      path: Generated/Widget-Info.plist
+      properties:
+        CFBundleDisplayName: showmac
+        CFBundleName: showmac
+        CFBundleDevelopmentRegion: en
+        ThermalScopeAppGroup: group.com.jackjohn.showmac
+        ThermalScopeURLScheme: showmac-store
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jackjohn.showmac.Widget
+        CODE_SIGN_ENTITLEMENTS: Widget.entitlements
+        APPLICATION_EXTENSION_API_ONLY: YES
+        LD_ENTRY_POINT: _NSExtensionMain
+        OTHER_LDFLAGS: '$(inherited) -e _NSExtensionMain'
+    dependencies:
+      - target: WidgetShared
+      - target: WidgetUI
+      - sdk: WidgetKit.framework
+  showmac:
+    type: application
+    platform: macOS
+    sources:
+      - ../Sources/ThermalScope
+      - path: ../Resources
+        excludes: [Info.plist, AppIcon.png]
+    info:
+      path: Generated/Host-Info.plist
+      properties:
+        CFBundleDisplayName: showmac
+        CFBundleName: showmac
+        CFBundleDevelopmentRegion: en
+        CFBundleIconFile: AppIcon
+        LSMinimumSystemVersion: '11.0'
+        LSApplicationCategoryType: public.app-category.utilities
+        NSPrincipalClass: NSApplication
+        NSHighResolutionCapable: true
+        ITSAppUsesNonExemptEncryption: false
+        ThermalScopeAppGroup: group.com.jackjohn.showmac
+        ThermalScopeURLScheme: showmac-store
+        CFBundleURLTypes:
+          - CFBundleURLName: com.jackjohn.showmac
+            CFBundleURLSchemes: [showmac-store]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jackjohn.showmac
+        EXECUTABLE_NAME: ThermalScope
+        CODE_SIGN_ENTITLEMENTS: Host.entitlements
+        SKIP_INSTALL: NO
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies:
+      - target: ThermalCore
+      - target: CSMC
+      - sdk: IOKit.framework
+      - sdk: Security.framework
+      - target: WidgetShared
+      - target: WidgetUI
+      - target: showmacWidget
+        embed: true
+schemes:
+  showmac:
+    build:
+      targets:
+        showmac: all
+    archive:
+      config: Release

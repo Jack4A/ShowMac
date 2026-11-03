@@ -1,31 +1,35 @@
-# App Store decision and readiness
+# App Store readiness
 
-**Decision, November 3, 2026:** preserve all existing desktop functionality and distribute the original ShowMac app through the website first. App Store submission is deferred. Do not replace the original app with a rewritten reduced interface.
+## Current decision — November 4, 2026
 
-The experimental independent Store frontend was reverted in `8a5cf44`. No reduced edition is distributed on the website, and no build was uploaded or submitted to App Review. The installed full app and both website ZIPs are ShowMac 1.18.0 / build 266, preserving the original desktop bundle identity and preferences.
+The user approved prioritizing App Store submission while retaining the original UI, menu bar customization, readable sensors, recent history and dashboard. Only privileged fan/turbo/system-power modifications are disabled in the Store channel. The website continues to distribute the complete desktop app. The previously rejected independent simplified frontend remains reverted.
 
-An App Store Connect record was created and retained for future work: [ShowMac, ID 6830209769](https://appstoreconnect.apple.com/apps/6830209769/distribution), Team Jack John (`35PQA6NV57`), registered bundle ID `com.jackjohn.showmac`, SKU `showmac-macos`. No price was saved. The requested one-time price is CNY 5.90 or USD 1.00; the portal offered USD 1.00, while its expanded CNY list did not include 5.90.
+`AppStore/project.yml` builds the original sources with the compile-time `APP_STORE` flag. It uses the separate registered bundle ID `com.jackjohn.showmac`, Team Jack John (`35PQA6NV57`), the shared group `group.com.jackjohn.showmac`, and `showmac-store` widget links. Desktop identity, controls and existing preferences remain unchanged. The Store bundle excludes the root helper; C-level fan writes and authorization launches are blocked, not hidden by a runtime/reviewer switch.
 
-## Verified boundary
+The App Store Connect record is [ID 6830209769](https://appstoreconnect.apple.com/apps/6830209769/distribution), SKU `showmac-macos`. The requested price is CNY 5.90 or USD 1.00; a supported price point and paid-app agreement status must be verified in the portal. Do not publish private review-contact phone details in source.
 
-Using the original CSMC read code on the current ARM macOS 27 host:
+## Build and verification
 
-- Unsandboxed: SMC connection, sensor-key count and fan count read successfully.
-- Standard App Sandbox: SMC connection denied; readings unavailable.
-- App Sandbox plus the documented IOKit user-client temporary exception for the observed `AppleSMCClient` class: connection, key count and fan count read successfully again.
+Run `xcodegen generate --spec AppStore/project.yml --project AppStore`, then archive the `showmac` scheme with full Xcode 26.6. The `App Store Archive` workflow produces an unsigned universal archive for macOS 11+, checks both executable deployment targets and architectures, and rejects privileged authorization imports or a bundled helper. `Tests/AppStore/hardware-policy.c` verifies that fan writes and privileged session creation fail in the Store build.
 
-These are local read-only probes, not proof of App Review acceptance or validation on every supported OS/model. Temporary exceptions and the original SMC driver protocol need review justification. Do not silently delete sensor features before evaluating this route.
+Xcode 27 refuses macOS 11 targets. The local Xcode 27 preview is built for macOS 12 only for UI/sandbox checks and must not be used as the macOS 11 release archive. Distribution archives use the supported Xcode 26.6/macOS 26.5 SDK in CI. The desktop CI uses Intel macOS 26 runners after repeated ARM capacity failures; cross-compilation status remains explicit in manifests.
 
-The existing fan-control implementation requests root authorization; Intel turbo and power actions also rely on privileged operations. Apple’s rules prohibit root escalation for Mac App Store apps. Preserving those functions means the original desktop build remains the appropriate distribution path while no compliant equivalent is verified.
+## Verified and remaining
 
-## Current desktop distribution
+The original read-only CSMC probes on ARM macOS 27 establish:
 
-The full app is available from <https://101.37.211.18/showmac/> for Intel and Apple Silicon. It is the existing ad-hoc-signed developer preview and is **not notarized**. Apple Distribution signing is not Developer ID signing. A future notarized desktop release needs a usable Developer ID Application identity, hardened-runtime packaging, notarization and stapling; do not advertise those as complete.
+- Unsandboxed AppleSMC connection, key count and fan count succeed.
+- Standard App Sandbox denies the AppleSMC connection.
+- App Sandbox with the observed `AppleSMCClient` IOKit temporary exception allows those reads locally.
 
-Keep review-contact phone details and signing secrets out of this repository. User-provided review contact information was not published on the website.
+The Store host requests that documented exception and user-selected file access for CSV exports and custom icons. Temporary exceptions and the SMC driver protocol still require App Review justification; local success is not Apple approval or a guarantee across all Macs. Missing readings remain unavailable rather than invented.
+
+Before submission, register/assign the widget App ID and shared App Group, create matching distribution profiles, sign/export the universal archive, verify the signed app in its sandbox, upload the build, complete accurate metadata/privacy/review details, and submit. No upload or approval is claimed until the corresponding portal state confirms it. The existing Apple Distribution identity is available; an installer distribution identity/profile may still be needed for Mac App Store export. Do not place signing credentials in Git or CI logs.
+
+Website and downloads: <https://showmac.pages.dev/>. Domain migration to Cloudflare is in progress. The website full build remains an ad-hoc signed developer preview, not notarized. Apple Distribution signing for the Store does not replace Developer ID notarization for website packages.
 
 ## Primary references
 
 - [App Review Guidelines 2.4.5 and 2.5.1](https://developer.apple.com/app-store/review/guidelines/)
-- [App Sandbox temporary exception entitlements](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/AppSandboxTemporaryExceptionEntitlements.html)
+- [Temporary exception entitlements](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/AppSandboxTemporaryExceptionEntitlements.html)
 - [Preparing an app for distribution](https://developer.apple.com/documentation/xcode/preparing-your-app-for-distribution)

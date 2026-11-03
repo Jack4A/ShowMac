@@ -1,0 +1,4 @@
+module CSMC {
+    header "../../Sources/CSMC/include/CSMC.h"
+    export *
+}

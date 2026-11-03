@@ -7,7 +7,7 @@ import WidgetShared
     @Published private(set) var lastPublished:Date?
     @Published private(set) var error:String?
     private let queue=DispatchQueue(label:"local.thermalscope.widget-snapshot",qos:.utility)
-    private let enabled=Bundle.main.bundleIdentifier=="local.jack.ThermalScope"
+    private let enabled=["local.jack.ThermalScope","com.jackjohn.showmac"].contains(Bundle.main.bundleIdentifier ?? "")
     private var schedule=WidgetPublishSchedule()
     private var last:WidgetSnapshot?
     static func snapshot(_ sample:Snapshot,mode:String,language:String,history:MetricHistoryStore?=nil)->WidgetSnapshot {
