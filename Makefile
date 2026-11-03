@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-APP ?= $(CURDIR)/build/ShowMac.app
+APP ?= $(CURDIR)/build/showmac.app
 PERF_OUT ?= $(CURDIR)/performance-results/$(shell TZ=Asia/Shanghai date +%Y%m%d-%H%M%S)
 
 .PHONY: build check perf-smoke perf-standard perf-soak

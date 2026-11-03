@@ -39,14 +39,14 @@ class ReleaseAssetsTests(unittest.TestCase):
 
     def rename_product(self, arch, suffix):
         old = self.folder / f"ThermalScope-{self.version}-macOS-{arch}.zip"
-        new = self.folder / f"ShowMac-{self.version}-macOS-{arch}.zip"
+        new = self.folder / f"showmac-{self.version}-macOS-{arch}.zip"
         with zipfile.ZipFile(old) as source, zipfile.ZipFile(new, "w") as destination:
             for name in source.namelist():
-                destination.writestr(name.replace("ThermalScope.app/", "ShowMac.app/", 1), source.read(name))
+                destination.writestr(name.replace("ThermalScope.app/", "showmac.app/", 1), source.read(name))
         old.unlink()
         path = self.folder / f"release-manifest{suffix}.json"
         data = json.loads(path.read_text())
-        data.update(product="ShowMac", archive=new.name, archive_sha256=assets.sha256(new))
+        data.update(product="showmac", archive=new.name, archive_sha256=assets.sha256(new))
         path.write_text(json.dumps(data))
         self.refresh(suffix)
 

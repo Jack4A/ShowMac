@@ -38,7 +38,7 @@ struct WidgetPreviewSheet:View {
             ScrollView(showsIndicators:false) {
                 VStack(alignment:.leading,spacing:18) {
                     HStack {Spacer();WidgetStatusContent(snapshot:snapshot,size:size,linksEnabled:false).padding(16).frame(width:dimensions.width,height:dimensions.height).appBackground(Palette.surface,in:RoundedRectangle(cornerRadius:24)).overlay(RoundedRectangle(cornerRadius:24).stroke(Palette.border.opacity(0.7),lineWidth:1));Spacer()}
-                    Text(L("在桌面空白处右键，选择“编辑小组件”，搜索“ShowMac”，选择尺寸后添加。")).font(.callout).fixedSize(horizontal:false,vertical:true)
+                    Text(L("在桌面空白处右键，选择“编辑小组件”，搜索“showmac”，选择尺寸后添加。")).font(.callout).fixedSize(horizontal:false,vertical:true)
                     Text(L("也可从通知中心底部的“编辑小组件”添加。主程序运行时会提供最近状态；采样时间始终显示。")).font(.system(size:12)).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
                     Text(L("此处为卡片布局预览；实际更新频率由系统决定。")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
                 }

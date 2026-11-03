@@ -29,7 +29,7 @@ public struct WidgetStatusContent:View {
     var badge:String {switch state {case .recent:return "最近状态";case .previous:return "上次状态";case .paused:return "监测已暂停";case .unavailable:return "等待状态数据"}}
     public var body:some View {
         VStack(alignment:.leading,spacing:size == .small ? 5:10) {
-            HStack {Label(t("ShowMac"),systemImage:widgetSymbol("thermometer.medium")).font(.system(size:11,weight:.semibold));Spacer(minLength:0);if size != .small {Text(t(badge)).font(.system(size:9)).foregroundColor(state == .recent ? Color.secondary:Color.orange)}}
+            HStack {Label(t("showmac"),systemImage:widgetSymbol("thermometer.medium")).font(.system(size:11,weight:.semibold));Spacer(minLength:0);if size != .small {Text(t(badge)).font(.system(size:9)).foregroundColor(state == .recent ? Color.secondary:Color.orange)}}
             if size == .small {small}
             else if size == .medium {medium}
             else {large}
@@ -42,7 +42,7 @@ public struct WidgetStatusContent:View {
             metricLink(.cpuTemperature) {Text(number(.cpuTemperature)+"°").font(.system(size:32,weight:.medium,design:.rounded)).appMonospacedDigit()}
             HStack {Text("CPU "+number(.cpuUsage)+"%");Spacer(minLength:0);Text(number(.fan)+" RPM")}.font(.system(size:10,weight:.medium)).appMonospacedDigit()
             WidgetTrend(points:data?.trends[WidgetMetric.cpuUsage.rawValue] ?? [],end:data?.date ?? date,upper:100,color:accent).frame(height:16)
-            Text(t(data?.mode ?? "打开ShowMac开始监测")).font(.system(size:9)).lineLimit(1)
+            Text(t(data?.mode ?? "打开showmac开始监测")).font(.system(size:9)).lineLimit(1)
         }
     }
     var medium:some View {
@@ -88,7 +88,7 @@ public struct WidgetStatusContent:View {
                 Text(t(size == .small ? badge:"采样时间"))
                 if let snapshot {Text(snapshot.date,style:.relative).appMonospacedDigit()}
             }.font(.system(size:8)).foregroundColor(.secondary).lineLimit(1)
-            if state == .unavailable {Text(t("打开ShowMac开始监测")).font(.system(size:9)).foregroundColor(.secondary).lineLimit(2)}
+            if state == .unavailable {Text(t("打开showmac开始监测")).font(.system(size:9)).foregroundColor(.secondary).lineLimit(2)}
         }
     }
     @ViewBuilder func metricLink<Content:View>(_ kind:WidgetMetric,@ViewBuilder content:()->Content)->some View {if linksEnabled && size != .small {Link(destination:WidgetRoute.metric(kind).url, label:content)} else {content()}}

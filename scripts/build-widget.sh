@@ -21,7 +21,7 @@ import plistlib,sys
 from pathlib import Path
 app,ext,group,metadata=Path(sys.argv[1]),Path(sys.argv[2]),sys.argv[3],Path(sys.argv[4])
 host=plistlib.loads((app/'Contents/Info.plist').read_bytes())
-p={'CFBundleInfoDictionaryVersion':'6.0','CFBundleDevelopmentRegion':'en','CFBundleIdentifier':host['CFBundleIdentifier']+'.Widget','CFBundleExecutable':'ThermalScopeWidget','CFBundleName':'ShowMac','CFBundleDisplayName':'ShowMac','CFBundlePackageType':'XPC!','CFBundleShortVersionString':host['CFBundleShortVersionString'],'CFBundleVersion':host['CFBundleVersion'],'CFBundleSupportedPlatforms':['MacOSX'],'LSMinimumSystemVersion':host['LSMinimumSystemVersion'],'NSExtension':{'NSExtensionPointIdentifier':'com.apple.widgetkit-extension'}}
+p={'CFBundleInfoDictionaryVersion':'6.0','CFBundleDevelopmentRegion':'en','CFBundleIdentifier':host['CFBundleIdentifier']+'.Widget','CFBundleExecutable':'ThermalScopeWidget','CFBundleName':'showmac','CFBundleDisplayName':'showmac','CFBundlePackageType':'XPC!','CFBundleShortVersionString':host['CFBundleShortVersionString'],'CFBundleVersion':host['CFBundleVersion'],'CFBundleSupportedPlatforms':['MacOSX'],'LSMinimumSystemVersion':host['LSMinimumSystemVersion'],'NSExtension':{'NSExtensionPointIdentifier':'com.apple.widgetkit-extension'}}
 e={'com.apple.security.app-sandbox':True}
 h={}
 if group:

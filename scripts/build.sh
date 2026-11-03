@@ -30,7 +30,7 @@ if [[ "$ARCH" != "$(uname -m)" ]]; then DEFAULT_BUILD_DIR="$ROOT/.build/cross/$A
 BUILD_DIR="${THERMALSCOPE_BUILD_DIR:-$DEFAULT_BUILD_DIR}"
 BUILD_ARGS=(--build-system native --package-path "$ROOT" --scratch-path "$BUILD_DIR" -c release --jobs 2 --sdk "$SDK"
     --triple "$ARCH-apple-macosx$MINIMUM_OS" -Xlinker -rpath -Xlinker '@executable_path/../Frameworks')
-APP="${1:-$(dirname "$ROOT")/ShowMac.app}"
+APP="${1:-$(dirname "$ROOT")/showmac.app}"
 xcrun swift build "${BUILD_ARGS[@]}"
 BIN="$(xcrun swift build "${BUILD_ARGS[@]}" --show-bin-path)"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Helpers" "$APP/Contents/Resources"

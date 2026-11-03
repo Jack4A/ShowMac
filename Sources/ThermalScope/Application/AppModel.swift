@@ -396,7 +396,7 @@ struct TimelineEvent: Identifiable {
     func exportCSV() {
         let panel=NSSavePanel()
         let formatter=DateFormatter();formatter.locale=Locale(identifier:"en_US_POSIX");formatter.dateFormat="yyyy-MM-dd"
-        panel.nameFieldStringValue="ShowMac-"+formatter.string(from:Date())+".csv"
+        panel.nameFieldStringValue="showmac-"+formatter.string(from:Date())+".csv"
         panel.title=L("导出最近 30 分钟监测数据")
         guard panel.runModal() == .OK,let url=panel.url else { return }
         do { try Export.csv(history).write(to:url,atomically:true,encoding:.utf8); report(String(format:L("已导出 %d 条采样。"),history.count),error:false) }

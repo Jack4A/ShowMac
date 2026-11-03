@@ -29,7 +29,7 @@ def verify(folder, version, commit):
             raise ValueError(f"Missing release asset: {manifest_path.name}")
         data = json.loads(manifest_path.read_text())
         product = data.get("product", "ThermalScope")
-        if product not in {"ThermalScope", "ShowMac"}:
+        if product not in {"ThermalScope", "ShowMac", "showmac"}:
             raise ValueError("Unrecognized release product")
         products.add(product)
         app_root = product + ".app/"

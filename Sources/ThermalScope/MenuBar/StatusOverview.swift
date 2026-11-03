@@ -77,7 +77,7 @@ struct StatusOverview:View {
     var header:some View {
         VStack(spacing:5) {
             HStack {
-                Text(L("ShowMac")).font(.system(size:15,weight:.semibold))
+                Text(L("showmac")).font(.system(size:15,weight:.semibold))
                 Spacer()
                 Button(L(editing ? "完成":"编辑")){editing.toggle()}.appControlSize(.small)
                 Picker(L("趋势时间范围"),selection:$model.statusMinutes) {
@@ -101,7 +101,7 @@ struct StatusOverview:View {
     }
     var footer:some View {
         HStack(spacing:12) {
-            Button {onNavigate("metrics")} label:{Text(L("打开ShowMac"))}
+            Button {onNavigate("metrics")} label:{Text(L("打开showmac"))}
                 .font(.system(size:12,weight:.medium)).buttonStyle(.plain)
             Spacer(minLength:4)
             freshness
