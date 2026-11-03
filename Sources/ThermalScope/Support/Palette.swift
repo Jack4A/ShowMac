@@ -21,8 +21,8 @@ enum Palette {
     static let sidebarEdge=adaptive((0.835,0.847,0.886),(0.259,0.251,0.302))
     static let surface=adaptive((1,1,1),(0.145,0.137,0.173))
     static let inset=adaptive((0.925,0.937,0.953),(0.110,0.104,0.130))
-    static let sidebarTop=adaptive((0.925,0.933,0.957),(0.129,0.129,0.165))
-    static let sidebarBottom=adaptive((0.953,0.957,0.973),(0.098,0.098,0.122))
+    static let sidebarTop=adaptive((0.925,0.933,0.957),(0.204,0.176,0.200))
+    static let sidebarBottom=adaptive((0.953,0.957,0.973),(0.137,0.129,0.157))
     static let selection=adaptive((0.933,0.906,0.969),(0.231,0.200,0.294))
     static let border=adaptive((0.851,0.871,0.906),(0.231,0.212,0.271))
     static let highlight=adaptive((1,1,1),(0.24,0.23,0.32))
@@ -54,5 +54,7 @@ enum Palette {
     static func navigationText(dark:Bool,selected:Bool)->NSColor {
         native(selected ? (dark ? 0xF0EDF7:0x503172):(dark ? 0xCAC5D1:0x56606E))
     }
-    static func navigationSelection(dark:Bool)->NSColor {native(dark ? 0x1B1B23:0xFFFFFF)}
+    static func navigationSelection(dark:Bool)->NSColor {native(dark ? 0x4C4550:0xFFFFFF)}
+    static func navigationSelectionTop(dark:Bool)->NSColor {native(dark ? 0x544D58:0xFFFFFF)}
+    static func navigationSelectionBottom(dark:Bool)->NSColor {native(dark ? 0x443D48:0xFFFFFF)}
 }

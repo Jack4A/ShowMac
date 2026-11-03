@@ -69,7 +69,8 @@ import ThermalCore
         let style:NSWindow.StyleMask=popup ? .borderless:[.titled,.closable,.miniaturizable,.resizable,.fullSizeContentView]
         let window=NSWindow(contentRect:CGRect(origin:.zero,size:size),styleMask:style,backing:.buffered,defer:false)
         window.titleVisibility = .hidden;window.titlebarAppearsTransparent=true;window.toolbarStyle = .unified
-        window.backgroundColor = .systemPink;window.isOpaque=true
+        // A fixed backing color keeps offscreen material captures independent of the CI desktop.
+        window.backgroundColor = Palette.windowBackground;window.isOpaque=false
         window.contentViewController=controller
         window.setFrame(CGRect(origin:.zero,size:size),display:false)
         host.frame=CGRect(origin:.zero,size:size)
@@ -97,7 +98,7 @@ import ThermalCore
             }
             selected=color(row.convert(CGPoint(x:row.bounds.maxX-24,y:row.bounds.midY),to:host))
             background=color(sidebar.convert(CGPoint(x:sidebar.bounds.maxX-5,y:sidebar.bounds.height*0.4),to:host))
-            let expected=name.hasPrefix("dark") ? [27,27,35,255]:[255,255,255,255]
+            let expected=name.hasPrefix("dark") ? [76,69,80,255]:[255,255,255,255]
             guard let selected,zip(selected,expected).allSatisfy({abs($0-$1)<=3}) else {throw ScopeError.message("Selection color drift: "+name+" "+String(describing:selected))}
             guard abs(sidebar.bounds.width-220)<=1 else {
                 throw ScopeError.message("Sidebar width drift: "+name+" \(sidebar.bounds.width)")

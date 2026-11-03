@@ -1,14 +1,33 @@
+import AppKit
 import SwiftUI
 
-/// App-owned opaque surfaces prevent wallpaper and OS material changes altering the theme.
+/// One shared material and tint keep the reference sidebar soft on every supported OS.
 struct ConsoleWindowBackdrop:View {
     var body:some View {ConsoleSidebarBackdrop().ignoresSafeArea().allowsHitTesting(false).accessibilityHidden(true)}
 }
 
 struct ConsoleSidebarBackdrop:View {
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     var body:some View {
-        LinearGradient(gradient:Gradient(colors:[Palette.sidebarTop,Palette.sidebarBottom]),startPoint:.top,endPoint:.bottom)
+        ZStack {
+            if scheme == .dark && !reduceTransparency {ConsoleSidebarMaterial()}
+            LinearGradient(gradient:Gradient(colors:[Palette.sidebarTop,Palette.sidebarBottom]),startPoint:.top,endPoint:.bottom)
+                .opacity(scheme == .dark && !reduceTransparency ? 0.78:1)
+        }
     }
+}
+
+private struct ConsoleSidebarMaterial:NSViewRepresentable {
+    func makeNSView(context:Context)->NSVisualEffectView {
+        let view=NSVisualEffectView()
+        view.material = .underWindowBackground
+        view.blendingMode = .behindWindow
+        view.state = .active
+        view.setAccessibilityElement(false)
+        return view
+    }
+    func updateNSView(_ view:NSVisualEffectView,context:Context) {}
 }
 
 struct ConsoleDetailCorners:ViewModifier {

@@ -141,7 +141,7 @@ final class SidebarScrollView:NSScrollView {
     }
 }
 
-/// An opaque selection uses the same colors on every supported macOS version.
+/// A soft, light selection follows the supplied reference on every supported OS.
 /// Native table semantics still own focus, keyboard navigation and accessibility.
 private final class SidebarMaterialRow:NSTableRowView {
     override var interiorBackgroundStyle:NSView.BackgroundStyle {.normal}
@@ -155,6 +155,11 @@ private final class SidebarMaterialRow:NSTableRowView {
         let dark=effectiveAppearance.bestMatch(from:[.darkAqua,.aqua]) == .darkAqua
         let shape=NSBezierPath(roundedRect:bounds.insetBy(dx:12,dy:4),xRadius:14,yRadius:14)
         Palette.navigationSelection(dark:dark).setFill();shape.fill()
+        NSGradient(starting:Palette.navigationSelectionTop(dark:dark),ending:Palette.navigationSelectionBottom(dark:dark))?.draw(in:shape,angle:-90)
+        if dark {
+            NSColor.white.withAlphaComponent(0.12).setStroke()
+            shape.lineWidth=0.75;shape.stroke()
+        }
         if NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast {
             Palette.navigationIcon(dark:dark,selected:true).withAlphaComponent(0.6).setStroke()
             shape.lineWidth=1;shape.stroke()

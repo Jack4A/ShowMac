@@ -82,8 +82,8 @@ import WidgetUI
         window.titleVisibility = .hidden
         window.subtitle=""
         window.appearance=nil
-        window.backgroundColor = Palette.windowBackground
-        window.isOpaque=true
+        window.backgroundColor = .clear
+        window.isOpaque=false
         window.acceptsMouseMovedEvents=true
         window.titlebarAppearsTransparent=true
         window.toolbarStyle = .unified

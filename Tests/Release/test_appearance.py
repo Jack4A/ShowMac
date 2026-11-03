@@ -23,7 +23,7 @@ class AppearanceComparisonTests(unittest.TestCase):
                     "width": 390 if popup else 1000, "height": 640 if popup else 760,
                     "sidebarWidth": None if popup else 220,
                     "sidebarHeight": None if popup else 748, "sidebarTop": None if popup else 0, "settingsTop": None if popup else 696,
-                    "selectedColor": None if popup else ([27, 27, 35, 255] if theme == "dark" else [255] * 4),
+                    "selectedColor": None if popup else ([76, 69, 80, 255] if theme == "dark" else [255] * 4),
                     "sidebarColor": None if popup else [29, 29, 37, 255],
                 }
         for version in ["26", "27"]:
@@ -38,8 +38,8 @@ class AppearanceComparisonTests(unittest.TestCase):
     def test_same_binary_stable_chrome(self):
         self.assertEqual(appearance.compare(self.root), 14)
 
-    def test_glass_selection_brightness_drift_fails(self):
-        self.change("dark-metrics", "selectedColor", [74, 69, 82, 255])
+    def test_reversed_dark_selection_fails(self):
+        self.change("dark-metrics", "selectedColor", [27, 27, 35, 255])
         with self.assertRaisesRegex(ValueError, "Color drift"):
             appearance.compare(self.root)
 
@@ -54,5 +54,5 @@ class AppearanceComparisonTests(unittest.TestCase):
             appearance.compare(self.root)
 
     def test_small_raster_rounding_is_allowed(self):
-        self.change("dark-metrics", "selectedColor", [29, 28, 36, 255])
+        self.change("dark-metrics", "selectedColor", [78, 70, 81, 255])
         self.assertEqual(appearance.compare(self.root), 14)

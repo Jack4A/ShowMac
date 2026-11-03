@@ -12,13 +12,6 @@ struct ConsoleSidebar:View {
             .accessibilityLabel(L("主导航"))
             .padding(.bottom,12)
             .frame(minWidth:210,idealWidth:220,maxWidth:280,maxHeight:.infinity)
-            .appBackground {ConsoleSidebarBackdrop().ignoresSafeArea()}
-            .appOverlay {
-                RoundedRectangle(cornerRadius:8,style:.continuous)
-                    .stroke(Palette.sidebarEdge,lineWidth:0.75)
-                    .padding(.horizontal,8).padding(.bottom,4)
-                    .allowsHitTesting(false).accessibilityHidden(true)
-            }
     }
     private var items:[SidebarNavigationTable.Item] {
         let symbols:[ConsolePage:String]=[.metrics:"waveform.path.ecg.rectangle.fill",.sensors:"sensor.fill",.thermal:"thermometer.sun.fill",.optimization:"stethoscope",.processes:"square.stack.3d.up.fill",.history:"clock.arrow.circlepath"]
