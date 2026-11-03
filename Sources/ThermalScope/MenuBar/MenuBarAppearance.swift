@@ -96,6 +96,8 @@ enum MenuBarAppearanceRenderer {
         let gap:CGFloat=MenuBarLayout.spacing(spacing)
         let inset:CGFloat=outerPadding.isFinite ? min(20,max(0,outerPadding)):0
         let inner:CGFloat=innerPadding.isFinite ? min(20,max(0,innerPadding)):0
+        // Breathing room between an icon, sparkline or gauge and its value digits.
+        let iconGap:CGFloat=4
         let plotWidth:CGFloat=graphWidth.isFinite ? min(100,max(28,graphWidth)):44
         func measured(_ s:String,_ font:NSFont)->CGFloat {(s as NSString).size(withAttributes:[.font:font]).width.rounded(.up)}
         let textWidths=tiles.map {measured($0.value,large)}
@@ -110,7 +112,7 @@ enum MenuBarAppearanceRenderer {
         }
         let prefixWidths=tiles.enumerated().map {index,tile -> CGFloat in
             guard icons[index] != nil,tile.style != .icon else{return 0}
-            return [.history,.bars].contains(tile.style) ? 11:14
+            return ([.history,.bars].contains(tile.style) ? 11:14)+iconGap
         }
         let widths=tiles.enumerated().map {index,tile -> CGFloat in
             let core:CGFloat
@@ -118,8 +120,8 @@ enum MenuBarAppearanceRenderer {
             case .value,.stacked,.iconValue:core=textWidths[index]
             case .icon:core=15
             case .history,.bars:core=plotWidth
-            case .ring:core=18+textWidths[index]
-            case .historyValue:core=plotWidth+textWidths[index]
+            case .ring:core=18+iconGap+textWidths[index]
+            case .historyValue:core=plotWidth+iconGap+textWidths[index]
             }
             return core+prefixWidths[index]+inner*2
         }
@@ -167,7 +169,7 @@ enum MenuBarAppearanceRenderer {
                         }
                     case .historyValue:
                         drawHistory(tile.points,ending:ending,rect:NSRect(x:start,y:3,width:plotWidth,height:16),upper:tile.upper,color:baseColor,bars:false,background:false,fillArea:background,lower:tile.lower,warningKind:warningKind)
-                        alignedValue(tile,start+plotWidth,textWidths[index],valueColor)
+                        alignedValue(tile,start+plotWidth+iconGap,textWidths[index],valueColor)
                     case .ring:
                         let center=NSPoint(x:start+9,y:11),radius:CGFloat=7.5
                         let track=NSBezierPath();track.lineWidth=2.4;track.appendArc(withCenter:center,radius:radius,startAngle:90,endAngle:450)
@@ -177,7 +179,7 @@ enum MenuBarAppearanceRenderer {
                             arc.appendArc(withCenter:center,radius:radius,startAngle:90,endAngle:90-min(1,n/max(1,tile.upper))*360,clockwise:true)
                             accent.setStroke();if n>0 {arc.stroke()}
                         } else {text("—",small,start+3,12,7,foreground)}
-                        alignedValue(tile,start+18,textWidths[index],valueColor)
+                        alignedValue(tile,start+18+iconGap,textWidths[index],valueColor)
                     }
                     if dividers,index<tiles.count-1 {
                         let line=NSBezierPath();line.lineWidth=0.5
