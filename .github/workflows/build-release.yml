@@ -41,9 +41,11 @@ jobs:
               assert Path('docs/releases/v' + version + '.md').is_file(), 'Missing release notes'
           PYCODE
       - name: Build and run fixture checks
+        shell: bash
         env:
           THERMALSCOPE_COMPATIBILITY_OUTPUT: build/compatibility-ui
         run: |
+          set -euo pipefail
           mkdir -p build
           bash scripts/check.sh 2>&1 | tee build/checks.log
       - name: Preserve check log
