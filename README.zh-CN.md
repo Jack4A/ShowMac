@@ -6,7 +6,7 @@
 
 原生 macOS 温度、风扇与性能诊断工具。在菜单栏查看读数，进入主窗口观察近期趋势，或直接选择风扇档位、调整温度—转速曲线。
 
-**当前版本：[v1.18.0 · build 266](https://github.com/Jackkakaya/ThermalScope/releases/tag/v1.18.0)** · **macOS 11+** · **Intel 与 Apple Silicon**
+**当前版本：[v1.18.0 · build 266](https://101.37.211.18/showmac/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
 
 <img src="docs/screenshots/v1.18.0/en/overview-dark.png" width="1000" alt="ShowMac 1.18.0 深色实时监测界面，展示 CPU 温度、风扇转速、CPU 使用率与真实温度趋势">
 
@@ -14,7 +14,7 @@
 
 ## 下载与启动
 
-1. 打开 [ShowMac 官网](http://101.37.211.18/showmac/#download)，按本机芯片下载。协作者也可使用私有仓库的 [GitHub Releases](https://github.com/Jackkakaya/ThermalScope/releases)。
+1. 打开 [ShowMac 官网](https://101.37.211.18/showmac/#download)，按本机芯片下载。协作者也可使用私有仓库的 [GitHub Releases](https://github.com/Jackkakaya/ThermalScope/releases)。
 2. 下载适合本机芯片的 ZIP，解压后将 **ShowMac.app** 拖到“应用程序”。
 3. 打开应用，点击顶部菜单栏项目。启动后先在菜单栏监测，不自动弹出主窗口。
 

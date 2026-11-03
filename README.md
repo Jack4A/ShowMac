@@ -6,13 +6,13 @@
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Current release: [v1.18.0 · build 266](https://github.com/Jackkakaya/ThermalScope/releases/tag/v1.18.0)** · **macOS 11+** · **Intel & Apple Silicon**
+**Current release: [v1.18.0 · build 266](https://101.37.211.18/showmac/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
 <img src="docs/screenshots/v1.18.0/en/overview-dark.png" width="1000" alt="ShowMac 1.18.0 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
 ## Download and launch
 
-1. Open the [ShowMac website](http://101.37.211.18/showmac/#download) and choose your Mac’s chip. [GitHub Releases](https://github.com/Jackkakaya/ThermalScope/releases) is a private repository mirror for collaborators.
+1. Open the [ShowMac website](https://101.37.211.18/showmac/#download) and choose your Mac’s chip. [GitHub Releases](https://github.com/Jackkakaya/ThermalScope/releases) is a private repository mirror for collaborators.
 2. Download the ZIP for your Mac, extract it, and move **ShowMac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 

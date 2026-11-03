@@ -1,0 +1,3 @@
+#!/bin/sh
+export PYTHONPATH=/opt/showmac-certbot-packages
+exec /opt/showmac-certbot-packages/bin/certbot "$@" --config-dir /srv/showmac/acme-config --work-dir /srv/showmac/acme-work --logs-dir /srv/showmac/acme-logs

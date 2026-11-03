@@ -1,0 +1,9 @@
+[Unit]
+Description=Renew the ShowMac IP TLS certificate
+Wants=network-online.target
+After=network-online.target nginx.service
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/showmac-certbot renew --cert-name showmac-ip --non-interactive --quiet --deploy-hook /usr/local/sbin/showmac-reload-nginx
+TimeoutStartSec=180
+NoNewPrivileges=true
