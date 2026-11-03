@@ -76,7 +76,6 @@ struct ConsoleShell:View {
                 }
             }.frame(maxWidth:.infinity,maxHeight:.infinity)
                 .modifier(ConsoleDetailCorners())
-                .modifier(ConsoleToolbarPresentation())
                 .environment(\.neutralPanels,monitorSample)
                 .toolbar {
                     ToolbarItem(placement:.navigation) {
@@ -89,7 +88,7 @@ struct ConsoleShell:View {
         }
             .appBackground {ConsoleWindowBackdrop()}
             .appHideToolbarBackground()
-            .font(AppTypography.body).id(model.language).environment(\.locale,Locale(identifier:AppLocalization.shared.resolvedLanguage)).preferredColorScheme(model.colorScheme).frame(minWidth:900,minHeight:700).transaction { $0.animation=nil;$0.disablesAnimations=true }
+            .foregroundColor(Palette.primaryText).font(AppTypography.body).id(model.language).environment(\.locale,Locale(identifier:AppLocalization.shared.resolvedLanguage)).preferredColorScheme(model.colorScheme).frame(minWidth:900,minHeight:700).transaction { $0.animation=nil;$0.disablesAnimations=true }
             .sheet(isPresented:Binding(get:{navigation.applicationID != nil},set:{if !$0{navigation.applicationID=nil}})) {
                 ApplicationReviewSheet(observer:model.processes,groupID:navigation.applicationID ?? "",onClose:{navigation.applicationID=nil}).preferredColorScheme(model.colorScheme)
             }
@@ -108,15 +107,10 @@ private struct ConsoleNavigation<Sidebar:View,Detail:View>:View {
     let sidebar:Sidebar
     let detail:Detail
     init(@ViewBuilder sidebar:()->Sidebar,@ViewBuilder detail:()->Detail) {self.sidebar=sidebar();self.detail=detail()}
-    @ViewBuilder var body:some View {
-        if #available(macOS 13,*),!PlatformUI.classic {
-            NavigationSplitView {sidebar.navigationSplitViewColumnWidth(min:210,ideal:220,max:280)} detail:{detail}
-                .navigationSplitViewStyle(.balanced)
-        } else {
-            HSplitView {
-                sidebar.frame(minWidth:210,idealWidth:220,maxWidth:280,maxHeight:.infinity)
-                detail.frame(minWidth:620,maxWidth:.infinity,maxHeight:.infinity)
-            }
+    var body:some View {
+        HStack(spacing:0) {
+            sidebar.frame(width:220).frame(maxHeight:.infinity)
+            detail.frame(minWidth:620,maxWidth:.infinity,maxHeight:.infinity)
         }
     }
 }

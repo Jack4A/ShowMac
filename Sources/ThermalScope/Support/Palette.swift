@@ -12,17 +12,23 @@ enum Palette {
     // Readable strokes and links need a lighter plum than selected control fills in dark mode.
     static let violet=adaptive((0.463,0.314,0.659),(0.716,0.640,0.824))
     static let action=Color.accentColor
-    static let canvas=adaptive((0.957,0.961,0.969),(0.098,0.094,0.118))
+    static let windowBackground=NSColor(name:nil,dynamicProvider:{appearance in
+        appearance.bestMatch(from:[.darkAqua,.aqua]) == .darkAqua ? native(0x19181E):native(0xF4F5F7)
+    })
+    static let canvas=Color(windowBackground)
+    static let detailTop=adaptive((0.957,0.961,0.969),(0.137,0.129,0.173))
+    static let primaryText=adaptive((0.141,0.141,0.149),(0.922,0.918,0.941))
+    static let sidebarEdge=adaptive((0.835,0.847,0.886),(0.259,0.251,0.302))
     static let surface=adaptive((1,1,1),(0.145,0.137,0.173))
     static let inset=adaptive((0.925,0.937,0.953),(0.110,0.104,0.130))
-    static let sidebarTop=adaptive((0.925,0.933,0.957),(0.129,0.122,0.161))
-    static let sidebarBottom=adaptive((0.953,0.957,0.973),(0.129,0.122,0.161))
+    static let sidebarTop=adaptive((0.925,0.933,0.957),(0.129,0.129,0.165))
+    static let sidebarBottom=adaptive((0.953,0.957,0.973),(0.098,0.098,0.122))
     static let selection=adaptive((0.933,0.906,0.969),(0.231,0.200,0.294))
     static let border=adaptive((0.851,0.871,0.906),(0.231,0.212,0.271))
     static let highlight=adaptive((1,1,1),(0.24,0.23,0.32))
     static let cool=adaptive((0.337,0.471,0.569),(0.600,0.741,0.831))
     static let secondaryText=Color(NSColor(name:nil,dynamicProvider:{appearance in
-        appearance.bestMatch(from:[.darkAqua,.aqua]) == .darkAqua ? .secondaryLabelColor:native(0x5D6470)
+        appearance.bestMatch(from:[.darkAqua,.aqua]) == .darkAqua ? native(0xA09CA8):native(0x5D6470)
     }))
     static let base=Color(.windowBackgroundColor)
     // Mode series keep distinct, related colors and their existing text labels.
@@ -48,5 +54,5 @@ enum Palette {
     static func navigationText(dark:Bool,selected:Bool)->NSColor {
         native(selected ? (dark ? 0xF0EDF7:0x503172):(dark ? 0xCAC5D1:0x56606E))
     }
-    static func navigationSelection(dark:Bool)->NSColor {native(dark ? 0x3B334B:0xFFFFFF)}
+    static func navigationSelection(dark:Bool)->NSColor {native(dark ? 0x1B1B23:0xFFFFFF)}
 }

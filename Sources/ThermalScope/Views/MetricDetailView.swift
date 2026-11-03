@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import ThermalCore
 
 struct MetricDetailView:View {
@@ -100,40 +99,12 @@ struct MetricTrendChart:View {
         }.subtlePanel().onChange(of:minutes){_ in resume()}.onDisappear{resume()}
     }
     @ViewBuilder var trendChart:some View {
-        if #available(macOS 13,*),!PlatformUI.classic {modernTrendChart}
-        else {
-            CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs,filled:filled),xRange:start.timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale,axes:true,xLabel:CompatibilityPlot.timeLabel,onInspect:{value in
-                hovered=value.flatMap{MetricPlot.nearest(full,to:Date(timeIntervalSince1970:$0),maximumDistance:kind == .memory || kind == .battery ? 30:15)}
-            }).frame(height:250).accessibilityLabel(L(kind.title)+" · "+L("趋势图"))
-        }
+        MetricPlotView(series:MetricPlotView.metricSeries(runs,filled:filled),xRange:start.timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale,axes:true,xLabel:MetricPlotView.timeLabel,selection:hovered.flatMap{point in point.value.map{.init(x:point.date.timeIntervalSince1970,y:$0)}},onInspect:{value in
+            hovered=value.flatMap{MetricPlot.nearest(full,to:Date(timeIntervalSince1970:$0),maximumDistance:kind == .memory || kind == .battery ? 30:15)}
+        }).frame(height:250).accessibilityLabel(L(kind.title)+" · "+L("趋势图"))
+
     }
-    @available(macOS 13,*) private var modernTrendChart:some View {
-        Chart {
-            ForEach(runs) {run in ForEach(run.points) {point in
-                if filled {AreaMark(x:.value(L("时间"),point.date),yStart:.value(L(kind.title),scale.lowerBound),yEnd:.value(L(kind.title),point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)")).foregroundStyle(LinearGradient(gradient:Gradient(colors:[run.level.plotColor().opacity(0.26),run.level.plotColor().opacity(0.015)]),startPoint:.top,endPoint:.bottom))}
-                LineMark(x:.value(L("时间"),point.date),y:.value(L(kind.title),point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)")).foregroundStyle(run.level.plotColor()).lineStyle(StrokeStyle(lineWidth:2.1,lineCap:.round))
-                if points.count<3 || run.points.count==1 {PointMark(x:.value(L("时间"),point.date),y:.value(L(kind.title),point.value!)).foregroundStyle(run.level.plotColor()).symbolSize(22)}
-            }}
-            if let hovered,let value=hovered.value {
-                RuleMark(x:.value(L("时间"),hovered.date)).foregroundStyle(.primary.opacity(0.25))
-                PointMark(x:.value(L("时间"),hovered.date),y:.value(L(kind.title),value)).foregroundStyle(Palette.violet).symbolSize(36)
-            }
-        }.chartXScale(domain:start...end).chartYScale(domain:scale).chartLegend(.hidden).frame(height:250)
-            .chartYAxis {AxisMarks(position:.leading,values:.automatic(desiredCount:4)) {_ in AxisGridLine(stroke:StrokeStyle(lineWidth:0.5,dash:[3,4])).foregroundStyle(.primary.opacity(0.10));AxisValueLabel().foregroundStyle(Color.secondary)}}
-            .chartXAxis {AxisMarks(values:[0.1,0.5,0.9].map{start.addingTimeInterval(end.timeIntervalSince(start)*$0)}) {_ in AxisValueLabel(format:.dateTime.hour().minute()).foregroundStyle(Color.secondary)}}
-            .accessibilityLabel(L(kind.title)+" · "+L("趋势图"))
-            .chartOverlay {proxy in GeometryReader {geometry in
-                Rectangle().fill(.clear).contentShape(Rectangle()).onContinuousHover {phase in
-                    switch phase {
-                    case .active(let location):
-                        let plot=geometry[proxy.plotAreaFrame],x=location.x-plot.minX
-                        guard plot.contains(location),let date:Date=proxy.value(atX:x) else {hovered=nil;return}
-                        hovered=MetricPlot.nearest(full,to:date,maximumDistance:kind == .memory || kind == .battery ? 30:15)
-                    case .ended:hovered=nil
-                    }
-                }
-            }}.appOverlay {if points.isEmpty {Text(L("正在积累该指标的历史采样…")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}}
-    }
+
     func togglePause(){if frozen != nil {resume()} else {frozen=full;frozenEnd=history.end;hovered=nil}}
     func resume(){frozen=nil;frozenEnd=nil;hovered=nil}
     func stat(_ title:String,_ value:Double?)->some View {VStack(alignment:.leading,spacing:5){Text(L(title)).font(.system(size:12)).foregroundColor(Palette.secondaryText);Text(valueText(value,"%.1f")+kind.unit).font(AppTypography.number(18)).appMonospacedDigit()}}

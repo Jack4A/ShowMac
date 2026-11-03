@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import ThermalCore
 
 struct MetricsDashboard:View {
@@ -91,22 +90,10 @@ private struct MetricCardSparkline:View {
     private var tone:Color {MonitorAppearance.metric(kind)}
     private var runs:[CPULoadRun] {MetricWarningBands.runs(points,kind:kind,enabled:warningsEnabled,budget:50)}
     @ViewBuilder var body:some View {
-        if #available(macOS 13,*),!PlatformUI.classic {modernChart}
-        else {CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs,normal:tone,filled:true),xRange:ending.addingTimeInterval(-120).timeIntervalSince1970...ending.timeIntervalSince1970,yRange:scale).accessibilityHidden(true)}
+        MetricPlotView(series:MetricPlotView.metricSeries(runs,normal:tone,filled:true),xRange:ending.addingTimeInterval(-120).timeIntervalSince1970...ending.timeIntervalSince1970,yRange:scale,placeholder:L("采样中")).accessibilityHidden(true)
+
     }
-    @available(macOS 13,*) private var modernChart:some View {
-        Chart {
-            ForEach(runs) {run in ForEach(run.points) {point in
-                AreaMark(x:.value(L("时间"),point.date),yStart:.value(L(kind.title),scale.lowerBound),yEnd:.value(L(kind.title),point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)"))
-                    .foregroundStyle(LinearGradient(gradient:Gradient(colors:[run.level.plotColor(normal:tone).opacity(0.18),run.level.plotColor(normal:tone).opacity(0.01)]),startPoint:.top,endPoint:.bottom))
-                LineMark(x:.value(L("时间"),point.date),y:.value(L(kind.title),point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)"))
-                    .foregroundStyle(run.level.plotColor(normal:tone)).lineStyle(StrokeStyle(lineWidth:1.5,lineCap:.round))
-                if run.points.count==1 {PointMark(x:.value(L("时间"),point.date),y:.value(L(kind.title),point.value!)).foregroundStyle(run.level.plotColor(normal:tone)).symbolSize(10)}
-            }}
-        }.chartXScale(domain:ending.addingTimeInterval(-120)...ending).chartYScale(domain:scale)
-            .chartXAxis(.hidden).chartYAxis(.hidden).chartLegend(.hidden)
-            .appOverlay {if visible.isEmpty {Text(L("采样中")).font(.system(size:11)).foregroundStyle(.secondary)}}
-    }
+
 }
 
 struct SupplementaryMetrics:View {

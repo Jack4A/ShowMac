@@ -62,13 +62,13 @@ struct MetricValue:View {
     var size:CGFloat=28
     var unitSize:CGFloat=12
     var weight:Font.Weight = .medium
-    var foreground:Color = .primary
+    var foreground:Color = Palette.primaryText
     var body:some View {
         HStack(alignment:.firstTextBaseline,spacing:3) {
             Text(value).font(AppTypography.number(size,weight:weight)).appMonospacedDigit()
                 .foregroundColor(foreground).lineLimit(1).minimumScaleFactor(0.8)
             if !unit.isEmpty {
-                Text(unit).font(.system(size:unitSize)).foregroundColor(.secondary).fixedSize()
+                Text(unit).font(.system(size:unitSize)).foregroundColor(Palette.secondaryText).fixedSize()
             }
         }.accessibilityElement(children:.ignore).accessibilityLabel(value+" "+unit)
     }

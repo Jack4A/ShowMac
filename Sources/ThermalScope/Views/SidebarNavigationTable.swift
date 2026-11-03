@@ -17,6 +17,8 @@ struct SidebarNavigationTable:NSViewRepresentable {
     func makeCoordinator()->Coordinator {Coordinator(selection:$selection)}
     func makeNSView(context:Context)->SidebarScrollView {
         let scroll=SidebarScrollView(),table=NSTableView()
+        scroll.setContentHuggingPriority(.defaultLow,for:.vertical)
+        scroll.setContentCompressionResistancePriority(.defaultLow,for:.vertical)
         scroll.drawsBackground=false;scroll.borderType = .noBorder
         // No scroller at all: overlay scrollers follow the system scroll-bar preference and
         // stay visible whenever a traditional mouse (or USB receiver) is attached. Scrolling
@@ -139,57 +141,26 @@ final class SidebarScrollView:NSScrollView {
     }
 }
 
+/// An opaque selection uses the same colors on every supported macOS version.
+/// Native table semantics still own focus, keyboard navigation and accessibility.
 private final class SidebarMaterialRow:NSTableRowView {
-    private let glass:NSView={
-        if #available(macOS 26,*),!PlatformUI.classic {
-            let view=NSGlassEffectView()
-            view.style = .regular;view.cornerRadius=14
-            view.contentView=NSView()
-            // Use the public property dynamically so the macOS 26 SDK can build
-            // the macOS 11 package while newer systems retain the interaction.
-            if #available(macOS 27,*),view.responds(to:NSSelectorFromString("setEffectIsInteractive:")) {
-                view.setValue(true,forKey:"effectIsInteractive")
-            }
-            return view
-        }
-        let view=NSVisualEffectView()
-        view.material = .popover;view.blendingMode = .withinWindow;view.state = .active
-        view.wantsLayer=true;view.layer?.cornerRadius=14;view.layer?.masksToBounds=true
-        view.layer?.borderWidth=0.7
-        return view
-    }()
-    private let sheen=CAGradientLayer()
-    override init(frame:NSRect) {
-        super.init(frame:frame)
-        if glass is NSVisualEffectView {glass.layer?.addSublayer(sheen)}
-        glass.setAccessibilityElement(false)
-        addSubview(glass,positioned:.below,relativeTo:nil);glass.isHidden=true
-        updateMaterial()
-    }
-    required init?(coder:NSCoder){fatalError("init(coder:) has not been implemented")}
     override var interiorBackgroundStyle:NSView.BackgroundStyle {.normal}
     override var isSelected:Bool {didSet {
-        glass.isHidden = !isSelected
         if numberOfColumns>0 {(view(atColumn:0) as? SidebarNavigationCell)?.applyStyle(selected:isSelected)}
         needsDisplay=true
     }}
     override func drawSelection(in dirtyRect:NSRect) {}
-    override func drawBackground(in dirtyRect:NSRect) {}
-    override func viewDidChangeEffectiveAppearance(){super.viewDidChangeEffectiveAppearance();updateMaterial()}
-    private func updateMaterial() {
-        // Native Liquid Glass supplies its own highlights and accessibility adaptation.
-        if #available(macOS 26,*),glass is NSGlassEffectView {return}
+    override func drawBackground(in dirtyRect:NSRect) {
+        guard isSelected else{return}
         let dark=effectiveAppearance.bestMatch(from:[.darkAqua,.aqua]) == .darkAqua
-        let tone=Palette.navigationSelection(dark:dark)
-        sheen.colors=[tone.withAlphaComponent(dark ? 0.75:1).cgColor,tone.withAlphaComponent(dark ? 0.45:0.96).cgColor]
-        sheen.startPoint=CGPoint(x:0,y:1);sheen.endPoint=CGPoint(x:1,y:0)
-        glass.layer?.borderColor=Palette.navigationIcon(dark:dark,selected:true).withAlphaComponent(dark ? 0.22:0.10).cgColor
+        let shape=NSBezierPath(roundedRect:bounds.insetBy(dx:12,dy:4),xRadius:14,yRadius:14)
+        Palette.navigationSelection(dark:dark).setFill();shape.fill()
+        if NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast {
+            Palette.navigationIcon(dark:dark,selected:true).withAlphaComponent(0.6).setStroke()
+            shape.lineWidth=1;shape.stroke()
+        }
     }
-    override func layout() {
-        super.layout()
-        glass.frame=bounds.insetBy(dx:12,dy:4)
-        CATransaction.begin();CATransaction.setDisableActions(true);sheen.frame=glass.bounds;CATransaction.commit()
-    }
+    override func viewDidChangeEffectiveAppearance() {super.viewDidChangeEffectiveAppearance();needsDisplay=true}
 }
 
 private enum SidebarSymbol {

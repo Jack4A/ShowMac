@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import ThermalCore
 
 struct SensorTrendRangePicker:View {
@@ -44,34 +43,11 @@ struct SensorSparkline:View {
     let kind:HardwareSensorKind
     var warningKind:MetricKind?
     @ViewBuilder var body:some View {
-        if #available(macOS 13,*),!PlatformUI.classic {modernChart}
-        else {
-            let runs=MetricWarningBands.runs(points,kind:warningKind,enabled:warningsEnabled,budget:80)
-            CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs),xRange:sensorTrendStart(points,end:end,minutes:minutes).timeIntervalSince1970...end.timeIntervalSince1970,yRange:sensorTrendScale(points,kind:kind)).accessibilityHidden(true)
-        }
-    }
-    @available(macOS 13,*) private var modernChart:some View {
-        let plotted=MetricPlot.decimated(points,budget:80)
-        let scale=sensorTrendScale(points,kind:kind)
-        let start=sensorTrendStart(points,end:end,minutes:minutes)
         let runs=MetricWarningBands.runs(points,kind:warningKind,enabled:warningsEnabled,budget:80)
-        return Chart {
-            ForEach(runs) {run in ForEach(run.points) {point in
-                LineMark(x:.value(L("时间"),point.date),y:.value(L(kind.title),point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)"))
-                    .foregroundStyle(run.level.plotColor()).lineStyle(StrokeStyle(lineWidth:1.7,lineCap:.round))
-                if run.points.count==1 || point.id==plotted.last?.id {
-                    PointMark(x:.value(L("时间"),point.date),y:.value(L(kind.title),point.value!)).foregroundStyle(run.level.plotColor()).symbolSize(12)
-                }
-            }}
-        }.chartXScale(domain:start...end).chartYScale(domain:scale)
-            .chartXAxis(.hidden).chartYAxis(.hidden).chartLegend(.hidden)
-            .padding(.vertical,3).allowsHitTesting(false)
-            .appOverlay(alignment:.leading) {
-            if plotted.count<2 {
-                Text(L(plotted.isEmpty ? "暂无历史读数":"正在积累趋势…")).font(AppTypography.caption).foregroundStyle(Palette.secondaryText)
-            }
-        }.accessibilityHidden(true)
+        MetricPlotView(series:MetricPlotView.metricSeries(runs),xRange:sensorTrendStart(points,end:end,minutes:minutes).timeIntervalSince1970...end.timeIntervalSince1970,yRange:sensorTrendScale(points,kind:kind)).accessibilityHidden(true)
+
     }
+
 }
 
 struct SensorTrendSheet:View {
@@ -134,59 +110,13 @@ struct SensorTrendSheet:View {
             .onChange(of:minutes){_ in hovered=nil}
     }
     @ViewBuilder private var trendChart:some View {
-        if #available(macOS 13,*),!PlatformUI.classic {modernTrendChart}
-        else {
-            CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs),xRange:start.timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale,axes:true,xLabel:CompatibilityPlot.timeLabel,onInspect:{value in
-                hovered=value.flatMap{MetricPlot.nearest(full,to:Date(timeIntervalSince1970:$0),maximumDistance:15)}
-            }).frame(height:220).accessibilityLabel(title+" · "+L("趋势图"))
-        }
+        MetricPlotView(series:MetricPlotView.metricSeries(runs),xRange:start.timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale,axes:true,xLabel:MetricPlotView.timeLabel,selection:hovered.flatMap{point in point.value.map{.init(x:point.date.timeIntervalSince1970,y:$0)}},onInspect:{value in
+            hovered=value.flatMap{MetricPlot.nearest(full,to:Date(timeIntervalSince1970:$0),maximumDistance:15)}
+        }).frame(height:220).accessibilityLabel(title+" · "+L("趋势图"))
+
     }
-    @available(macOS 13,*) private var modernTrendChart:some View {
-        return Chart {
-            ForEach(runs) {run in ForEach(run.points) {point in
-                LineMark(x:.value(L("时间"),point.date),y:.value(title,point.value!),series:.value(L("连续记录"),"\(run.id):\(point.segment)"))
-                    .foregroundStyle(run.level.plotColor()).lineStyle(StrokeStyle(lineWidth:2,lineCap:.round))
-                if run.points.count==1 {
-                    PointMark(x:.value(L("时间"),point.date),y:.value(title,point.value!)).foregroundStyle(run.level.plotColor()).symbolSize(20)
-                }
-            }}
-            if let hovered,let value=hovered.value {
-                RuleMark(x:.value(L("时间"),hovered.date)).foregroundStyle(.primary.opacity(0.2))
-                PointMark(x:.value(L("时间"),hovered.date),y:.value(title,value)).foregroundStyle(Palette.violet).symbolSize(34)
-            }
-        }.chartXScale(domain:start...end).chartYScale(domain:scale).chartLegend(.hidden).frame(height:220)
-            .chartYAxis {
-                AxisMarks(position:.leading,values:.automatic(desiredCount:4)) {value in
-                    AxisGridLine(stroke:StrokeStyle(lineWidth:0.5,dash:[3,4])).foregroundStyle(.primary.opacity(0.10))
-                    AxisValueLabel {if let number=value.as(Double.self) {Text(valueText(number,initial.kind == .fan ? "%.0f":"%.1f"))}}
-                }
-            }
-            .chartXAxis {
-                AxisMarks(values:[0.1,0.5,0.9].map{start.addingTimeInterval(end.timeIntervalSince(start)*$0)}) {value in
-                    AxisValueLabel {
-                        if let date=value.as(Date.self) {
-                            Text(date,format:end.timeIntervalSince(start)<120 ? .dateTime.hour().minute().second():.dateTime.hour().minute()).fixedSize()
-                        }
-                    }
-                }
-            }
-            .chartOverlay {proxy in GeometryReader {geometry in
-                Rectangle().fill(.clear).contentShape(Rectangle()).onContinuousHover {phase in
-                    switch phase {
-                    case .active(let location):inspect(location,proxy:proxy,geometry:geometry)
-                    case .ended:hovered=nil
-                    }
-                }
-                .gesture(DragGesture(minimumDistance:0).onChanged {value in inspect(value.location,proxy:proxy,geometry:geometry)})
-            }}
-            .appOverlay {if points.isEmpty {Text(L("暂无历史读数")).font(AppTypography.caption).foregroundStyle(Palette.secondaryText)}}
-            .accessibilityLabel(title+" · "+L("趋势图"))
-    }
-    @available(macOS 13,*) private func inspect(_ location:CGPoint,proxy:ChartProxy,geometry:GeometryProxy) {
-        let plot=geometry[proxy.plotAreaFrame]
-        guard plot.contains(location),let date:Date=proxy.value(atX:location.x-plot.minX) else{hovered=nil;return}
-        hovered=MetricPlot.nearest(full,to:date,maximumDistance:15)
-    }
+
+
     private func stat(_ title:String,_ value:Double?)->some View {
         VStack(alignment:.leading,spacing:5) {
             Text(L(title)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)

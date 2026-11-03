@@ -1,6 +1,5 @@
 import AppKit
 import SwiftUI
-import Charts
 import ThermalCore
 
 struct ChartOptions:View {
@@ -119,61 +118,20 @@ struct TemperaturePanel:View,Equatable {
         }.font(.system(size:12))
     }
     @ViewBuilder var temperatureChart:some View {
-        if #available(macOS 13,*),!PlatformUI.classic {modernTemperatureChart}
-        else {
-            let grouped=Dictionary(grouping:points,by:\.segment)
-            let base=grouped.keys.sorted().map {segment in
-                let values=grouped[segment]!
-                return CompatibilityPlot.Series(id:"mode:\(segment)",points:values.map{.init(x:$0.date.timeIntervalSince1970,y:$0.temperature,segment:$0.segment)},color:color(values[0].mode),filled:filled,dash:values[0].turboDisabled == true ? [5,3]:[])
-            }
-            let warnings=CompatibilityPlot.metricSeries(warningRuns)
-            CompatibilityPlot(series:base+warnings,xRange:start.timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale,rules:transitions.map{.init(id:String(describing:$0.id),x:$0.date.timeIntervalSince1970,color:color($0.mode))},axes:true,xLabel:CompatibilityPlot.timeLabel,onInspect:{value in
-                guard let value,let nearest=full.min(by:{abs($0.date.timeIntervalSince1970-value)<abs($1.date.timeIntervalSince1970-value)}),abs(nearest.date.timeIntervalSince1970-value)<=15 else {hovered=nil;return}
-                hovered=nearest
-            }).frame(height:expanded ? 250:160).padding(.top,8).accessibilityLabel(L("按运行模式分色的温度时间线"))
+        let grouped=Dictionary(grouping:points,by:\.segment)
+        let base=grouped.keys.sorted().map {segment in
+            let values=grouped[segment]!
+            return MetricPlotView.Series(id:"mode:\(segment)",points:values.map{.init(x:$0.date.timeIntervalSince1970,y:$0.temperature,segment:$0.segment)},color:color(values[0].mode),filled:filled,dash:values[0].turboDisabled == true ? [5,3]:[])
         }
+        let warnings=MetricPlotView.metricSeries(warningRuns)
+        MetricPlotView(series:base+warnings,xRange:start.timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale,rules:transitions.map{.init(id:String(describing:$0.id),x:$0.date.timeIntervalSince1970,color:color($0.mode))},axes:true,xLabel:MetricPlotView.timeLabel,selection:hovered.map{.init(x:$0.date.timeIntervalSince1970,y:$0.temperature)},selectionColor:hovered.map{color($0.mode)} ?? accent,onInspect:{value in
+            guard let value,let nearest=full.min(by:{abs($0.date.timeIntervalSince1970-value)<abs($1.date.timeIntervalSince1970-value)}),abs(nearest.date.timeIntervalSince1970-value)<=15 else {hovered=nil;return}
+            hovered=nearest
+        }).frame(height:expanded ? 250:160).padding(.top,8).accessibilityLabel(L("按运行模式分色的温度时间线"))
+
     }
-    @available(macOS 13,*) private var modernTemperatureChart:some View {
-        let counts=Dictionary(grouping:points,by:\.segment).mapValues(\.count)
-        return Chart {
-            ForEach(points) {p in
-                if filled {AreaMark(x:.value(L("时间"),p.date),yStart:.value(L("温度"),scale.lowerBound),yEnd:.value(L("温度"),p.temperature),series:.value(L("连续记录"),p.series)).foregroundStyle(LinearGradient(gradient:Gradient(colors:[color(p.mode).opacity(0.22),color(p.mode).opacity(0.015)]),startPoint:.top,endPoint:.bottom))}
-                LineMark(x:.value(L("时间"),p.date),y:.value(L("温度"),p.temperature),series:.value(L("连续记录"),p.series)).foregroundStyle(by:.value(L("模式"),L(p.mode))).lineStyle(StrokeStyle(lineWidth:2.1,lineCap:.round,dash:p.turboDisabled == true ? [5,3]:[]))
-                if points.count<3 || counts[p.segment]==1 {PointMark(x:.value(L("时间"),p.date),y:.value(L("温度"),p.temperature)).foregroundStyle(color(p.mode)).symbolSize(18)}
-            }
-            ForEach(warningRuns) {run in ForEach(run.points) {point in
-                LineMark(x:.value(L("时间"),point.date),y:.value(L("温度"),point.value!),series:.value(L("连续记录"),"warning:\(run.id):\(point.segment)"))
-                    .foregroundStyle(run.level.plotColor(normal:accent)).lineStyle(StrokeStyle(lineWidth:2.3,lineCap:.round))
-                if run.points.count==1 {PointMark(x:.value(L("时间"),point.date),y:.value(L("温度"),point.value!)).foregroundStyle(run.level.plotColor(normal:accent)).symbolSize(18)}
-            }}
-            ForEach(transitions) {change in
-                RuleMark(x:.value(L("切换"),change.date)).foregroundStyle(color(change.mode).opacity(0.3)).lineStyle(StrokeStyle(lineWidth:1,dash:[4,4]))
-            }
-            if let hovered {
-                RuleMark(x:.value(L("时间"),hovered.date)).foregroundStyle(.primary.opacity(0.25))
-                PointMark(x:.value(L("时间"),hovered.date),y:.value(L("温度"),hovered.temperature)).foregroundStyle(color(hovered.mode)).symbolSize(36)
-            }
-        }.chartXScale(domain:start...end).chartYScale(domain:scale)
-            .chartForegroundStyleScale(domain:modes.map{L($0)},range:modes.map{color($0)}).chartLegend(.hidden)
-            .chartYAxis {AxisMarks(position:.leading,values:.automatic(desiredCount:4)) {_ in AxisGridLine(stroke:StrokeStyle(lineWidth:0.5,dash:[3,4])).foregroundStyle(.primary.opacity(0.10));AxisValueLabel().foregroundStyle(Color.secondary)}}
-            .chartXAxis {AxisMarks(values:[0.1,0.5,0.9].map{start.addingTimeInterval(end.timeIntervalSince(start)*$0)}) {_ in AxisValueLabel(format:.dateTime.hour().minute()).foregroundStyle(Color.secondary)}}
-            .chartOverlay {proxy in GeometryReader {geometry in
-                Rectangle().fill(.clear).contentShape(Rectangle()).onContinuousHover {phase in
-                    switch phase {
-                    case .active(let location):inspect(location,proxy:proxy,geometry:geometry)
-                    case .ended:hovered=nil
-                    }
-                }
-                .gesture(DragGesture(minimumDistance:0).onChanged {value in inspect(value.location,proxy:proxy,geometry:geometry)})
-            }}.frame(height:expanded ? 250:160).padding(.top,8)
-            .appOverlay {if points.isEmpty {Text(L("当前来源暂无温度读数")).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}}
-            .accessibilityLabel(L("按运行模式分色的温度时间线"))
-    }
-    @available(macOS 13,*) func inspect(_ location:CGPoint,proxy:ChartProxy,geometry:GeometryProxy) {
-        let plot=geometry[proxy.plotAreaFrame],x=location.x-plot.minX
-        guard plot.contains(location),let date:Date=proxy.value(atX:x),let nearest=full.min(by:{abs($0.date.timeIntervalSince(date))<abs($1.date.timeIntervalSince(date))}),abs(nearest.date.timeIntervalSince(date))<=15 else {hovered=nil;return}
-        if hovered?.id != nearest.id {hovered=nearest}
-    }
+
+
     func togglePause() {if frozen != nil {resume()} else {frozen=timeline.fullPoints;frozenEnd=timeline.end;hovered=nil}}
     func resume() {frozen=nil;frozenEnd=nil;hovered=nil}
     func summary(_ title:String,_ value:Double?,_ unit:String)->some View {

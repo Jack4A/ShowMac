@@ -82,7 +82,9 @@ import WidgetUI
         window.titleVisibility = .hidden
         window.subtitle=""
         window.appearance=nil
-        window.backgroundColor = .windowBackgroundColor
+        window.backgroundColor = Palette.windowBackground
+        window.isOpaque=true
+        window.acceptsMouseMovedEvents=true
         window.titlebarAppearsTransparent=true
         window.toolbarStyle = .unified
         window.minSize=NSSize(width:900,height:740)
@@ -285,6 +287,7 @@ import WidgetUI
 @main struct Entry {
     @MainActor static func main() {
         let args=CommandLine.arguments
+        if args.contains("--appearance-ui-check") {CompatibilityUICheck.run(classic:false);return}
         if args.contains("--compatibility-ui-check") {CompatibilityUICheck.run();return}
         if args.contains("--status-cards-check") {StatusCardsCheck.run();return}
         if args.contains("--curve-warning-check") {CurveWarningCheck.run();return}

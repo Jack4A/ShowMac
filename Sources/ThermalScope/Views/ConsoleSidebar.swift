@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// A roomy native source list with a fixed utility destination and a glass selection.
+/// A native source list with stable app-owned surfaces on every supported OS.
 struct ConsoleSidebar:View {
     @ObservedObject var model:AppModel
     @ObservedObject var navigation:DiagnosticNavigation
@@ -10,13 +10,14 @@ struct ConsoleSidebar:View {
     var body:some View {
         SidebarNavigationTable(items:items,selection:selection,dark:scheme == .dark)
             .accessibilityLabel(L("主导航"))
-            .modifier(ConsoleToolbarPresentation())
             .padding(.bottom,12)
-            .frame(minWidth:210,idealWidth:220,maxWidth:280)
-            .appBackground {
-                if scheme == .light {
-                    LinearGradient(gradient:Gradient(colors:[Palette.sidebarTop,Palette.sidebarBottom]),startPoint:.topLeading,endPoint:.bottomTrailing).ignoresSafeArea()
-                }
+            .frame(minWidth:210,idealWidth:220,maxWidth:280,maxHeight:.infinity)
+            .appBackground {ConsoleSidebarBackdrop().ignoresSafeArea()}
+            .appOverlay {
+                RoundedRectangle(cornerRadius:8,style:.continuous)
+                    .stroke(Palette.sidebarEdge,lineWidth:0.75)
+                    .padding(.horizontal,8).padding(.bottom,4)
+                    .allowsHitTesting(false).accessibilityHidden(true)
             }
     }
     private var items:[SidebarNavigationTable.Item] {

@@ -35,7 +35,7 @@ struct MetricSparkline:View {
     var body:some View {
         let points=history.points(kind,minutes:2),end=history.end,upper=max(kind.fixedUpper,points.compactMap(\.value).max() ?? 0)
         let runs=MetricWarningBands.runs(points,kind:kind,enabled:warningsEnabled)
-        CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs,filled:true),xRange:end.addingTimeInterval(-120).timeIntervalSince1970...end.timeIntervalSince1970,yRange:0...upper)
+        MetricPlotView(series:MetricPlotView.metricSeries(runs,filled:true),xRange:end.addingTimeInterval(-120).timeIntervalSince1970...end.timeIntervalSince1970,yRange:0...upper)
             .frame(height:32).accessibilityHidden(true)
     }
 }

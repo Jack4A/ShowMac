@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import ThermalCore
 
 /// Popover contents are independent of the narrow components in the menu bar.
@@ -194,27 +193,9 @@ struct StatusMetricCard:View {
         }
     }
     @ViewBuilder private var graph:some View {
-        if #available(macOS 13,*),!PlatformUI.classic {modernGraph}
-        else {
-            CompatibilityPlot(series:CompatibilityPlot.metricSeries(runs,filled:true),xRange:end.addingTimeInterval(-Double(model.statusMinutes*60)).timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale)
-                .allowsHitTesting(false).accessibilityHidden(true)
-        }
-    }
-    @available(macOS 13,*) private var modernGraph:some View {
-        let endpoint=full.last(where:{$0.value != nil})?.id
-        return Chart {
-            ForEach(runs) {run in ForEach(run.points) {point in
-                AreaMark(x:.value(L("时间"),point.date),yStart:.value("",0),yEnd:.value("",point.value!),series:.value("", "\(run.id):\(point.segment)"))
-                    .foregroundStyle(LinearGradient(gradient:Gradient(colors:[run.level.plotColor().opacity(0.10),.clear]),startPoint:.top,endPoint:.bottom))
-                LineMark(x:.value(L("时间"),point.date),y:.value("",point.value!),series:.value("", "\(run.id):\(point.segment)"))
-                    .foregroundStyle(run.level.plotColor()).lineStyle(StrokeStyle(lineWidth:1.7,lineCap:.round,lineJoin:.round))
-                if run.points.count==1 || point.id==endpoint {
-                    PointMark(x:.value(L("时间"),point.date),y:.value("",point.value!)).foregroundStyle(run.level.plotColor()).symbolSize(8)
-                }
-            }}
-        }.chartXScale(domain:end.addingTimeInterval(-Double(model.statusMinutes*60))...end).chartYScale(domain:scale)
-            .chartXAxis(.hidden).chartYAxis(.hidden).chartLegend(.hidden)
-            .appOverlay(alignment:.leading) {if !full.contains(where:{$0.value != nil}) {Text(L(source.value(readings)==nil ? "暂无读数":"正在积累趋势…")).font(.system(size:10)).foregroundStyle(.tertiary)}}
+        MetricPlotView(series:MetricPlotView.metricSeries(runs,filled:true),xRange:end.addingTimeInterval(-Double(model.statusMinutes*60)).timeIntervalSince1970...end.timeIntervalSince1970,yRange:scale)
             .allowsHitTesting(false).accessibilityHidden(true)
+
     }
+
 }

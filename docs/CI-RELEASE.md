@@ -8,6 +8,8 @@
 
 构建使用 GitHub 的 `macos-26` 托管 runner，明确选择 Xcode 26.6 / macOS 26.5 SDK，并以 macOS 11 为部署目标。Xcode 27 / SwiftPM 会将最低目标抬高到 macOS 12，因此不能用于此发布构建。ARM64 执行原生隔离检查，Intel 为交叉编译包；清单明确记录运行时验证范围。官方 Actions 均固定到完整提交 SHA。
 
+同一份已检查的应用还会分别在 macOS 26 与 macOS 27 上打开真实标题栏窗口，渲染 14 个浅、深色场景并保存 PNG。比较任务核对侧栏宽高、起点、底部设置位置以及侧栏和选中态的实际颜色；缺少测量或出现偏移都会阻止版本发布。主体背景和图表共用 macOS 11+ 实现，标准控件继续由系统提供。
+
 ## 发布新版本
 
 1. 修改 `Resources/Info.plist` 的版本及递增 build，同步两份 README、两份安装说明，并添加 `docs/releases/vX.Y.Z.md`。
@@ -15,8 +17,8 @@
 3. 创建并推送匹配的版本标签，例如：
 
    ```sh
-   git tag -a v1.17.1 -m "ThermalScope v1.17.1"
-   git push origin v1.17.1
+   git tag -a v1.17.2 -m "ThermalScope v1.17.2"
+   git push origin v1.17.2
    ```
 
 4. 标签工作流重新检查、构建两种架构，校验源码提交、主应用/辅助程序/小组件的实际 Mach-O 最低版本 11.0、主应用/小组件的 Info.plist、架构、签名、ZIP 解压和 SHA-256。新框架必须弱链接，Swift 并发运行库必须随包提供并具有可移植搜索路径，构建机工具链路径不会进入安装包。
@@ -37,7 +39,7 @@ THERMALSCOPE_ARCH=x86_64 bash scripts/package-release.sh build/releases/local-in
 
 ```sh
 python3 scripts/verify-release-assets.py build/releases/pair \
-  --version 1.17.1 --commit "$(git rev-parse HEAD)"
+  --version 1.17.2 --commit "$(git rev-parse HEAD)"
 ```
 
 ## Signing and validation scope
@@ -46,6 +48,6 @@ Current packages use ad-hoc signing without Apple notarization; no Developer ID 
 
 Pushes and pull requests build artifacts only. A matching version tag publishes the two verified architecture packages after all checks pass. Published assets are never overwritten by reruns.
 
-The checks also render fourteen light/dark layouts using the macOS 11/12 compatibility paths on the current runner. This is not old-OS runtime certification; physical-device macOS 11/12 validation remains pending.
+The checks also render fourteen light/dark layouts using the macOS 11/12 control paths on the current runner. A separate matrix renders the exact same checked binary in titled windows on macOS 26 and 27, uploads PNGs and measurements, and blocks publication if sidebar geometry or measured colors drift. This is not old-OS runtime certification; physical-device macOS 11/12 validation remains pending.
 
 Runner references: [macOS 26 software](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md), [Apple deployment targets](https://developer.apple.com/xcode/system-requirements).

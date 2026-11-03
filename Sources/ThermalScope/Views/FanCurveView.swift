@@ -1,5 +1,4 @@
 import SwiftUI
-import Charts
 import ThermalCore
 
 struct FanCurveEditor:View {
@@ -39,28 +38,26 @@ struct FanCurveEditor:View {
         }.subtlePanel()
     }
     @ViewBuilder var curveChart:some View {
-        if #available(macOS 13,*),!PlatformUI.classic {modernCurveChart}
-        else {
-            CompatibilityPlot(series:[.init(id:"fan",points:curve.points.map{.init(x:$0.temperature,y:rpm($0.percent))},color:Palette.violet.opacity(automatic ? 0.5:1),markers:true)],xRange:30...100,yRange:minimum...(maximum+(maximum-minimum)*0.12),rules:sample.flatMap{curve.sensor.temperature(in:$0)}.map{[.init(id:"current",x:$0)]} ?? [],axes:true,xLabel:{String(format:"%.0f°C",$0)},onDrag:{location,coordinates in
-                guard !busy,available else{return}
-                if dragging==nil {
-                    let distances=curve.points.enumerated().map {index,point in
-                        let p=coordinates.position(x:point.temperature,y:rpm(point.percent))
-                        return (index,hypot(location.x-p.x,location.y-p.y))
-                    }
-                    if let nearest=distances.min(by:{$0.1<$1.1}),nearest.1<32 {dragging=nearest.0;selectedPoint=nearest.0;original=curve}
+        MetricPlotView(series:[.init(id:"fan",points:curve.points.map{.init(x:$0.temperature,y:rpm($0.percent))},color:Palette.violet.opacity(automatic ? 0.5:1),markers:true)],xRange:30...100,yRange:minimum...(maximum+(maximum-minimum)*0.12),rules:sample.flatMap{curve.sensor.temperature(in:$0)}.map{[.init(id:"current",x:$0)]} ?? [],axes:true,xTicks:[30,40,50,60,70,80,90,100],xLabel:{String(format:"%.0f°C",$0)},onDrag:{location,coordinates in
+            guard !busy,available else{return}
+            if dragging==nil {
+                let distances=curve.points.enumerated().map {index,point in
+                    let p=coordinates.position(x:point.temperature,y:rpm(point.percent))
+                    return (index,hypot(location.x-p.x,location.y-p.y))
                 }
-                if let index=dragging,let value=coordinates.value(at:location,clamped:true) {
-                    setPoint(index,temperature:value.x,percent:CurvePolicy.percent(rpm:value.y,minimum:minimum,maximum:maximum))
-                }
-            },onDragEnd:{
-                let changed=original.map{$0 != curve} ?? false
-                dragging=nil;original=nil
-                if changed {onApply()}
-            }).focusable().onMoveCommand(perform:moveSelectedPoint)
-                .accessibilityLabel(L("可拖动的温度风扇转速曲线"))
-                .help(L("拖动控制点调节温度和转速；方向键微调选中点。"))
-        }
+                if let nearest=distances.min(by:{$0.1<$1.1}),nearest.1<32 {dragging=nearest.0;selectedPoint=nearest.0;original=curve}
+            }
+            if let index=dragging,let value=coordinates.value(at:location,clamped:true) {
+                setPoint(index,temperature:value.x,percent:CurvePolicy.percent(rpm:value.y,minimum:minimum,maximum:maximum))
+            }
+        },onDragEnd:{
+            let changed=original.map{$0 != curve} ?? false
+            dragging=nil;original=nil
+            if changed {onApply()}
+        },onNudge:moveSelectedPoint).focusable().onMoveCommand(perform:moveSelectedPoint)
+            .accessibilityLabel(L("可拖动的温度风扇转速曲线"))
+            .help(L("拖动控制点调节温度和转速；方向键微调选中点。"))
+
     }
     private func moveSelectedPoint(_ direction:MoveCommandDirection) {
         guard !busy,available,curve.points.indices.contains(selectedPoint) else{return}
@@ -74,64 +71,7 @@ struct FanCurveEditor:View {
         }
         onApply()
     }
-    @available(macOS 13,*) private var modernCurveChart:some View {
-        Chart {
-            ForEach(Array(curve.points.enumerated()),id:\.offset) {index,point in
-                LineMark(x:.value(L("温度"),point.temperature),y:.value("RPM",rpm(point.percent)))
-                    .foregroundStyle(Palette.violet.opacity(automatic ? 0.4:1)).lineStyle(StrokeStyle(lineWidth:2.5,lineCap:.round)).interpolationMethod(.linear)
-                PointMark(x:.value(L("温度"),point.temperature),y:.value("RPM",rpm(point.percent)))
-                    .foregroundStyle(Palette.violet.opacity(automatic ? 0.6:1)).symbolSize(dragging==index ? 120:70)
-                    .annotation(position:.top) {if dragging==index {Text(String(format:"%.0f°C · %.0f RPM",point.temperature,rpm(point.percent))).font(.system(size:12)).foregroundStyle(Palette.secondaryText)}}
-            }
-            if let sample,let temperature=curve.sensor.temperature(in:sample) {
-                RuleMark(x:.value(L("当前温度"),temperature)).foregroundStyle(.primary.opacity(0.2)).lineStyle(StrokeStyle(lineWidth:1,dash:[4,4]))
-            }
-        }.chartXScale(domain:30...100).chartYScale(domain:minimum...(maximum+(maximum-minimum)*0.12))
-            .chartXAxis {AxisMarks(values:[30,40,50,60,70,80,90,100]) {value in
-                AxisGridLine().foregroundStyle(.primary.opacity(0.06))
-                AxisValueLabel {if let number=value.as(Int.self) {Text("\(number)°C").foregroundStyle(Palette.secondaryText)}}
-            }}
-            .chartYAxis {AxisMarks(position:.leading,values:.automatic(desiredCount:4)) {value in
-                AxisGridLine(stroke:StrokeStyle(lineWidth:0.5,dash:[3,4])).foregroundStyle(.primary.opacity(0.1))
-                AxisValueLabel().foregroundStyle(Palette.secondaryText)
-            }}
-            .chartOverlay {proxy in GeometryReader {geometry in
-                Rectangle().fill(.clear).contentShape(Rectangle())
-                    .gesture(DragGesture(minimumDistance:0).onChanged {value in
-                        guard !busy,available else{return}
-                        let frame=geometry[proxy.plotAreaFrame]
-                        let location=CGPoint(x:value.location.x-frame.minX,y:value.location.y-frame.minY)
-                        if dragging==nil {
-                            let distances=curve.points.enumerated().compactMap {index,point -> (Int,Double)? in
-                                guard let x=proxy.position(forX:point.temperature),let y=proxy.position(forY:rpm(point.percent)) else{return nil}
-                                return (index,hypot(location.x-x,location.y-y))
-                            }
-                            if let nearest=distances.min(by:{$0.1<$1.1}),nearest.1<32 {dragging=nearest.0;selectedPoint=nearest.0;original=curve}
-                        }
-                        if let index=dragging,let temperature:Double=proxy.value(atX:location.x),let target:Double=proxy.value(atY:location.y) {
-                            setPoint(index,temperature:temperature,percent:CurvePolicy.percent(rpm:target,minimum:minimum,maximum:maximum))
-                        }
-                    }.onEnded {_ in
-                        let changed=original.map{$0 != curve} ?? false
-                        dragging=nil;original=nil
-                        if changed {onApply()}
-                    })
-            }}
-            .focusable().onMoveCommand {direction in
-                guard !busy,available,curve.points.indices.contains(selectedPoint) else{return}
-                let point=curve.points[selectedPoint]
-                switch direction {
-                case .left:setPoint(selectedPoint,temperature:point.temperature-2,percent:point.percent)
-                case .right:setPoint(selectedPoint,temperature:point.temperature+2,percent:point.percent)
-                case .up:setPoint(selectedPoint,temperature:point.temperature,percent:point.percent+5)
-                case .down:setPoint(selectedPoint,temperature:point.temperature,percent:point.percent-5)
-                @unknown default:return
-                }
-                onApply()
-            }
-            .accessibilityLabel(L("可拖动的温度风扇转速曲线"))
-            .help(L("拖动控制点调节温度和转速；方向键微调选中点。"))
-    }
+
     func setPoint(_ index:Int,temperature:Double,percent:Double) {
         guard curve.points.indices.contains(index),temperature.isFinite,percent.isFinite else{return}
         let points=curve.points,last=index==points.count-1

@@ -4,7 +4,7 @@
 
 <img src="Resources/AppIcon.png" width="96" alt="温控台应用图标">
 
-macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 Apple Silicon 风扇控制版。当前应用版本为 **1.17.1 / build 262**，在 1.17.0 的 UI 与功能基础上增加 macOS 11/12 兼容。
+macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 Apple Silicon 风扇控制版。当前应用版本为 **1.17.2 / build 263**，支持 macOS 11+，统一各版本的主体界面样式。
 
 ## 功能
 
@@ -19,7 +19,7 @@ macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 
 - 菜单栏弹窗支持 1–8 张指标卡片，可在弹窗或“设置 → 弹窗卡片”中添加、排序和删除；风扇控制与 CPU 占用排行可独立显示，配置自动保存。
 - 固定随机种子的模拟压测、性能预算、原始采样和基线回归比较。
 
-当前源码的 ARM 版提供预设散热档位、可拖动风扇曲线和 5 秒风扇测试，首次控制需要管理员授权；Intel 睿频与电源设置控制仍禁用。实现与验证范围见 [Apple Silicon 风扇说明](docs/APPLE_SILICON_FANS.txt)。`v1.17.1` 的 ARM 安装包已包含这些改动；旧 `v1.16.0` ARM 附件仍保留为原监测版。状态面板以两列紧凑卡片显示数值与近期趋势，单数最后一张铺满一行；共用时间范围和更新时间，并按既有阈值显示警告颜色。下方可直接选择风扇档位，点击指标进入详情。历史不足及缺失读数会显示说明。设置页分别管理顶部菜单栏组件和弹窗卡片，字体与外观选项按需展开。
+当前源码的 ARM 版提供预设散热档位、可拖动风扇曲线和 5 秒风扇测试，首次控制需要管理员授权；Intel 睿频与电源设置控制仍禁用。实现与验证范围见 [Apple Silicon 风扇说明](docs/APPLE_SILICON_FANS.txt)。`v1.17.2` 的 ARM 安装包已包含这些改动；旧 `v1.16.0` ARM 附件仍保留为原监测版。状态面板以两列紧凑卡片显示数值与近期趋势，单数最后一张铺满一行；共用时间范围和更新时间，并按既有阈值显示警告颜色。下方可直接选择风扇档位，点击指标进入详情。历史不足及缺失读数会显示说明。设置页分别管理顶部菜单栏组件和弹窗卡片，字体与外观选项按需展开。
 
 ## 截图
 
@@ -50,7 +50,7 @@ macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 
 ### 下载应用包（无需编译）
 
 1. 登录有此私有仓库访问权限的 GitHub 账号，打开 [Releases](https://github.com/Jackkakaya/ThermalScope/releases)。
-2. 按芯片选择 `v1.17.1` 的 **`ThermalScope-1.17.1-macOS-x86_64.zip`**（Intel）或 **`ThermalScope-1.17.1-macOS-arm64.zip`**（Apple Silicon 实验版），解压后将 `ThermalScope.app` 拖到“应用程序”。
+2. 按芯片选择 `v1.17.2` 的 **`ThermalScope-1.17.2-macOS-x86_64.zip`**（Intel）或 **`ThermalScope-1.17.2-macOS-arm64.zip`**（Apple Silicon 实验版），解压后将 `ThermalScope.app` 拖到“应用程序”。
 3. 打开应用，点击顶部状态栏图标开始使用。预编译应用不需要安装 Xcode、Swift 或 Python。
 4. 在“设置 → 语言”切换简体中文或 English。应用还支持繁体中文、日语、韩语、德语、法语和西班牙语；本轮部分新增文案在非中文语种下回退英文。
 
@@ -58,7 +58,7 @@ macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 
 
 Release 为每个架构提供独立的双语安装指南、构建清单和校验值。Intel 版为 `INSTALL.txt`、`release-manifest.json`、`SHA256SUMS.txt`；ARM 版为 `INSTALL-arm64.txt`、`release-manifest-arm64.json`、`SHA256SUMS-arm64.txt`。下载所选架构的四个附件后，运行 `shasum -a 256 -c SHA256SUMS.txt`（Intel）或 `shasum -a 256 -c SHA256SUMS-arm64.txt`（ARM）。
 
-macOS 11/12 使用兼容的趋势图和可拖动风扇曲线，新系统继续使用 Swift Charts 和可用的原生玻璃效果。小组件支持 macOS 11+ 通知中心、macOS 14+ 桌面。API 编译、部署目标、归档及当前主机上的兼容界面渲染已纳入检查；macOS 11/12 真机运行验证仍待完成。
+macOS 11+ 使用同一套侧栏、主题、圆角和图表绘制，保留真实趋势、警告色、读数查询与可拖动风扇曲线。侧栏默认统一为 220 pt，选中项使用固定主题颜色，不随系统玻璃或桌面背景改变。CI 使用同一个安装包在 macOS 26、27 上渲染 14 个浅深色场景，并比较侧栏尺寸、位置和实际像素颜色。小组件支持 macOS 11+ 通知中心、macOS 14+ 桌面；macOS 11/12 真机运行验证仍待完成。
 
 ### 从源码构建
 
@@ -126,13 +126,13 @@ bash scripts/build.sh "$PWD/build/ThermalScope.app"
 需要生成新的应用 ZIP、清单、双语安装说明与校验值时：
 
 ```sh
-bash scripts/package-release.sh "$PWD/build/releases/v1.17.1"
+bash scripts/package-release.sh "$PWD/build/releases/v1.17.2"
 ```
 
 目标目录必须不存在；脚本要求 Git 工作区干净，并验证 ZIP 解压后的签名与执行权限。交叉编译 ARM 包：
 
 ```sh
-THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh "$PWD/build/releases/v1.17.1-arm64"
+THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh "$PWD/build/releases/v1.17.2-arm64"
 ```
 
 主程序、辅助程序和小组件统一为 arm64；跨架构时不运行目标二进制，清单明确标记运行时检查未执行。两种架构共用同一个版本标签，独立清单记录相同源码提交与各自的验证范围；历史发布标签和附件保持原样。

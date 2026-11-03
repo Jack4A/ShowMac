@@ -52,7 +52,7 @@ struct MenuCompositionCanvas:View {
                     .help(L("拖到这里移除"))
             }
             Text(L("拖动添加或排序，点按编辑。")).font(AppTypography.caption).foregroundColor(.secondary)
-        }.modifier(MenuGlassGrouping()).subtlePanel(padding:18)
+        }.subtlePanel(padding:18)
     }
     private func provider(_ token:String)->NSItemProvider {
         NSItemProvider(object:token as NSString)
@@ -111,25 +111,15 @@ struct MenuCompositionCanvas:View {
     }
 }
 
-private struct MenuGlassGrouping:ViewModifier {
-    @ViewBuilder func body(content:Content)->some View {
-        if #available(macOS 26,*),!PlatformUI.classic {GlassEffectContainer(spacing:0) {content}}
-        else {content}
-    }
-}
-
 private struct MenuActionSurface:ViewModifier {
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorSchemeContrast) private var contrast
     let fallbackOpacity:Double
-    @ViewBuilder func body(content:Content)->some View {
-        if #available(macOS 26,*),!PlatformUI.classic,!reduceTransparency,contrast != .increased {
-            content.glassEffect(.regular.interactive(),in:RoundedRectangle(cornerRadius:8,style:.continuous))
-        } else if reduceTransparency || contrast == .increased {
-            content.appBackground(Palette.surface,in:RoundedRectangle(cornerRadius:6))
-                .appOverlay {RoundedRectangle(cornerRadius:6).stroke(Color.primary.opacity(contrast == .increased ? 0.4:0.15),lineWidth:0.75).allowsHitTesting(false)}
-        } else {
-            content.appBackground(.primary.opacity(fallbackOpacity),in:RoundedRectangle(cornerRadius:6))
-        }
+    func body(content:Content)->some View {
+        content.appBackground(Palette.primaryText.opacity(fallbackOpacity),in:RoundedRectangle(cornerRadius:8,style:.continuous))
+            .appOverlay {
+                RoundedRectangle(cornerRadius:8,style:.continuous)
+                    .stroke(Palette.sidebarEdge.opacity(contrast == .increased ? 1:0.35),lineWidth:contrast == .increased ? 1:0.5)
+                    .allowsHitTesting(false)
+            }
     }
 }

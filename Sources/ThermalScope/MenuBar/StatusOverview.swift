@@ -68,14 +68,8 @@ struct StatusOverview:View {
             }
             Divider().opacity(0.6)
             footer.padding(.top,8)
-        }.font(AppTypography.body).padding(.horizontal,16).padding(.vertical,12).frame(width:390,height:panelHeight)
-            .appBackground {
-                if reduceTransparency {Palette.canvas}
-                else {
-                    AppPopoverMaterial()
-                        .overlay(Palette.canvas.opacity(scheme == .dark ? 0.92:0.96))
-                }
-            }
+        }.foregroundColor(Palette.primaryText).font(AppTypography.body).padding(.horizontal,16).padding(.vertical,12).frame(width:390,height:panelHeight)
+            .appBackground {Palette.canvas}
             .id(model.language).environment(\.locale,Locale(identifier:AppLocalization.shared.resolvedLanguage)).preferredColorScheme(model.colorScheme)
             .transaction{$0.animation=nil;$0.disablesAnimations=true}
             .onAppear{onResize(panelHeight)}.onChange(of:panelHeight){onResize($0)}
