@@ -17,8 +17,8 @@
 3. 创建并推送匹配的版本标签，例如：
 
    ```sh
-   git tag -a v1.17.3 -m "ThermalScope v1.17.3"
-   git push origin v1.17.3
+   git tag -a v1.17.4 -m "ThermalScope v1.17.4"
+   git push origin v1.17.4
    ```
 
 4. 标签工作流重新检查、构建两种架构，校验源码提交、主应用/辅助程序/小组件的实际 Mach-O 最低版本 11.0、主应用/小组件的 Info.plist、架构、签名、ZIP 解压和 SHA-256。新框架必须弱链接，Swift 并发运行库必须随包提供并具有可移植搜索路径，构建机工具链路径不会进入安装包。
@@ -39,7 +39,7 @@ THERMALSCOPE_ARCH=x86_64 bash scripts/package-release.sh build/releases/local-in
 
 ```sh
 python3 scripts/verify-release-assets.py build/releases/pair \
-  --version 1.17.3 --commit "$(git rev-parse HEAD)"
+  --version 1.17.4 --commit "$(git rev-parse HEAD)"
 ```
 
 ## Signing and validation scope

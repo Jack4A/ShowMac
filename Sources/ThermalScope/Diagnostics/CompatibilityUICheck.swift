@@ -60,6 +60,7 @@ import ThermalCore
         let settingsTop:Double?
         let selectedColor:[Int]?
         let sidebarColor:[Int]?
+        let contentTopColor:[Int]?
     }
     private static func descendants(_ root:NSView)->[NSView] {root.subviews.flatMap{[$0]+descendants($0)}}
     private static func render<V:View>(_ content:V,name:String,size:CGSize)throws->RenderEvidence {
@@ -84,7 +85,7 @@ import ThermalCore
             try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true)
             try data.write(to:directory.appendingPathComponent(name+".png"))
         }
-        var sidebarWidth:Double?,sidebarHeight:Double?,sidebarTop:Double?,settingsTop:Double?,selected:[Int]?,background:[Int]?
+        var sidebarWidth:Double?,sidebarHeight:Double?,sidebarTop:Double?,settingsTop:Double?,selected:[Int]?,background:[Int]?,contentTop:[Int]?
         if let sidebar=descendants(host).compactMap({$0 as? SidebarScrollView}).first,let table=sidebar.documentView as? NSTableView,let row=table.rowView(atRow:table.selectedRow,makeIfNecessary:true) {
             sidebarWidth=sidebar.bounds.width
             sidebarHeight=sidebar.bounds.height
@@ -98,14 +99,17 @@ import ThermalCore
             }
             selected=color(row.convert(CGPoint(x:row.bounds.maxX-24,y:row.bounds.midY),to:host))
             background=color(sidebar.convert(CGPoint(x:sidebar.bounds.maxX-5,y:sidebar.bounds.height*0.4),to:host))
+            contentTop=color(CGPoint(x:sidebar.bounds.width+28,y:host.isFlipped ? 6:size.height-6))
             let expected=name.hasPrefix("dark") ? [76,69,80,255]:[255,255,255,255]
             guard let selected,zip(selected,expected).allSatisfy({abs($0-$1)<=3}) else {throw ScopeError.message("Selection color drift: "+name+" "+String(describing:selected))}
+            let expectedTop=name.hasPrefix("dark") ? [35,33,44,255]:[244,245,247,255]
+            guard let contentTop,zip(contentTop,expectedTop).allSatisfy({abs($0-$1)<=3}) else {throw ScopeError.message("Content background does not reach titlebar: "+name+" "+String(describing:contentTop))}
             guard abs(sidebar.bounds.width-220)<=1 else {
                 throw ScopeError.message("Sidebar width drift: "+name+" \(sidebar.bounds.width)")
             }
         }
         if !name.hasSuffix("popover"),sidebarWidth==nil {throw ScopeError.message("Missing sidebar measurement: "+name)}
         window.contentViewController=nil
-        return RenderEvidence(width:size.width,height:size.height,sidebarWidth:sidebarWidth,sidebarHeight:sidebarHeight,sidebarTop:sidebarTop,settingsTop:settingsTop,selectedColor:selected,sidebarColor:background)
+        return RenderEvidence(width:size.width,height:size.height,sidebarWidth:sidebarWidth,sidebarHeight:sidebarHeight,sidebarTop:sidebarTop,settingsTop:settingsTop,selectedColor:selected,sidebarColor:background,contentTopColor:contentTop)
     }
 }

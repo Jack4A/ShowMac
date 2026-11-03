@@ -25,6 +25,7 @@ class AppearanceComparisonTests(unittest.TestCase):
                     "sidebarHeight": None if popup else 748, "sidebarTop": None if popup else 0, "settingsTop": None if popup else 696,
                     "selectedColor": None if popup else ([76, 69, 80, 255] if theme == "dark" else [255] * 4),
                     "sidebarColor": None if popup else [29, 29, 37, 255],
+                    "contentTopColor": None if popup else ([35, 33, 44, 255] if theme == "dark" else [244,245,247,255]),
                 }
         for version in ["26", "27"]:
             folder = self.root / version
@@ -46,6 +47,11 @@ class AppearanceComparisonTests(unittest.TestCase):
     def test_default_column_width_drift_fails(self):
         self.change("light-metrics", "sidebarWidth", 280)
         with self.assertRaisesRegex(ValueError, "Layout drift"):
+            appearance.compare(self.root)
+
+    def test_content_titlebar_background_drift_fails(self):
+        self.change("dark-metrics", "contentTopColor", [48, 44, 49, 255])
+        with self.assertRaisesRegex(ValueError, "Color drift"):
             appearance.compare(self.root)
 
     def test_missing_measurement_cannot_pass(self):

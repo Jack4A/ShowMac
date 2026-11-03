@@ -4,7 +4,7 @@
 
 <img src="Resources/AppIcon.png" width="96" alt="温控台应用图标">
 
-macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 Apple Silicon 风扇控制版。当前应用版本为 **1.17.3 / build 264**，支持 macOS 11+，统一各版本的主体界面样式。
+macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 Apple Silicon 风扇控制版。当前应用版本为 **1.17.4 / build 265**，支持 macOS 11+，统一各版本的主体界面样式。
 
 ## 功能
 
@@ -19,7 +19,7 @@ macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 
 - 菜单栏弹窗支持 1–8 张指标卡片，可在弹窗或“设置 → 弹窗卡片”中添加、排序和删除；风扇控制与 CPU 占用排行可独立显示，配置自动保存。
 - 固定随机种子的模拟压测、性能预算、原始采样和基线回归比较。
 
-当前源码的 ARM 版提供预设散热档位、可拖动风扇曲线和 5 秒风扇测试，首次控制需要管理员授权；Intel 睿频与电源设置控制仍禁用。实现与验证范围见 [Apple Silicon 风扇说明](docs/APPLE_SILICON_FANS.txt)。`v1.17.3` 的 ARM 安装包已包含这些改动；旧 `v1.16.0` ARM 附件仍保留为原监测版。状态面板以两列紧凑卡片显示数值与近期趋势，单数最后一张铺满一行；共用时间范围和更新时间，并按既有阈值显示警告颜色。下方可直接选择风扇档位，点击指标进入详情。历史不足及缺失读数会显示说明。设置页分别管理顶部菜单栏组件和弹窗卡片，字体与外观选项按需展开。
+当前源码的 ARM 版提供预设散热档位、可拖动风扇曲线和 5 秒风扇测试，首次控制需要管理员授权；Intel 睿频与电源设置控制仍禁用。实现与验证范围见 [Apple Silicon 风扇说明](docs/APPLE_SILICON_FANS.txt)。`v1.17.4` 的 ARM 安装包已包含这些改动；旧 `v1.16.0` ARM 附件仍保留为原监测版。状态面板以两列紧凑卡片显示数值与近期趋势，单数最后一张铺满一行；共用时间范围和更新时间，并按既有阈值显示警告颜色。下方可直接选择风扇档位，点击指标进入详情。历史不足及缺失读数会显示说明。设置页分别管理顶部菜单栏组件和弹窗卡片，字体与外观选项按需展开。
 
 ## 截图
 
@@ -50,7 +50,7 @@ macOS 温度、CPU、风扇和性能诊断工具，提供 Intel 版与实验性 
 ### 下载应用包（无需编译）
 
 1. 登录有此私有仓库访问权限的 GitHub 账号，打开 [Releases](https://github.com/Jackkakaya/ThermalScope/releases)。
-2. 按芯片选择 `v1.17.3` 的 **`ThermalScope-1.17.3-macOS-x86_64.zip`**（Intel）或 **`ThermalScope-1.17.3-macOS-arm64.zip`**（Apple Silicon 实验版），解压后将 `ThermalScope.app` 拖到“应用程序”。
+2. 按芯片选择 `v1.17.4` 的 **`ThermalScope-1.17.4-macOS-x86_64.zip`**（Intel）或 **`ThermalScope-1.17.4-macOS-arm64.zip`**（Apple Silicon 实验版），解压后将 `ThermalScope.app` 拖到“应用程序”。
 3. 打开应用，点击顶部状态栏图标开始使用。预编译应用不需要安装 Xcode、Swift 或 Python。
 4. 在“设置 → 语言”切换简体中文或 English。应用还支持繁体中文、日语、韩语、德语、法语和西班牙语；本轮部分新增文案在非中文语种下回退英文。
 
@@ -126,13 +126,13 @@ bash scripts/build.sh "$PWD/build/ThermalScope.app"
 需要生成新的应用 ZIP、清单、双语安装说明与校验值时：
 
 ```sh
-bash scripts/package-release.sh "$PWD/build/releases/v1.17.3"
+bash scripts/package-release.sh "$PWD/build/releases/v1.17.4"
 ```
 
 目标目录必须不存在；脚本要求 Git 工作区干净，并验证 ZIP 解压后的签名与执行权限。交叉编译 ARM 包：
 
 ```sh
-THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh "$PWD/build/releases/v1.17.3-arm64"
+THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh "$PWD/build/releases/v1.17.4-arm64"
 ```
 
 主程序、辅助程序和小组件统一为 arm64；跨架构时不运行目标二进制，清单明确标记运行时检查未执行。两种架构共用同一个版本标签，独立清单记录相同源码提交与各自的验证范围；历史发布标签和附件保持原样。

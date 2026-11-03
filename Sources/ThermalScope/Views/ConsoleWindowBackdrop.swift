@@ -36,11 +36,13 @@ struct ConsoleDetailCorners:ViewModifier {
     func body(content:Content)->some View {
         content.appBackground {
             LinearGradient(gradient:Gradient(colors:[Palette.detailTop,Palette.canvas]),startPoint:.topLeading,endPoint:.bottomTrailing)
+                .clipShape(SidebarFacingShape())
+                .ignoresSafeArea(.container,edges:[.top,.bottom])
         }
-        .clipShape(SidebarFacingShape())
         .appOverlay {
             SidebarFacingShape().stroke(Palette.sidebarEdge.opacity(contrast == .increased ? 1:(scheme == .dark ? 0.7:0.5)),lineWidth:contrast == .increased ? 1:0.75)
                 .appMask(alignment:.leading) {Rectangle().frame(width:24)}
+                .ignoresSafeArea(.container,edges:[.top,.bottom])
                 .allowsHitTesting(false).accessibilityHidden(true)
         }
     }

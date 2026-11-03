@@ -22,7 +22,7 @@ def compare(root):
                 raise ValueError(f"Missing layout measurement: {name}/{field}")
             if x != y:
                 raise ValueError(f"Layout drift in {name}/{field}: {x} vs {y}")
-        for field in ["selectedColor", "sidebarColor"]:
+        for field in ["selectedColor", "sidebarColor", "contentTopColor"]:
             x,y=a.get(field),b.get(field)
             if x is None and y is None:
                 if not name.endswith("popover"):
