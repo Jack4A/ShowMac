@@ -40,6 +40,10 @@ jobs:
               assert os.environ['GITHUB_REF_NAME'] == 'v' + version, 'Tag must match Info.plist version'
               assert Path('docs/releases/v' + version + '.md').is_file(), 'Missing release notes'
           PYCODE
+      - name: Check sandbox payment boundary
+        run: |
+          node --check website/checkout.js
+          node --test website/tests/billing.test.mjs
       - name: Build and run fixture checks
         shell: bash
         env:
