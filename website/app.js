@@ -3,7 +3,18 @@
   const root=document.documentElement;
   const stored=key=>{try{return localStorage.getItem(key);}catch{return null;}};
   const save=(key,value)=>{try{localStorage.setItem(key,value);}catch{}};
-  let language=stored('showmac-language')==='zh'?'zh':'en';
+  const siteBase=new URL('.',document.currentScript.src);
+  const relativePath=location.pathname.slice(siteBase.pathname.length);
+  const explicitLanguage=/^(en|zh)(?:\/|$)/.exec(relativePath)?.[1];
+  let language=explicitLanguage || (stored('showmac-language')==='zh'?'zh':'en');
+  if(!explicitLanguage){
+    const manual=stored('showmac-language');
+    const fallback=navigator.language?.toLowerCase().startsWith('zh')?'zh':'en';
+    const route=value=>location.replace(new URL(value+'/'+relativePath+location.search+location.hash,siteBase));
+    if(manual==='en'||manual==='zh')route(manual);
+    else fetch(new URL('locale.json',siteBase),{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('locale');return r.json();}).then(data=>route(data.language==='zh'?'zh':'en')).catch(()=>route(fallback));
+    return;
+  }
   let theme=stored('showmac-theme')==='light'?'light':'dark';
   let screen='overview';
   let release=null;
@@ -14,11 +25,11 @@
     toastTimer=setTimeout(()=>target.classList.remove('visible'),3200);
   };
   function setLanguage(value){
-    language=value;root.lang=value==='zh'?'zh-CN':'en';save('showmac-language',value);
+    language=value;root.lang=value==='zh'?'zh-CN':'en';
     document.querySelectorAll('[data-en][data-zh]').forEach(el=>{el.innerHTML=el.dataset[value];});
     const toggle=document.querySelector('#language-toggle');
     if(toggle){toggle.textContent=value==='en'?'中文':'EN';toggle.setAttribute('aria-label',value==='en'?'切换到中文':'Switch to English');}
-    updateThemeLabel();
+    updateThemeLabel();setScreen(screen);
   }
   function updateThemeLabel(){
     const toggle=document.querySelector('#theme-toggle');
@@ -27,20 +38,25 @@
   function setTheme(value){theme=value;root.dataset.theme=value;save('showmac-theme',value);updateThemeLabel();setScreen(screen);}
   function setScreen(value){
     screen=value;
+    document.querySelectorAll('[data-product-image]').forEach(img=>{img.src=new URL('assets/'+language+'/'+img.dataset.productImage+'-'+theme+'.png',siteBase);img.alt=language==='zh'?'showmac 状态栏弹窗、指标卡片和风扇控制':'showmac menu bar panel with live cards and fan controls';});
     const image=document.querySelector('#product-screenshot');
     if(image){
       const files={overview:theme==='dark'?'overview-dark':'overview-light',thermal:'thermal-control',sensors:'sensors'};
-      const names={overview:'ShowMac live metrics with sampled temperature history',thermal:'ShowMac fan presets and editable temperature-to-RPM curve',sensors:'ShowMac sensor overview with readable names and recent trends'};
-      image.src='assets/'+files[value]+'.png';image.alt=names[value];
+      const names={overview:'showmac live metrics with sampled temperature history',thermal:'showmac fan presets and editable temperature-to-RPM curve',sensors:'showmac sensor overview with readable names and recent trends'};
+      image.src=new URL('assets/'+language+'/'+files[value]+'.png',siteBase);image.alt=language==='zh'?{overview:'showmac 实时监测、温度趋势和当前读数',thermal:'showmac 温度控制档位与风扇曲线',sensors:'showmac 传感器名称、读数与近期趋势'}[value]:names[value];
       document.querySelectorAll('[data-screen]').forEach(button=>{const active=button.dataset.screen===value;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
     }
   }
-  document.querySelector('#language-toggle')?.addEventListener('click',()=>setLanguage(language==='en'?'zh':'en'));
+  document.querySelector('#language-toggle')?.addEventListener('click',()=>{
+    const next=language==='en'?'zh':'en';save('showmac-language',next);
+    document.cookie='showmac_language='+next+'; Path='+siteBase.pathname+'; Max-Age=31536000; SameSite=Lax'+(location.protocol==='https:'?'; Secure':'');
+    location.assign(new URL(relativePath.replace(/^(en|zh)/,next)+location.search+location.hash,siteBase));
+  });
   document.querySelector('#theme-toggle')?.addEventListener('click',()=>setTheme(theme==='dark'?'light':'dark'));
   document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>setScreen(button.dataset.screen)));
   setLanguage(language);setTheme(theme);
   if(document.querySelector('#download-cards')){
-    fetch('release.json').then(response=>{if(!response.ok)throw Error('metadata');return response.json();}).then(data=>{
+    fetch(new URL('release.json',siteBase)).then(response=>{if(!response.ok)throw Error('metadata');return response.json();}).then(data=>{
       release=data;
       Object.entries(data.builds).forEach(([arch,build])=>{
         const label=document.querySelector(`[data-arch-size="${arch}"]`);
