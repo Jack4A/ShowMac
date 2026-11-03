@@ -18,7 +18,10 @@ struct SidebarNavigationTable:NSViewRepresentable {
     func makeNSView(context:Context)->SidebarScrollView {
         let scroll=SidebarScrollView(),table=NSTableView()
         scroll.drawsBackground=false;scroll.borderType = .noBorder
-        scroll.hasVerticalScroller=true;scroll.scrollerStyle = .overlay
+        // No scroller at all: overlay scrollers follow the system scroll-bar preference and
+        // stay visible whenever a traditional mouse (or USB receiver) is attached. Scrolling
+        // still works without scroller UI.
+        scroll.hasVerticalScroller=false
         scroll.horizontalScrollElasticity = .none;scroll.verticalScrollElasticity = .none
         let column=NSTableColumn(identifier:NSUserInterfaceItemIdentifier("destination"))
         column.resizingMask = .autoresizingMask

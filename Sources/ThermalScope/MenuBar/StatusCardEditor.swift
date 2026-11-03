@@ -41,7 +41,7 @@ struct StatusCardEditor:View {
                     Spacer()
                     count
                 }
-                ScrollView {
+                ScrollView(showsIndicators:false) {
                     cardRows
                     addButton.padding(.top,10)
                         .frame(maxWidth:.infinity,alignment:.leading)
@@ -107,7 +107,7 @@ struct StatusCardEditor:View {
                     }
                 }
                 if metrics.isEmpty && common.isEmpty && hardware.isEmpty {Text(L("没有匹配的传感器")).foregroundStyle(.secondary)}
-            }.listStyle(.inset)
+            }.listStyle(.inset).scrollIndicators(.hidden)
         }
     }
     private func matches(_ option:MenuSensorOption)->Bool {

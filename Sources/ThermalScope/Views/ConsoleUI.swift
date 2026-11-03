@@ -30,7 +30,7 @@ struct ConsoleShell:View {
                     SensorInventoryPage(model:model,readings:model.readings,history:model.sensorHistory).padding(.horizontal,28).padding(.bottom,24)
                 } else {
                 ScrollViewReader { proxy in
-                ScrollView {
+                ScrollView(showsIndicators:false) {
                     VStack(alignment:.leading,spacing:monitorSample ? 24:16) {
                         if model.tab==1 { PreferencesPage(model:model) }
                         else if model.snapshot != nil {

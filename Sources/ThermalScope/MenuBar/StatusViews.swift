@@ -26,7 +26,7 @@ struct OperationNotice:View {
                 Button(L("复制详情")) { NSPasteboard.general.clearContents();NSPasteboard.general.setString(model.message,forType:.string) }
             }.font(.system(size:12)).buttonStyle(.borderless)
             if expanded {
-                ScrollView {
+                ScrollView(showsIndicators:false) {
                     Text(model.message).font(.system(size:12,design:.monospaced)).foregroundStyle(Palette.secondaryText).textSelection(.enabled).fixedSize(horizontal:false,vertical:true).frame(maxWidth:.infinity,alignment:.leading)
                 }.frame(maxHeight:110).subtlePanel()
             }

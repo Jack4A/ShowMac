@@ -38,7 +38,7 @@ struct StatusOverview:View {
             if editing {
                 StatusCardEditor(model:model)
             } else {
-                ScrollView(showsIndicators:true) {
+                ScrollView(showsIndicators:false) {
                     VStack(spacing:10) {
                         LazyVStack(spacing:StatusCardLayout.spacing) {
                             ForEach(Array(stride(from:0,to:model.statusPanel.cards.count,by:2)),id:\.self) {index in

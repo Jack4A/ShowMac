@@ -27,7 +27,7 @@ struct MenuCompositionCanvas:View {
                 Button {model.statusMenuRequested?()} label:{Image(systemName:"macwindow")}
                     .help(L("查看状态面板")).accessibilityLabel(L("查看状态面板"))
             }.buttonStyle(.borderless)
-            ScrollView(.horizontal,showsIndicators:true) {
+            ScrollView(.horizontal,showsIndicators:false) {
                 HStack(spacing:6) {
                     ForEach(components) {component in activeComponent(component)}
                     Image(systemName:"plus").foregroundStyle(.secondary).frame(width:64,height:44)

@@ -30,7 +30,7 @@ struct SensorInventoryPage:View {
                 Spacer()
                 if let date=readings.snapshot?.date {Text(date,format:.dateTime.hour().minute().second()).monospacedDigit()}
             }.font(.system(size:12)).foregroundStyle(Palette.secondaryText)
-            ScrollView {
+            ScrollView(showsIndicators:false) {
                 VStack(alignment:.leading,spacing:20) {
                     if all.isEmpty && (showAll || common.isEmpty) {empty("暂无可读传感器","设备暂未提供可读取的传感器信息，可稍后刷新。")}
                     else if showAll {completeList}

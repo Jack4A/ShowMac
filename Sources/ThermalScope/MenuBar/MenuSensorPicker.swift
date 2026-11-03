@@ -46,7 +46,7 @@ struct MenuSensorPicker:View {
                             if !rows.isEmpty {Section(L(kind.title)) {ForEach(rows){optionRow($0)}}}
                         }
                         if metrics.isEmpty && common.isEmpty && hardware.isEmpty {Text(L("没有匹配的传感器")).foregroundStyle(.secondary)}
-                    }.listStyle(.inset)
+                    }.listStyle(.inset).scrollIndicators(.hidden)
                 }.frame(width:390,height:440)
             }
     }

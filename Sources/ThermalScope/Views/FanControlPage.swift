@@ -15,7 +15,7 @@ struct FanControlPage:View {
         return model.activeFanStrategy ?? (model.coolingToken != nil ? pending:nil)
     }
     var body:some View {
-        ScrollView {
+        ScrollView(showsIndicators:false) {
         VStack(alignment:.leading,spacing:16) {
             statusLine
             FanStrategySelector(selected:selected,busy:model.busy,available:ControlAvailability.fansAvailable(readings.snapshot),onSelect:choose)
