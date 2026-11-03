@@ -15,7 +15,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.16.0</string>
+	<string>1.17.0</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -28,7 +28,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>260</string>
+	<string>261</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSUIElement</key>
@@ -38,6 +38,6 @@
 	<key>NSAccentColorName</key>
 	<string>AccentColor</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>ThermalScope — local Intel Mac utility</string>
+	<string>ThermalScope — native macOS utility</string>
 </dict>
 </plist>

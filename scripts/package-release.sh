@@ -25,7 +25,7 @@ ARCHIVE="$OUT/ThermalScope-$VERSION-macOS-$ARCH.zip"
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$ARCHIVE"
 cp "$ROOT/docs/INSTALL$SUFFIX.txt" "$OUT/INSTALL$SUFFIX.txt"
 python3 - "$ROOT" "$OUT" "$ARCHIVE" "$COMMIT" "$ARCH" "$SUFFIX" <<'PY'
-import hashlib,json,os,platform,plistlib,subprocess,sys,tempfile
+import hashlib,json,os,platform,plistlib,re,subprocess,sys,tempfile
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -54,10 +54,13 @@ with tempfile.TemporaryDirectory(prefix='thermalscope-release-verify-') as tempo
             result=subprocess.run([str(restored/'Contents/MacOS/ThermalScope'),flag],check=True,capture_output=True,text=True)
             (out/name).write_text(result.stdout+result.stderr)
         checks+=['hidden_view_update','localization_runtime']
-manifest={'schema':2,'product':'ThermalScope','version':source['CFBundleShortVersionString'],
+sdk=re.findall(r'^\s*sdk\s+(\S+)',subprocess.check_output(['xcrun','vtool','-show-build',str(out/'staging/ThermalScope.app/Contents/MacOS/ThermalScope')],text=True),re.M)[0]
+run_url=(os.environ.get('GITHUB_SERVER_URL','https://github.com')+'/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']) if os.environ.get('GITHUB_ACTIONS')=='true' else None
+manifest={'schema':3,'product':'ThermalScope','version':source['CFBundleShortVersionString'],
           'build':source['CFBundleVersion'],'source_commit':commit,'architecture':arch,
           'minimum_macos':source['LSMinimumSystemVersion'],'signing':'ad-hoc','notarized':False,
           'built_local':datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),'build_host_architecture':platform.machine(),
+          'build_sdk':sdk,'build_environment':'github_actions' if run_url else 'local','workflow_run_url':run_url,
           'runtime_validation':'fixture_checks_only' if native else 'not_run_cross_compiled',
           'apple_silicon_hardware_validation':False,'hardware_control_available':True,'fan_control_requires_capability_probe':True,'turbo_control_available':arch=='x86_64','power_control_available':arch=='x86_64',
           'experimental':arch=='arm64',

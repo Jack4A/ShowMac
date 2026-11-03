@@ -1,0 +1,6 @@
+# actionlint's built-in hosted-runner list lags GitHub's Xcode 27 GA image.
+# This only extends lint label validation; the workflow uses GitHub-hosted runners.
+# https://github.blog/changelog/2026-10-15-xcode-27-runner-image-generally-available/
+self-hosted-runner:
+  labels:
+    - xcode-27

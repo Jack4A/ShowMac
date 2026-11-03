@@ -417,13 +417,28 @@ import WidgetUI
         }
         if args.count==2 && args[1]=="--localization-check" {
             guard let url=Bundle.main.url(forResource:"Localization",withExtension:"json"),let data=try? Data(contentsOf:url),let table=try? JSONDecoder().decode([String:[String:String]].self,from:data) else {exit(1)}
-            for language in ["en","ja","ko","de","fr","es"] {
-                guard table.values.allSatisfy({!($0[language] ?? "").isEmpty}) else {exit(2)}
-                AppLocalization.shared.set(language)
-                print(language+": "+L("设置")+" / "+L("关闭睿频"))
+            guard !table.isEmpty,table.values.allSatisfy({!($0["en"] ?? "").isEmpty}) else{print("Required English localization missing");exit(2)}
+            let formatter=try! NSRegularExpression(pattern:#"%(?:[1-9][0-9]*\$)?[-+0#]*[0-9]*(?:\.[0-9]+)?(?:ll|l|hh|h|z|t|j)?[@diuoxXfFeEgGcsp]"#)
+            func placeholders(_ text:String)->[String] {
+                let text=text.replacingOccurrences(of:"%%",with:"")
+                return formatter.matches(in:text,range:NSRange(text.startIndex...,in:text)).compactMap {match in
+                    Range(match.range,in:text).map{String(text[$0]).replacingOccurrences(of:#"^%[1-9][0-9]*\$"#,with:"%",options:.regularExpression)}
+                }.sorted()
             }
+            for language in ["en","ja","ko","de","fr","es"] {
+                AppLocalization.shared.set(language)
+                for (key,row) in table {
+                    let expected=row[language] ?? row["en"]!
+                    guard !expected.isEmpty,L(key)==expected,placeholders(expected)==placeholders(key) else{print("Localization or format mismatch: \(language) / \(key)");exit(2)}
+                }
+                let fallbacks=table.values.filter{$0[language]==nil}.count
+                print(language+": "+L("设置")+" / "+L("关闭睿频")+"; \(fallbacks) explicit English fallbacks")
+            }
+            AppLocalization.shared.set("zh-Hans")
+            guard table.keys.allSatisfy({L($0)==$0}) else{exit(2)}
             AppLocalization.shared.set("zh-Hant");print("zh-Hant: "+L("系统观测与控制"))
-            print("\(table.count) keys; all supported language entries present.")
+            guard L("系统观测与控制")=="系統觀測與控制" else{exit(2)}
+            print("\(table.count) keys; English coverage, locale fallback, Chinese conversion and format arguments verified.")
             return
         }
         if args.count==2 && args[1]=="--process-probe" {

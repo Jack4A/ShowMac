@@ -8,9 +8,7 @@ build:
 	bash scripts/build.sh "$(APP)"
 
 check:
-	swift run -c release --jobs 2 ThermalCoreChecks
-	python3 -m unittest discover -s Tests/Performance -v
-	swift run -c release --jobs 2 ThermalScope --hidden-view-update-check
+	bash scripts/check.sh
 
 perf-smoke:
 	python3 scripts/perf_suite.py --profile smoke --out "$(PERF_OUT)-smoke"

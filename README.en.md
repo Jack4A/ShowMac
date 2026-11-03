@@ -4,7 +4,7 @@
 
 <img src="Resources/AppIcon.png" width="96" alt="ThermalScope application icon">
 
-A native macOS temperature, CPU, fan and performance diagnostics utility, with an Intel build and an experimental Apple Silicon fan-control build. Current application version: **1.16 / build 260**, including the subsequent Dock behavior, icon and stress-test fixes.
+A native macOS temperature, CPU, fan and performance diagnostics utility, with an Intel build and an experimental Apple Silicon fan-control build. Current application version: **1.17.0 / build 261**, including native UI, sensors, menu customization and automated builds.
 
 ## Features
 
@@ -48,20 +48,22 @@ The popover and thermal-control captures are from 1.16; the CPU-detail capture i
 ### Prebuilt app — no compilation required
 
 1. Sign in to a GitHub account with access to this private repository and open [Releases](https://github.com/Jackkakaya/ThermalScope/releases).
-2. Choose **`ThermalScope-1.16.0-macOS-x86_64.zip`** for Intel or **`ThermalScope-1.16.0-macOS-arm64.zip`** for experimental Apple Silicon monitoring from `v1.16.0`. Extract it and drag `ThermalScope.app` into Applications.
+2. Choose **`ThermalScope-1.17.0-macOS-x86_64.zip`** for Intel or **`ThermalScope-1.17.0-macOS-arm64.zip`** for experimental Apple Silicon fan control from `v1.17.0`. Extract it and drag `ThermalScope.app` into Applications.
 3. Launch the app, then click its item in the top menu bar. The prebuilt app does not require Xcode, Swift or Python.
-4. Select English or Simplified Chinese in Settings → Language. Traditional Chinese, Japanese, Korean, German, French and Spanish are also available.
+4. Select English or Simplified Chinese in Settings → Language. Traditional Chinese, Japanese, Korean, German, French and Spanish are also available; some new strings use English fallback in other locales.
 
-Both packages require **macOS 13 or later**. The Intel build is validated on MacBookPro16,1. **The arm64 archive is an experimental monitoring-only build cross-compiled on Intel, without Apple Silicon runtime validation. Fan, Turbo and power-setting control are disabled; temperature and fan readings may be unavailable.** This development build uses **ad-hoc signing and is not notarized**; macOS may report that the developer cannot be verified. Developer ID signing and notarization remain pending.
+Both packages require **macOS 13 or later**. The Intel build is validated on MacBookPro16,1. The arm64 archive includes experimental fan controls; see [hardware validation scope](docs/APPLE_SILICON_FANS.txt) for tested machines and limits. CI virtual-machine checks do not establish support for every model. This development build uses **ad-hoc signing and is not notarized**; macOS may report that the developer cannot be verified. Developer ID signing and notarization remain pending.
 
 The release provides per-architecture install notes, manifests and checksums. Intel uses `INSTALL.txt`, `release-manifest.json` and `SHA256SUMS.txt`; ARM uses `INSTALL-arm64.txt`, `release-manifest-arm64.json` and `SHA256SUMS-arm64.txt`. Download the four assets for your architecture into one directory, then run `shasum -a 256 -c SHA256SUMS.txt` (Intel) or `shasum -a 256 -c SHA256SUMS-arm64.txt` (ARM).
 
 ### Build from source
 
-Source builds require macOS 13+, Xcode Command Line Tools with Swift 5.9+, Git and Python 3. Other machines have not completed hardware capability validation. If necessary, install the command line tools and complete the system installer:
+Source builds require full Xcode 27 (including the macOS 27 SDK), Git and Python 3. Prebuilt applications still target macOS 13 or later. Other machines have not completed hardware capability validation. Install and open full Xcode 27 first. To select it explicitly, adjust the path to your installation:
 
 ```sh
-xcode-select --install
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+xcodebuild -version
+xcrun --sdk macosx --show-sdk-version
 ```
 
 After authenticating with an account that can access the private repository:
@@ -118,16 +120,16 @@ bash scripts/build.sh "$PWD/build/ThermalScope.app"
 For a fresh release archive, manifest, bilingual install notes and checksums:
 
 ```sh
-bash scripts/package-release.sh "$PWD/build/releases/v1.16.0"
+bash scripts/package-release.sh "$PWD/build/releases/v1.17.0"
 ```
 
 The destination must not already exist. The packaging script verifies the extracted archive as well as the original app bundle. To cross-compile the ARM package:
 
 ```sh
-THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh "$PWD/build/releases/v1.16.0-arm64"
+THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh "$PWD/build/releases/v1.17.0-arm64"
 ```
 
-The host app, helper and widget all target arm64. Cross-architecture runtime checks are skipped and explicitly marked as unexecuted in the manifest. The ARM source is identified by `v1.16.0-arm64` and its independent manifest; the original Intel release tag and assets are preserved.
+The host app, helper and widget all target arm64. Cross-architecture runtime checks are skipped and explicitly marked as unexecuted in the manifest. Both architectures share a version tag; their independent manifests record the same source commit and their validation scope. Historical tags and release assets are preserved.
 
 ## Checks and stress tests
 
@@ -182,4 +184,8 @@ The main branch is `main`; a separate commit and the `pre-organization` tag pres
 
 ### UI availability and compact monitoring
 
-Current source supports fan-only presets, draggable fan curves and a five-second fan test on Apple Silicon after administrator authorization. Intel Turbo Boost and power-setting controls remain unavailable. The published v1.16.0 ARM archive is the original monitoring-only build and does not include the current source changes. See docs/APPLE_SILICON_FANS.txt for validation scope. The status popover uses two columns of compact cards, with an odd final card spanning the row, a shared time range and an update timestamp. Real trends use the existing warning thresholds. Fan presets are available below; click a metric for details. Missing readings and incomplete history are identified explicitly. Settings manages top-menu components and popover cards separately, with typography and appearance options in a disclosure section.
+Current source supports fan-only presets, draggable fan curves and a five-second fan test on Apple Silicon after administrator authorization. Intel Turbo Boost and power-setting controls remain unavailable. The v1.17.0 ARM archive includes these changes; the historical v1.16.0 archive remains the original monitoring-only build. See docs/APPLE_SILICON_FANS.txt for validation scope. The status popover uses two columns of compact cards, with an odd final card spanning the row, a shared time range and an update timestamp. Real trends use the existing warning thresholds. Fan presets are available below; click a metric for details. Missing readings and incomplete history are identified explicitly. Settings manages top-menu components and popover cards separately, with typography and appearance options in a disclosure section.
+
+## Automated builds and releases
+
+Pushes to `main`, pull requests and manual runs of [Build and Release](https://github.com/Jackkakaya/ThermalScope/actions/workflows/build-release.yml) run checks and upload Intel/ARM64 build artifacts for 14 days. A `vX.Y.Z` tag matching `Info.plist` publishes a Release only after both packages pass architecture, signature, extraction and SHA-256 verification. See [CI and releases](docs/CI-RELEASE.md) for the workflow and signing status.

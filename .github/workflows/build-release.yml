@@ -1,0 +1,129 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+
+jobs:
+  checks:
+    name: Native checks
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify Xcode SDK and release tag
+        shell: bash
+        run: |
+          xcodebuild -version
+          sdk="$(xcrun --sdk macosx --show-sdk-version)"
+          test "${sdk%%.*}" -ge 27
+          python3 - <<'PYCODE'
+          import os, plistlib
+          from pathlib import Path
+          version = plistlib.loads(Path('Resources/Info.plist').read_bytes())['CFBundleShortVersionString']
+          if os.environ['GITHUB_REF'].startswith('refs/tags/'):
+              assert os.environ['GITHUB_REF_NAME'] == 'v' + version, 'Tag must match Info.plist version'
+              assert Path('docs/releases/v' + version + '.md').is_file(), 'Missing release notes'
+          PYCODE
+      - name: Build and run fixture checks
+        run: |
+          mkdir -p build
+          bash scripts/check.sh 2>&1 | tee build/checks.log
+      - name: Preserve check log
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: checks-logs
+          path: build/checks.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+  package:
+    name: Package ${{ matrix.arch }}
+    needs: checks
+    runs-on: xcode-27
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [arm64, x86_64]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build and verify release package
+        env:
+          THERMALSCOPE_ARCH: ${{ matrix.arch }}
+        run: bash scripts/package-release.sh "build/releases/$THERMALSCOPE_ARCH"
+      - name: Upload architecture assets
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-${{ matrix.arch }}
+          path: |
+            build/releases/${{ matrix.arch }}/*.zip
+            build/releases/${{ matrix.arch }}/INSTALL*.txt
+            build/releases/${{ matrix.arch }}/release-manifest*.json
+            build/releases/${{ matrix.arch }}/SHA256SUMS*.txt
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+  release:
+    name: Publish version tag
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+      - name: Verify release pair
+        run: |
+          python3 scripts/verify-release-assets.py dist \
+            --version "${GITHUB_REF_NAME#v}" --commit "$(git rev-parse HEAD)"
+      - name: Upload verified assets and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          if gh release view "$tag" --json isDraft > "$RUNNER_TEMP/existing-release.json" 2>/dev/null; then
+            python3 -c 'import json,sys; assert json.load(open(sys.argv[1]))["isDraft"], "Refusing to overwrite a published release"' "$RUNNER_TEMP/existing-release.json"
+          else
+            gh release create "$tag" --draft --verify-tag \
+              --title "ThermalScope $tag · Intel + Apple Silicon" \
+              --notes-file "docs/releases/$tag.md"
+          fi
+          gh release upload "$tag" dist/* --clobber
+          gh release view "$tag" --json assets > "$RUNNER_TEMP/uploaded-assets.json"
+          python3 - "$RUNNER_TEMP/uploaded-assets.json" <<'PYCODE'
+          import hashlib, json, sys
+          from pathlib import Path
+          uploaded = {item['name']: item for item in json.load(open(sys.argv[1]))['assets']}
+          local = {item.name: item for item in Path('dist').iterdir()}
+          assert uploaded.keys() == local.keys(), 'Release assets differ from verified pair'
+          for name, path in local.items():
+              assert uploaded[name]['size'] == path.stat().st_size, name
+              assert uploaded[name]['digest'] == 'sha256:' + hashlib.sha256(path.read_bytes()).hexdigest(), name
+          PYCODE
+          gh release edit "$tag" --draft=false --latest
