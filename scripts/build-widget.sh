@@ -40,12 +40,6 @@ cp "$ROOT/Resources/Localization.json" "$EXT/Contents/Resources/Localization.jso
 for localization in "$ROOT"/Resources/*.lproj; do
     if [ -d "$localization" ]; then cp -R "$localization" "$EXT/Contents/Resources/"; fi
 done
-mkdir -p "$EXT/Contents/Frameworks"
-xcrun swift-stdlib-tool --copy --strip-bitcode --platform macosx --scan-executable "$EXT/Contents/MacOS/ThermalScopeWidget" \
-    --destination "$EXT/Contents/Frameworks" --sign "$IDENTITY"
-python3 - "$EXT/Contents/Frameworks" <<'PY'
-from pathlib import Path
-import sys
-for backup in Path(sys.argv[1]).glob('*.original'): backup.unlink()
-PY
+python3 "$ROOT/scripts/bundle-swift-runtime.py" "$EXT/Contents/Frameworks" \
+    --arch "$ARCH" --identity "$IDENTITY" "$EXT/Contents/MacOS/ThermalScopeWidget"
 codesign --force --sign "$IDENTITY" --entitlements "$BIN/Widget.entitlements" "$EXT"

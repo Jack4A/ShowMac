@@ -55,16 +55,9 @@ for localization in "$ROOT"/Resources/*.lproj; do
     if [ -d "$localization" ]; then cp -R "$localization" "$APP/Contents/Resources/"; fi
 done
 THERMALSCOPE_SDK="$SDK" THERMALSCOPE_ARCH="$ARCH" bash "$ROOT/scripts/build-widget.sh" "$APP" "$BIN"
-mkdir -p "$APP/Contents/Frameworks"
-xcrun swift-stdlib-tool --copy --strip-bitcode --platform macosx \
-    --scan-executable "$APP/Contents/MacOS/ThermalScope" \
-    --scan-executable "$APP/Contents/Helpers/ThermalScopeHelper" \
-    --destination "$APP/Contents/Frameworks" --sign "${THERMALSCOPE_SIGN_IDENTITY:--}"
-python3 - "$APP/Contents/Frameworks" <<'PY'
-from pathlib import Path
-import sys
-for backup in Path(sys.argv[1]).glob('*.original'): backup.unlink()
-PY
+python3 "$ROOT/scripts/bundle-swift-runtime.py" "$APP/Contents/Frameworks" \
+    --arch "$ARCH" --identity "${THERMALSCOPE_SIGN_IDENTITY:--}" \
+    "$APP/Contents/MacOS/ThermalScope" "$APP/Contents/Helpers/ThermalScopeHelper"
 # The SDK in Mach-O controls compatibility appearance; don't ship a build whose
 # SDK stamp silently fell back to the deployment target.
 python3 - "$APP" "$SDK" "$MINIMUM_OS" <<'PY'
