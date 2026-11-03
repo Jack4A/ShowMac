@@ -37,7 +37,7 @@ private struct FullWidthFanStrategyControl:NSViewRepresentable {
         for (index,strategy) in FanStrategy.allCases.enumerated() {
             control.setLabel(L(strategy.shortTitle),forSegment:index)
             control.setToolTip(L(strategy.title)+" · "+L(strategy.explanation),forSegment:index)
-            control.setEnabled(strategy == .system || available,forSegment:index)
+            control.setEnabled(AppDistribution.hardwareControlAvailable && (strategy == .system || available),forSegment:index)
         }
         control.selectedSegment=selected.flatMap{FanStrategy.allCases.firstIndex(of:$0)} ?? -1
         control.isEnabled = !busy && AppDistribution.hardwareControlAvailable

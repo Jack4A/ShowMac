@@ -77,8 +77,11 @@ import ThermalCore
         host.frame=CGRect(origin:.zero,size:size)
         host.layoutSubtreeIfNeeded()
         host.layoutSubtreeIfNeeded()
-        guard let bitmap=host.bitmapImageRepForCachingDisplay(in:host.bounds) else {throw ScopeError.message("Could not allocate layout bitmap: "+name)}
-        host.cacheDisplay(in:host.bounds,to:bitmap)
+        guard let displayBitmap=host.bitmapImageRepForCachingDisplay(in:host.bounds) else {throw ScopeError.message("Could not allocate layout bitmap: "+name)}
+        host.cacheDisplay(in:host.bounds,to:displayBitmap)
+        // CI Macs carry different display ICC profiles. Convert the bitmap itself
+        // before comparing sRGB samples; retagging NSColor would change the meaning.
+        guard let bitmap=displayBitmap.converting(to:.sRGB,renderingIntent:.default) else {throw ScopeError.message("Could not normalize capture color space: "+name)}
         guard let data=bitmap.representation(using:.png,properties:[:]),data.count>1000 else {throw ScopeError.message("Empty layout: "+name)}
         if let folder=ProcessInfo.processInfo.environment["THERMALSCOPE_COMPATIBILITY_OUTPUT"] {
             let directory=URL(fileURLWithPath:folder,isDirectory:true)
@@ -94,7 +97,7 @@ import ThermalCore
             func color(_ point:CGPoint)->[Int]? {
                 let scaleX=Double(bitmap.pixelsWide)/size.width,scaleY=Double(bitmap.pixelsHigh)/size.height
                 let y=host.isFlipped ? point.y:size.height-point.y
-                guard let rgb=bitmap.colorAt(x:min(bitmap.pixelsWide-1,max(0,Int(point.x*scaleX))),y:min(bitmap.pixelsHigh-1,max(0,Int(y*scaleY))))?.usingColorSpace(.sRGB) else{return nil}
+                guard let rgb=bitmap.colorAt(x:min(bitmap.pixelsWide-1,max(0,Int(point.x*scaleX))),y:min(bitmap.pixelsHigh-1,max(0,Int(y*scaleY)))) else{return nil}
                 return [rgb.redComponent,rgb.greenComponent,rgb.blueComponent,rgb.alphaComponent].map{Int(($0*255).rounded())}
             }
             selected=color(row.convert(CGPoint(x:row.bounds.maxX-24,y:row.bounds.midY),to:host))

@@ -55,8 +55,8 @@ struct FanCurveEditor:View {
             dragging=nil;original=nil
             if changed {onApply()}
         },onNudge:moveSelectedPoint).focusable().onMoveCommand(perform:moveSelectedPoint)
-            .accessibilityLabel(L("可拖动的温度风扇转速曲线"))
-            .help(L("拖动控制点调节温度和转速；方向键微调选中点。"))
+            .accessibilityLabel(L(AppDistribution.isAppStore ? "温度曲线":"可拖动的温度风扇转速曲线"))
+            .help(L(AppDistribution.isAppStore ? AppDistribution.monitoringOnlyMessage:"拖动控制点调节温度和转速；方向键微调选中点。"))
 
     }
     private func moveSelectedPoint(_ direction:MoveCommandDirection) {
