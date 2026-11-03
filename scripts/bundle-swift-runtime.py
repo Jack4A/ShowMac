@@ -38,6 +38,14 @@ if needs_concurrency and not runtime.is_file():
     print(f"Bundled Apple concurrency runtime: {original}")
 
 for library in args.destination.glob("*.dylib"):
+    # The pre-Swift-ABI-stability Core shim contains Intel only. Every ARM Mac
+    # starts at Big Sur and already has Swift Core in the OS; never ship that
+    # legacy Intel shim in its bundle. Concurrency is still required on Big Sur.
+    if args.arch == "arm64" and library.name == "libswiftCore.dylib":
+        architectures = subprocess.check_output(["lipo", str(library), "-archs"], text=True).split()
+        if "arm64" not in architectures:
+            library.unlink()
+            continue
     subprocess.run(["lipo", str(library), "-verify_arch", args.arch], check=True)
     subprocess.run(["codesign", "--force", "--sign", args.identity, str(library)], check=True)
 for backup in args.destination.glob("*.original"):
