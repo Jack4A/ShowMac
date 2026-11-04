@@ -2,7 +2,7 @@
 
 [English](README.md) | **简体中文**
 
-基于 [MIT 许可证](LICENSE) 免费开源，完整版功能无需购买或激活。如果对你有帮助，欢迎[在 GitHub 点个 Star](https://github.com/Jackkakaya/ThermalScope)。
+基于 [MIT 许可证](LICENSE) 免费开源，完整版功能无需购买或激活。如果对你有帮助，欢迎[在 GitHub 点个 Star](https://github.com/Jackkakaya/ShowMac)。
 
 <img src="Resources/AppIcon.png" width="72" alt="showmac应用图标">
 
@@ -16,7 +16,7 @@
 
 ## 下载与启动
 
-1. 打开 [ShowMac 官网](https://show-mac.cc/zh/#download)，按本机芯片下载。也可使用 [GitHub Releases](https://github.com/Jackkakaya/ThermalScope/releases)。
+1. 打开 [ShowMac 官网](https://show-mac.cc/zh/#download)，按本机芯片下载。也可使用 [GitHub Releases](https://github.com/Jackkakaya/ShowMac/releases)。
 2. 下载适合本机芯片的 ZIP，解压后将 **showmac.app** 拖到“应用程序”。
 3. 打开应用，点击顶部菜单栏项目。启动后先在菜单栏监测，不自动弹出主窗口。
 
@@ -109,8 +109,8 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 ```sh
 export DEVELOPER_DIR=/Applications/Xcode_26.6.app/Contents/Developer
-git clone https://github.com/Jackkakaya/ThermalScope.git
-cd ThermalScope
+git clone https://github.com/Jackkakaya/ShowMac.git
+cd ShowMac
 make build
 open build/showmac.app
 ```

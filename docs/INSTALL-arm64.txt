@@ -36,4 +36,4 @@ INSTALL-arm64.txt
 release-manifest-arm64.json
 SHA256SUMS-arm64.txt
 
-https://github.com/Jackkakaya/ThermalScope/releases/tag/v1.18.1
+https://github.com/Jackkakaya/ShowMac/releases/tag/v1.18.1

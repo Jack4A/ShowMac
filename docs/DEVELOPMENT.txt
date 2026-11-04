@@ -3,7 +3,7 @@ ThermalScope 开发与 Git 约定
 仓库位置
 /Users/jack/codejk/ThermalScope
 此目录就是仓库根目录。main为主分支。
-GitHub远程origin：https://github.com/Jackkakaya/ThermalScope.git；初始可见性Private。
+GitHub远程origin：https://github.com/Jackkakaya/ShowMac.git；初始可见性Private。
 提交身份仅在此仓库设置：ThermalScope Local <thermalscope@localhost>，不修改全局Git身份。
 
 日常命令

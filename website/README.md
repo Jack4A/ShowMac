@@ -1,6 +1,6 @@
 # ShowMac website
 
-Free, MIT-licensed native Mac monitoring, with a menu bar first product page. The website provides the full desktop download and invites visitors to [Star or contribute on GitHub](https://github.com/Jackkakaya/ThermalScope). No payment, license activation, external fonts or analytics scripts are used.
+Free, MIT-licensed native Mac monitoring, with a menu bar first product page. The website provides the full desktop download and invites visitors to [Star or contribute on GitHub](https://github.com/Jackkakaya/ShowMac). No payment, license activation, external fonts or analytics scripts are used.
 
 Production: https://show-mac.cc/ · English `/en/` · Chinese `/zh/`.
 
