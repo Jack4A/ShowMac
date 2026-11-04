@@ -113,7 +113,8 @@ struct ProcessObserverPanel:View {
             HStack {
                 Label(L("进程详情"),systemImage:AppSymbols.resolve("waveform.path.ecg")).font(.system(size:15,weight:.semibold))
                 Spacer()
-                Picker(L("进程排序"),selection:$observer.sort) {ForEach(ProcessSort.allCases){Text($0.title).tag($0)}}.labelsHidden().frame(width:110)
+                AppChoicePicker(title:L("进程排序"),selection:$observer.sort,
+                                choices:ProcessSort.allCases.map{AppChoice($0,$0.title)})
                 Button(L("活动监视器")) {observer.openActivityMonitor()}.buttonStyle(.borderless).font(.system(size:12))
                 if !searching,observer.rows.count>5 {Button(expanded ? L("仅显示前 5 项"):String(format:L("显示全部 %d 项"),observer.rows.count)) {expanded.toggle()}.buttonStyle(.borderless).font(.system(size:12))}
             }

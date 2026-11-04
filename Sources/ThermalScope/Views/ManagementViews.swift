@@ -12,25 +12,22 @@ struct PreferencesPage:View {
             MenuSettings(model:model)
             VStack(spacing:10) {
                 preferenceRow("主题",detail:nil) {
-                    Picker(L("主题"),selection:$model.theme) {
-                        Text(L("跟随系统")).tag("system")
-                        Text(L("浅色")).tag("light")
-                        Text(L("深色")).tag("dark")
-                    }.labelsHidden().frame(width:200,alignment:.trailing)
+                    AppChoicePicker(title:L("主题"),selection:$model.theme,
+                                    choices:[AppChoice("system",L("跟随系统")),AppChoice("light",L("浅色")),AppChoice("dark",L("深色"))])
+                        .frame(width:200,alignment:.trailing)
                         .accessibilityIdentifier("appTheme")
                 }
                 Divider()
                 preferenceRow("界面语言",detail:nil) {
-                    Picker(L("界面语言"),selection:$model.language) {
-                        ForEach(AppLanguage.allCases) {language in Text(language.title).tag(language.rawValue)}
-                    }.labelsHidden().frame(width:200,alignment:.trailing)
+                    AppChoicePicker(title:L("界面语言"),selection:$model.language,
+                                    choices:AppLanguage.allCases.map{AppChoice($0.rawValue,$0.title)})
+                        .frame(width:200,alignment:.trailing)
                 }
                 Divider()
                 preferenceRow("采样频率",detail:nil) {
                     HStack(spacing:10) {
-                        Picker(L("采样频率"),selection:$model.interval) {
-                            Text(L("2 秒")).tag(2.0);Text(L("5 秒")).tag(5.0)
-                        }.labelsHidden().frame(width:90,alignment:.trailing)
+                        AppChoicePicker(title:L("采样频率"),selection:$model.interval,
+                                        choices:[AppChoice(2.0,L("2 秒")),AppChoice(5.0,L("5 秒"))])
                         Button {model.refresh()} label:{Label(L("刷新读数"),systemImage:AppSymbols.resolve("arrow.clockwise"))}
                             .buttonStyle(AppNativeButtonStyle()).disabled(model.busy)
                     }

@@ -52,10 +52,8 @@ struct SensorInventoryPage:View {
                 Text(L("全部传感器")).tag(true)
             }.pickerStyle(.segmented).labelsHidden().fixedSize(horizontal:true,vertical:false)
             NativeSearchField(title:L("搜索传感器名称或编号"),text:$search).frame(height:24)
-            Picker(L("传感器类型"),selection:$filter) {
-                Text(L("全部")).tag(Optional<HardwareSensorKind>.none)
-                ForEach(HardwareSensorKind.allCases) {Text(L($0.title)).tag(Optional($0))}
-            }.labelsHidden().frame(width:90).help(L("传感器类型"))
+            AppChoicePicker(title:L("传感器类型"),selection:$filter,
+                            choices:[AppChoice(nil,L("全部"))]+HardwareSensorKind.allCases.map{AppChoice(Optional($0),L($0.title))})
         }
     }
     var commonList:some View {

@@ -76,10 +76,9 @@ struct TemperaturePanel:View,Equatable {
                 Text("°C").font(.system(size:11)).foregroundColor(Palette.secondaryText)
                 Spacer(minLength:16)
                 if timeline.isPreview {Text(L("模拟")).font(AppTypography.caption).foregroundColor(.orange)}
-                HStack(spacing:12) {
+                HStack(spacing:8) {
                     if allowsSensorSelection {
                         temperatureSourceMenu
-                        Divider().frame(height:14).opacity(0.4)
                     }
                     SensorTrendRangePicker(minutes:$timeline.minutes)
                 }.fixedSize(horizontal:true,vertical:false)
@@ -113,19 +112,9 @@ struct TemperaturePanel:View,Equatable {
         }.modifier(TemperaturePanelSurface(neutral:neutralPanels)).onChange(of:timeline.sensor){_ in resume()}.onChange(of:timeline.minutes){_ in resume()}.onDisappear{resume()}
     }
     private var temperatureSourceMenu:some View {
-        Menu {
-            Picker(L("温度来源"),selection:$timeline.sensor) {
-                Text("CPU").tag(SensorCategory.cpu)
-                Text("GPU").tag(SensorCategory.gpu)
-                Text(L("硬盘 / 存储")).tag(SensorCategory.storage)
-                Text(L("电池")).tag(SensorCategory.battery)
-            }.pickerStyle(.inline).labelsHidden()
-        } label:{
-            Text(L(timeline.sensor.rawValue))
-        }.menuStyle(.borderlessButton).appControlSize(.small)
-            .font(.system(size:12,weight:.medium)).fixedSize().frame(minHeight:24)
-            .help(L("温度来源")).accessibilityLabel(L("温度来源"))
-            .accessibilityValue(L(timeline.sensor.rawValue)).accessibilityIdentifier("chartTemperatureSource")
+        AppChoicePicker(title:L("温度来源"),selection:$timeline.sensor,
+                        choices:[AppChoice(.cpu,"CPU"),AppChoice(.gpu,"GPU"),AppChoice(.storage,L("存储")),AppChoice(.battery,L("电池"))])
+            .accessibilityIdentifier("chartTemperatureSource")
     }
     private var options:some View {
         DisclosureGroup(L("图表选项"),isExpanded:$showOptions) {
