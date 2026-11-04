@@ -1,9 +1,9 @@
 import AppKit
 
 enum AppInfo {
-    static let developer="jackinprod"
-    static let developerURL=URL(string:"https://github.com/jackinprod")!
-    static let repositoryURL=URL(string:"https://github.com/jackinprod/ShowMac")!
+    static let developer="Jack4A"
+    static let developerURL=URL(string:"https://github.com/Jack4A")!
+    static let repositoryURL=URL(string:"https://github.com/Jack4A/ShowMac")!
 
     static var versionLabel:String {
         let version=Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "—"

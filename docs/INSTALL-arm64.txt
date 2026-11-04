@@ -36,4 +36,4 @@ INSTALL-arm64.txt
 release-manifest-arm64.json
 SHA256SUMS-arm64.txt
 
-https://github.com/jackinprod/ShowMac/releases/latest
+https://github.com/Jack4A/ShowMac/releases/latest

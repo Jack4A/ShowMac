@@ -1,6 +1,6 @@
 # CI 与发布 / CI and releases
 
-工作流：[Build and Release](https://github.com/jackinprod/ShowMac/actions/workflows/build-release.yml)。
+工作流：[Build and Release](https://github.com/Jack4A/ShowMac/actions/workflows/build-release.yml)。
 
 ## 自动构建
 
