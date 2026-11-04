@@ -2,26 +2,28 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-Free and open source under the [MIT license](LICENSE). All desktop features are included without purchase or activation. If you find ShowMac useful, [give it a Star on GitHub](https://github.com/Jackkakaya/ShowMac).
+Free and open source under the [MIT license](LICENSE). All desktop features are included without purchase or activation. If you find ShowMac useful, [give it a Star on GitHub](https://github.com/jackinprod/ShowMac).
+
+Developer: [@jackinprod](https://github.com/jackinprod). Find developer information and the GitHub button in **Settings → About ShowMac**, or use **ShowMac → GitHub project**.
 
 <img src="Resources/AppIcon.png" width="72" alt="ShowMac app icon">
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Current release: [v1.18.2 · build 269](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Current release: [v1.18.3 · build 270](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
 <img src="docs/screenshots/v1.18.1/en/overview-dark.png" width="1000" alt="ShowMac 1.18.1 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
 ## Download and launch
 
-1. Open the [ShowMac website](https://show-mac.cc/en/#download) and choose your Mac’s chip. You can also download from [GitHub Releases](https://github.com/Jackkakaya/ShowMac/releases).
+1. Open the [ShowMac website](https://show-mac.cc/en/#download) and choose your Mac’s chip. You can also download from [GitHub Releases](https://github.com/jackinprod/ShowMac/releases).
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.2 archive | Control support |
+| Mac | v1.18.3 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.2-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.2-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.3-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.3-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -107,7 +109,7 @@ Source builds require Git, Python 3 and full **Xcode 26.5/26.6 with the macOS 26
 
 ```sh
 export DEVELOPER_DIR=/Applications/Xcode_26.6.app/Contents/Developer
-git clone https://github.com/Jackkakaya/ShowMac.git
+git clone https://github.com/jackinprod/ShowMac.git
 cd ShowMac
 make build
 open build/showmac.app

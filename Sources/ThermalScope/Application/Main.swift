@@ -215,6 +215,8 @@ import WidgetUI
         menu.addItem(.separator())
         action(L("打开ShowMac"),#selector(showWindow))
         action(L("偏好设置…"),#selector(showPreferences))
+        action(L("GitHub 项目"),#selector(openProject))
+        action(L("关于ShowMac"),#selector(showAbout))
         menu.addItem(.separator())
         action(L("退出ShowMac"),#selector(quitApp))
     }
@@ -250,10 +252,13 @@ import WidgetUI
         window.makeKeyAndOrderFront(nil);NSApp.activate(ignoringOtherApps:true);updateVisualVisibility()
     }
     @objc func quitApp() { model.shutdown();NSApp.terminate(nil) }
+    @objc func showAbout() {AppInfo.showAbout()}
+    @objc func openProject() {NSWorkspace.shared.open(AppInfo.repositoryURL)}
     func installMainMenu() {
         let main=NSMenu()
         let appItem=NSMenuItem();let appMenu=NSMenu(title:L("ShowMac"))
-        appMenu.addItem(withTitle:L("关于ShowMac"),action:#selector(NSApplication.orderFrontStandardAboutPanel(_:)),keyEquivalent:"")
+        let about=NSMenuItem(title:L("关于ShowMac"),action:#selector(showAbout),keyEquivalent:"");about.target=self;appMenu.addItem(about)
+        let project=NSMenuItem(title:L("GitHub 项目"),action:#selector(openProject),keyEquivalent:"");project.target=self;appMenu.addItem(project)
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle:L("隐藏ShowMac"),action:#selector(NSApplication.hide(_:)),keyEquivalent:"h")
         appMenu.addItem(.separator())

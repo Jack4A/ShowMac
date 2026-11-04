@@ -38,7 +38,7 @@ Download all four release assets into one directory, then run:
   shasum -a 256 -c SHA256SUMS.txt
 
 仓库 / Repository
-https://github.com/Jackkakaya/ShowMac
+https://github.com/jackinprod/ShowMac
 使用说明 / Usage
-https://github.com/Jackkakaya/ShowMac/blob/main/README.md
-https://github.com/Jackkakaya/ShowMac/blob/main/README.zh-CN.md
+https://github.com/jackinprod/ShowMac/blob/main/README.md
+https://github.com/jackinprod/ShowMac/blob/main/README.zh-CN.md

@@ -48,12 +48,22 @@ for lang in ['en','zh']:
 for page in ['support','privacy']:
  target=dist/page;target.mkdir();(target/'index.html').write_text('<!doctype html><html lang="en"><head><meta charset="utf-8"><script src="../app.js" defer></script><title>showmac</title></head><body><a href="../en/'+page+'/">English</a> · <a href="../zh/'+page+'/">中文</a></body></html>')
 assets=dist/'assets';assets.mkdir();shutil.copy2(ROOT/'Resources/AppIcon.png',assets/'app-icon.png')
+# Keep the newest documented capture no later than the downloadable release.
+# A release without new screenshots must not restore an older panel layout.
+release_version=tuple(map(int,arm['version'].split('.')))
+capture_roots=[]
+for candidate in (ROOT/'docs/screenshots').iterdir():
+ match=re.fullmatch(r'v(\d+)\.(\d+)\.(\d+)',candidate.name)
+ if candidate.is_dir() and match and tuple(map(int,match.groups()))<=release_version:
+  capture_roots.append((tuple(map(int,match.groups())),candidate))
+capture_roots=[directory for _,directory in sorted(capture_roots,reverse=True)]
 for lang in ['en','zh']:
  target=assets/lang;target.mkdir()
  for name in ['overview-dark','overview-light','thermal-control','sensors','status-panel-dark','status-panel-light']:
   source=args.screenshots/lang/(name+'.png')
-  refreshed=ROOT/'docs/screenshots'/('v'+arm['version'])/lang/(name+'.png')
-  if refreshed.is_file():source=refreshed
+  for directory in capture_roots:
+   refreshed=directory/lang/(name+'.png')
+   if refreshed.is_file():source=refreshed;break
   shutil.copy2(source,target/(name+'.png'))
 downloads=dist/'downloads';downloads.mkdir()
 for file in release.iterdir():

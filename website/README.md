@@ -1,17 +1,17 @@
 # ShowMac website
 
-Free, MIT-licensed native Mac monitoring, with a menu bar first product page. The website provides the full desktop download and invites visitors to [Star or contribute on GitHub](https://github.com/Jackkakaya/ShowMac). No payment, license activation, external fonts or analytics scripts are used.
+Free, MIT-licensed native Mac monitoring, with a menu bar first product page. The website provides the full desktop download and invites visitors to [Star or contribute on GitHub](https://github.com/jackinprod/ShowMac). No payment, license activation, external fonts or analytics scripts are used.
 
 Production: https://show-mac.cc/ · English `/en/` · Chinese `/zh/`.
 
 ## Build and preview
 
 ```sh
-python3 website/scripts/build.py --releases build/releases/v1.18.2-published
+python3 website/scripts/build.py --releases build/releases/v1.18.3-published
 python3 -m http.server 8714 --bind 127.0.0.1 --directory website/dist
 ```
 
-The build verifies paired release archives, source commit, minimum macOS versions and checksums before copying downloads unchanged. `release.json` records app and site revisions separately. Screenshots use actual app captures in each language. Version-specific captures override the documented 1.18.1 baseline when available; 1.18.2 refreshes the menu bar panel in both themes. The curve demonstration is labeled example data and does not control hardware.
+The build verifies paired release archives, source commit, minimum macOS versions and checksums before copying downloads unchanged. `release.json` records app and site revisions separately. Screenshots use actual app captures in each language. The builder uses the newest documented capture no later than the downloaded app version, falling back to the 1.18.1 baseline. The 1.18.2 panel captures remain in use until a later capture replaces them. The curve demonstration is labeled example data and does not control hardware.
 
 ## Cloudflare Pages
 

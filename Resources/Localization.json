@@ -6336,5 +6336,37 @@
     "de": "Hauptfenster öffnen",
     "fr": "Ouvrir la fenêtre principale",
     "es": "Abrir ventana principal"
+  },
+  "开发者": {
+    "en": "Developer",
+    "de": "Entwickler",
+    "fr": "Développeur",
+    "es": "Desarrollador",
+    "ja": "開発者",
+    "ko": "개발자"
+  },
+  "版本": {
+    "en": "Version",
+    "de": "Version",
+    "fr": "Version",
+    "es": "Versión",
+    "ja": "バージョン",
+    "ko": "버전"
+  },
+  "GitHub 项目": {
+    "en": "GitHub project",
+    "de": "GitHub-Projekt",
+    "fr": "Projet GitHub",
+    "es": "Proyecto en GitHub",
+    "ja": "GitHub プロジェクト",
+    "ko": "GitHub 프로젝트"
+  },
+  "免费开源 · MIT 许可证": {
+    "en": "Free and open source · MIT license",
+    "de": "Kostenlos und Open Source · MIT-Lizenz",
+    "fr": "Gratuit et open source · Licence MIT",
+    "es": "Gratis y de código abierto · Licencia MIT",
+    "ja": "無料・オープンソース · MIT ライセンス",
+    "ko": "무료 오픈 소스 · MIT 라이선스"
   }
 }

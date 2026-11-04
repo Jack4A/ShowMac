@@ -38,7 +38,30 @@ struct PreferencesPage:View {
             DisclosureGroup(L("系统小组件"),isExpanded:$showWidgets) {
                 WidgetSettings(model:model).padding(.top,10)
             }.font(AppTypography.body).subtlePanel(padding:18)
+            aboutSection
         }
+    }
+    private var aboutSection:some View {
+        VStack(alignment:.leading,spacing:12) {
+            HStack(spacing:10) {
+                VStack(alignment:.leading,spacing:4) {
+                    Text("ShowMac").font(AppTypography.body.weight(.semibold))
+                    Text(L("版本")+" "+AppInfo.versionLabel).font(.caption).foregroundColor(Palette.secondaryText)
+                }
+                Spacer()
+                Link("GitHub",destination:AppInfo.repositoryURL)
+                    .buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
+                Button(L("关于ShowMac")){AppInfo.showAbout()}
+                    .buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
+            }
+            Divider()
+            HStack(spacing:6) {
+                Text(L("开发者")).foregroundColor(Palette.secondaryText)
+                Link("@"+AppInfo.developer,destination:AppInfo.developerURL)
+                Spacer(minLength:12)
+                Text(L("免费开源 · MIT 许可证")).font(.caption).foregroundColor(Palette.secondaryText)
+            }.font(.system(size:12))
+        }.subtlePanel(padding:18)
     }
     func preferenceRow<Content:View>(_ title:String,detail:String?,@ViewBuilder content:()->Content)->some View {
         HStack(spacing:12) {
