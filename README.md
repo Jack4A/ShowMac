@@ -1,25 +1,27 @@
-# showmac
+# ShowMac
 
 **English** | [简体中文](README.zh-CN.md)
 
-<img src="Resources/AppIcon.png" width="72" alt="showmac app icon">
+Free and open source under the [MIT license](LICENSE). All desktop features are included without purchase or activation. If you find ShowMac useful, [give it a Star on GitHub](https://github.com/Jackkakaya/ThermalScope).
+
+<img src="Resources/AppIcon.png" width="72" alt="ShowMac app icon">
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Current release: [v1.18.1 · build 267](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Current release: [v1.18.2 · build 269](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-<img src="docs/screenshots/v1.18.1/en/overview-dark.png" width="1000" alt="showmac 1.18.1 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
+<img src="docs/screenshots/v1.18.1/en/overview-dark.png" width="1000" alt="ShowMac 1.18.1 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
 ## Download and launch
 
-1. Open the [showmac website](https://show-mac.cc/en/#download) and choose your Mac’s chip. [GitHub Releases](https://github.com/Jackkakaya/ThermalScope/releases) is a private repository mirror for collaborators.
+1. Open the [ShowMac website](https://show-mac.cc/en/#download) and choose your Mac’s chip. You can also download from [GitHub Releases](https://github.com/Jackkakaya/ThermalScope/releases).
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.1 archive | Control support |
+| Mac | v1.18.2 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.1-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.1-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.2-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.2-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -30,14 +32,14 @@ Both packages target macOS 11. The same app build is checked on macOS 26 and 27;
 | Task | Where to go |
 | --- | --- |
 | Quick readings and trends | Left-click the menu bar item. Click a card to open its details. Right-click the menu bar item for actions. |
-| Full dashboard | Choose **Open showmac** in the popover or click the Dock icon. |
+| Full dashboard | Choose **Open main window** in the popover or click the Dock icon. |
 | Inspect history | Open **Live metrics**, click a metric, then choose a time range, scale and line/area style. Hover or click the temperature chart to inspect a sample. Use **Pause chart** to hold the displayed history. |
 | Find a sensor | Open **Sensors**. Start with **Overview**, or use **All sensors**, search and the type filter. Click a reading to inspect its trend. |
 | Investigate a slowdown | Open **Performance diagnosis** for findings and their evidence; use **Process activity** to inspect CPU, memory and disk activity. |
 | Review or export | Open **Activity log** to review recent actions and export samples. |
-| Keep monitoring in the background | Close the main window. The Dock icon hides and menu bar monitoring continues. Use **Quit showmac** to exit fully. |
+| Keep monitoring in the background | Close the main window. The Dock icon hides and menu bar monitoring continues. Use **Quit ShowMac** to exit fully. |
 
-When showmac is active: **⌘P** opens the menu bar panel, **⌘0** opens the console, and **⌘Q** quits.
+When ShowMac is active: **⌘P** opens the menu bar panel, **⌘0** opens the console, and **⌘Q** quits.
 
 Recent history is kept in memory for the current session, up to 30 minutes, and clears when the app quits. Missing readings remain missing. Whole-machine CPU usage uses **100% for all cores**; process rankings use **100% per core** and may exceed 100%.
 
@@ -49,7 +51,7 @@ Choose **Auto** to return control to macOS at any time. macOS then decides fan s
 
 <img src="docs/screenshots/v1.18.1/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
 
-Before applying control, quit other fan controllers to avoid competing commands. On Intel, Turbo Boost control reuses an already installed, macOS-approved `com.rugarciap.DisableTurboBoost` extension. showmac does not bundle or download that driver.
+Before applying control, quit other fan controllers to avoid competing commands. On Intel, Turbo Boost control reuses an already installed, macOS-approved `com.rugarciap.DisableTurboBoost` extension. ShowMac does not bundle or download that driver.
 
 ### Build your menu bar
 

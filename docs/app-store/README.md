@@ -1,3 +1,5 @@
+> Distribution decision (2026-11-04): ShowMac is now free and MIT licensed. App Store submission and paid distribution are canceled; the configurations below are retained as development reference only.
+
 # App Store readiness
 
 ## Current decision — November 4, 2026

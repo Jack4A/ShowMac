@@ -1,4 +1,4 @@
-# ThermalScope — English documentation
+# ShowMac — English documentation
 
 The English guide is now the repository’s default [README](README.md).
 

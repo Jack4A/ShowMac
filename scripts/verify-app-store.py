@@ -6,7 +6,7 @@ p=argparse.ArgumentParser();p.add_argument('app',type=Path);args=p.parse_args();
 assert not (app/'Contents/Helpers').exists(),'Store bundle must not carry the privileged helper'
 host=plistlib.loads((app/'Contents/Info.plist').read_bytes())
 assert host['CFBundleIdentifier']=='com.jackjohn.showmac'
-assert host['CFBundleDisplayName']=='showmac'
+assert host['CFBundleDisplayName']=='ShowMac'
 assert host['CFBundleShortVersionString']=='1.18.1' and host['CFBundleVersion']=='268'
 assert host['LSMinimumSystemVersion']=='11.0'
 components=[app,*app.glob('Contents/PlugIns/*.appex')];assert len(components)==2

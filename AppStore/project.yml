@@ -67,8 +67,8 @@ targets:
       properties:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        CFBundleDisplayName: showmac
-        CFBundleName: showmac
+        CFBundleDisplayName: ShowMac
+        CFBundleName: ShowMac
         CFBundleDevelopmentRegion: en
         ThermalScopeAppGroup: group.com.jackjohn.showmac
         ThermalScopeURLScheme: showmac-store
@@ -97,8 +97,8 @@ targets:
       properties:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        CFBundleDisplayName: showmac
-        CFBundleName: showmac
+        CFBundleDisplayName: ShowMac
+        CFBundleName: ShowMac
         CFBundleDevelopmentRegion: en
         CFBundleIconFile: AppIcon
         LSMinimumSystemVersion: '11.0'

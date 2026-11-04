@@ -805,13 +805,13 @@
     "ja": "すべてのセンサー",
     "ko": "모든 센서"
   },
-  "关于showmac": {
-    "de": "Über showmac",
-    "en": "About showmac",
-    "es": "Acerca de showmac",
-    "fr": "À propos de showmac",
-    "ja": "showmacについて",
-    "ko": "showmac 정보"
+  "关于ShowMac": {
+    "de": "Über ShowMac",
+    "en": "About ShowMac",
+    "es": "Acerca de ShowMac",
+    "fr": "À propos de ShowMac",
+    "ja": "ShowMacについて",
+    "ko": "ShowMac 정보"
   },
   "关闭": {
     "de": "Aus",
@@ -1432,13 +1432,13 @@
     "ja": "丸ゴシック",
     "ko": "둥근 글꼴"
   },
-  "在桌面空白处右键，选择“编辑小组件”，搜索“showmac”，选择尺寸后添加。": {
-    "de": "Rechtsklick auf den Schreibtisch, Widgets bearbeiten wählen, showmac suchen, Größe auswählen und hinzufügen.",
-    "en": "Right-click the desktop, choose Edit Widgets, search for showmac, then choose a size and add it.",
-    "es": "Haz clic derecho en el escritorio, elige Editar widgets, busca showmac y selecciona un tamaño para añadirlo.",
-    "fr": "Faites un clic droit sur le bureau, choisissez Modifier les widgets, recherchez showmac, puis choisissez une taille et ajoutez-le.",
-    "ja": "デスクトップを右クリックして「ウィジェットを編集」を選び、showmacを検索してサイズを選び、追加します。",
-    "ko": "데스크탑을 오른쪽 클릭해 위젯 편집을 선택하고 showmac를 검색한 뒤 크기를 골라 추가하세요."
+  "在桌面空白处右键，选择“编辑小组件”，搜索“ShowMac”，选择尺寸后添加。": {
+    "de": "Rechtsklick auf den Schreibtisch, Widgets bearbeiten wählen, ShowMac suchen, Größe auswählen und hinzufügen.",
+    "en": "Right-click the desktop, choose Edit Widgets, search for ShowMac, then choose a size and add it.",
+    "es": "Haz clic derecho en el escritorio, elige Editar widgets, busca ShowMac y selecciona un tamaño para añadirlo.",
+    "fr": "Faites un clic droit sur le bureau, choisissez Modifier les widgets, recherchez ShowMac, puis choisissez une taille et ajoutez-le.",
+    "ja": "デスクトップを右クリックして「ウィジェットを編集」を選び、ShowMacを検索してサイズを選び、追加します。",
+    "ko": "데스크탑을 오른쪽 클릭해 위젯 편집을 선택하고 ShowMac를 검색한 뒤 크기를 골라 추가하세요."
   },
   "在状态栏显示": {
     "de": "In der Menüleiste anzeigen",
@@ -2459,21 +2459,21 @@
     "ja": "アプリを開く",
     "ko": "앱 열기"
   },
-  "打开showmac": {
-    "de": "showmac öffnen",
-    "en": "Open showmac",
-    "es": "Abrir showmac",
-    "fr": "Ouvrir showmac",
-    "ja": "showmacを開く",
-    "ko": "showmac 열기"
+  "打开ShowMac": {
+    "de": "ShowMac öffnen",
+    "en": "Open ShowMac",
+    "es": "Abrir ShowMac",
+    "fr": "Ouvrir ShowMac",
+    "ja": "ShowMacを開く",
+    "ko": "ShowMac 열기"
   },
-  "打开showmac开始监测": {
-    "de": "showmac zum Überwachen öffnen",
-    "en": "Open showmac to start monitoring",
-    "es": "Abre showmac para iniciar el monitoreo",
-    "fr": "Ouvrez showmac pour démarrer la surveillance",
-    "ja": "showmacを開いて監視を開始",
-    "ko": "showmac를 열어 모니터링 시작"
+  "打开ShowMac开始监测": {
+    "de": "ShowMac zum Überwachen öffnen",
+    "en": "Open ShowMac to start monitoring",
+    "es": "Abre ShowMac para iniciar el monitoreo",
+    "fr": "Ouvrez ShowMac pour démarrer la surveillance",
+    "ja": "ShowMacを開いて監視を開始",
+    "ko": "ShowMac를 열어 모니터링 시작"
   },
   "打开系统设置…": {
     "de": "Systemeinstellungen öffnen…",
@@ -3026,13 +3026,13 @@
     "ja": "表示形式",
     "ko": "표시 방식"
   },
-  "显示showmac": {
-    "de": "showmac anzeigen",
-    "en": "Show showmac",
-    "es": "Mostrar showmac",
-    "fr": "Afficher showmac",
-    "ja": "showmacを表示",
-    "ko": "showmac 표시"
+  "显示ShowMac": {
+    "de": "ShowMac anzeigen",
+    "en": "Show ShowMac",
+    "es": "Mostrar ShowMac",
+    "fr": "Afficher ShowMac",
+    "ja": "ShowMacを表示",
+    "ko": "ShowMac 표시"
   },
   "显示范围": {
     "de": "Anzeigebereich",
@@ -4238,13 +4238,13 @@
     "ja": "温度制御",
     "ko": "온도 제어"
   },
-  "showmac": {
-    "de": "showmac",
-    "en": "showmac",
-    "es": "showmac",
-    "fr": "showmac",
-    "ja": "showmac",
-    "ko": "showmac"
+  "ShowMac": {
+    "de": "ShowMac",
+    "en": "ShowMac",
+    "es": "ShowMac",
+    "fr": "ShowMac",
+    "ja": "ShowMac",
+    "ko": "ShowMac"
   },
   "温控状态": {
     "de": "Temperaturstatus",
@@ -5290,13 +5290,13 @@
     "ja": "温度と負荷を観察し、性能と冷却の問題に対応。",
     "ko": "온도와 부하를 관찰하고 성능·냉각 문제를 처리합니다."
   },
-  "让showmac适合你的使用习惯。": {
-    "de": "showmac an Ihre Arbeitsweise anpassen.",
-    "en": "Make showmac fit the way you work.",
-    "es": "Adapte showmac a su forma de trabajar.",
-    "fr": "Adaptez showmac à votre façon de travailler.",
-    "ja": "showmacを作業スタイルに合わせる。",
-    "ko": "작업 방식에 맞게 showmac를 설정하세요."
+  "让ShowMac适合你的使用习惯。": {
+    "de": "ShowMac an Ihre Arbeitsweise anpassen.",
+    "en": "Make ShowMac fit the way you work.",
+    "es": "Adapte ShowMac a su forma de trabajar.",
+    "fr": "Adaptez ShowMac à votre façon de travailler.",
+    "ja": "ShowMacを作業スタイルに合わせる。",
+    "ko": "작업 방식에 맞게 ShowMac를 설정하세요."
   },
   "让风扇随温度自动调整。": {
     "de": "Lüfter an die Temperatur anpassen.",
@@ -5744,13 +5744,13 @@
     "ja": "アプリを終了",
     "ko": "앱 종료"
   },
-  "退出showmac": {
-    "de": "showmac beenden",
-    "en": "Quit showmac",
-    "es": "Salir de showmac",
-    "fr": "Quitter showmac",
-    "ja": "showmacを終了",
-    "ko": "showmac 종료"
+  "退出ShowMac": {
+    "de": "ShowMac beenden",
+    "en": "Quit ShowMac",
+    "es": "Salir de ShowMac",
+    "fr": "Quitter ShowMac",
+    "ja": "ShowMacを終了",
+    "ko": "ShowMac 종료"
   },
   "选择后，点击下方应用": {
     "en": "Choose, then apply below"
@@ -5978,13 +5978,13 @@
     "ja": "性能制限データ不足、状態不明。",
     "ko": "성능 제한 데이터 부족, 상태 알 수 없음."
   },
-  "隐藏showmac": {
-    "de": "showmac ausblenden",
-    "en": "Hide showmac",
-    "es": "Ocultar showmac",
-    "fr": "Masquer showmac",
-    "ja": "showmacを隠す",
-    "ko": "showmac 가리기"
+  "隐藏ShowMac": {
+    "de": "ShowMac ausblenden",
+    "en": "Hide ShowMac",
+    "es": "Ocultar ShowMac",
+    "fr": "Masquer ShowMac",
+    "ja": "ShowMacを隠す",
+    "ko": "ShowMac 가리기"
   },
   "雾紫": {
     "de": "Sanftes Violett",
@@ -6327,5 +6327,14 @@
   },
   "温度与风扇读数实时更新": {
     "en": "Temperature and fan readings update live."
+  },
+  "打开主窗口": {
+    "en": "Open main window",
+    "zh-Hant": "打開主視窗",
+    "ja": "メインウインドウを開く",
+    "ko": "메인 윈도우 열기",
+    "de": "Hauptfenster öffnen",
+    "fr": "Ouvrir la fenêtre principale",
+    "es": "Abrir ventana principal"
   }
 }
