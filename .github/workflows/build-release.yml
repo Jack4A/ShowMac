@@ -43,7 +43,9 @@ jobs:
       - name: Check website routing
         run: |
           node --check website/app.js
-          node --test website/tests/routing.test.mjs
+          node --check website/stats.js
+          node --test website/tests/*.test.mjs
+          python3 -m unittest discover -s website/tests -p '*_test.py'
       - name: Build and run fixture checks
         shell: bash
         env:

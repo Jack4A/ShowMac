@@ -15,3 +15,6 @@
 
 .open-source-section{padding-block:48px;border-top:1px solid var(--border)}
 .open-source-section p{max-width:760px;color:var(--muted);line-height:1.8}
+
+/* Public aggregate counts share the download section's quiet visual hierarchy. */
+.site-stats[hidden]{display:none}.site-stats{text-align:center;margin:28px 0 32px}.stats-totals{display:flex;justify-content:center;flex-wrap:wrap;gap:16px 36px;color:var(--muted);font-size:14px}.stats-totals strong{font-size:23px;font-weight:600;letter-spacing:-.025em;color:var(--text);font-variant-numeric:tabular-nums;margin-right:4px}.site-stats p{color:var(--muted);font-size:11px;line-height:1.7;margin:10px 0 0}@media(max-width:600px){.site-stats{text-align:left;margin:22px 0}.stats-totals{justify-content:flex-start;gap:14px 24px;font-size:12px}.stats-totals strong{font-size:21px}.site-stats p{font-size:10px}}

@@ -1,0 +1,14 @@
+# Existing Pages settings downloaded from Cloudflare; statistics use a dedicated D1.
+name = "showmac"
+compatibility_date = "2026-11-03"
+pages_build_output_dir = "./dist"
+
+[[d1_databases]]
+binding = "STATS_DB"
+database_name = "showmac-stats"
+database_id = "e4209e1c-e1e5-4cf8-9e23-6bfa7dbc34c4"
+migrations_dir = "cloudflare/migrations"
+
+# Deployed previews have no production database access.
+[env.preview]
+d1_databases = []

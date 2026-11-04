@@ -11,16 +11,16 @@ subprocess.run(['python3',str(ROOT/'scripts/verify-release-assets.py'),str(relea
 dist=SITE/'dist'
 if dist.exists():shutil.rmtree(dist)
 dist.mkdir()
-for name in ['style.css','app.js']:shutil.copy2(SITE/name,dist/name)
+for name in ['style.css','app.js','stats.js']:shutil.copy2(SITE/name,dist/name)
 credit='<p class="geo-credit"><a href="https://db-ip.com">IP Geolocation by DB-IP</a></p>' if args.hosting=='nginx' else ''
 translation=re.compile(r'<([a-z0-9]+)([^>]*\bdata-en="([^"]*)"[^>]*\bdata-zh="([^"]*)"[^>]*)>.*?</\1>',re.S)
 for lang in ['en','zh']:
  for page in ['', 'support', 'privacy']:
   source=SITE/(page+'/index.html' if page else 'index.html');text=source.read_text()
   if args.hosting=='cloudflare':
-   text=text.replace('our server looks up your IP address in a local DB-IP country database','Cloudflare processes your IP address and provides an approximate country or region').replace('This lookup does not send your IP to DB-IP.','The website and downloads are hosted on Cloudflare. Requests pass through its network; we do not use analytics or send app sensor readings to it.').replace('服务器使用本地 DB-IP 国家或地区数据库判断访问 IP','Cloudflare 处理访问 IP 并提供大致国家或地区').replace('查询不会将 IP 发送给 DB-IP。','官网与下载由 Cloudflare 托管，请求会经过其网络；我们不启用网站分析，也不会向其发送应用传感器读数。')
+   text=text.replace('our server looks up your IP address in a local DB-IP country database','Cloudflare processes your IP address and provides an approximate country or region').replace('This lookup does not send your IP to DB-IP.','The website and downloads are hosted on Cloudflare. Requests pass through its network; app sensor readings are not sent to it.').replace('服务器使用本地 DB-IP 国家或地区数据库判断访问 IP','Cloudflare 处理访问 IP 并提供大致国家或地区').replace('查询不会将 IP 发送给 DB-IP。','官网与下载由 Cloudflare 托管，请求会经过其网络；不会向其发送应用传感器读数。')
   if args.hosting=='cloudflare':
-   text=text.replace('The hosting server keeps standard access and error logs for operation and troubleshooting. These can include IP address, request time, requested path, response status and browser information. Site-specific logs rotate daily and are retained for up to 14 days.','Cloudflare delivers the website and downloads and processes request metadata for delivery and security under its privacy policy. We do not enable Web Analytics or collect app sensor readings through the website.').replace('托管服务器保留用于运行与排错的访问及错误日志，可能包含 IP 地址、请求时间、访问路径、响应状态和浏览器信息。本站专用日志每日轮转，最多保留 14 天。','Cloudflare 提供网站与软件下载，并依据其隐私政策处理用于内容分发和安全的请求元数据。我们不启用网站分析，也不通过官网收集应用传感器读数。')
+   text=text.replace('The hosting server keeps standard access and error logs for operation and troubleshooting. These can include IP address, request time, requested path, response status and browser information. Site-specific logs rotate daily and are retained for up to 14 days.','Cloudflare delivers the website and downloads and processes request metadata for delivery and security under its privacy policy. We do not collect app sensor readings through the website.').replace('托管服务器保留用于运行与排错的访问及错误日志，可能包含 IP 地址、请求时间、访问路径、响应状态和浏览器信息。本站专用日志每日轮转，最多保留 14 天。','Cloudflare 提供网站与软件下载，并依据其隐私政策处理用于内容分发和安全的请求元数据。我们不通过官网收集应用传感器读数。')
   text=translation.sub(lambda m:'<'+m[1]+m[2]+'>'+html.unescape(m[3 if lang=='en' else 4])+'</'+m[1]+'>',text)
   text=text.replace('lang="en"',f'lang="{"zh-CN" if lang=="zh" else "en"}"',1)
   for manifest in [arm,intel]:text=text.replace(f"showmac-1.18.0-macOS-{manifest['architecture']}.zip",manifest['archive'])
@@ -80,5 +80,5 @@ urls=[f'https://show-mac.cc/{lang}/{page}' for lang in ['en','zh'] for page in [
 if args.hosting=='cloudflare':
  shutil.copy2(SITE/'cloudflare/worker.mjs',dist/'_worker.js')
  shutil.copy2(SITE/'cloudflare/headers',dist/'_headers')
- (dist/'_routes.json').write_text(json.dumps({'version':1,'include':['/*'],'exclude':['/assets/*','/downloads/*','/style.css','/app.js']}))
+ (dist/'_routes.json').write_text(json.dumps({'version':1,'include':['/*'],'exclude':['/assets/*','/downloads/*','/style.css','/app.js','/stats.js']}))
 print('Built static site:',dist,'hosting:',args.hosting)
