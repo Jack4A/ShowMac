@@ -15,6 +15,16 @@ The build verifies paired release archives, source commit, minimum macOS version
 
 ## Cloudflare Pages
 
+The tested command-line deployment uses Cloudflare's official Wrangler (Node.js 22):
+
+```sh
+npm exec --yes --package=wrangler@4.157.0 -- wrangler login --scopes account:read pages:write
+CLOUDFLARE_ACCOUNT_ID=9f875f08a4d5c8cf10a7b4da593e7710 npm exec --yes --package=wrangler@4.157.0 -- wrangler pages deploy website/dist --project-name showmac --branch main --no-bundle
+npm exec --yes --package=wrangler@4.157.0 -- wrangler logout
+```
+
+The production branch is `main`. OAuth requires account consent and includes background access; use only the account and Pages permissions above. Keep credentials outside Git. Wrangler's local `.wrangler/` cache and the generated site are ignored. Verify the custom domain's `release.json`, both download checksums, language selection and legacy purchase redirects after deployment. The command-line flow is an alternative when the dashboard's asset uploader returns 403.
+
 Upload a ZIP containing the contents of `website/dist/` to the existing `showmac` Pages project's production deployment. Root and www are bound to show-mac.cc; www redirects to the root. The worker uses Cloudflare location (CN/HK/MO/TW → Chinese, other known locations → English), with browser language fallback. An explicit language URL or manual language cookie takes priority. Preferences are stored locally.
 
 Old purchase/checkout URLs redirect to the open-source section, and the former billing API returns 410. No payment configuration is required. Run `node --test website/tests/routing.test.mjs` before deploying.

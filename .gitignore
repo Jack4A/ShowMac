@@ -32,6 +32,7 @@ xcuserdata/
 
 # Website build output and deployment downloads
 website/dist/
+.wrangler/
 
 # Generated from the shared-source App Store XcodeGen specification.
 AppStore/*.xcodeproj/
