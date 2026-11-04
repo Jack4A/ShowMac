@@ -26,6 +26,8 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
     static func main() {
         let core=CoreTests(),cooling=CoolingTests(),history=HistoryTests(),curve=CurveTests()
         let checks:[(String,() throws ->Void)]=[
+            ("Stable release versions compare numerically",ReleaseVersionTests().testNumericVersions),
+            ("Update metadata excludes drafts, previews and malformed payloads",ReleaseVersionTests().testPublishedMetadata),
             ("All macOS versions share readable chart ticks",ChartCoordinatesTests().testSharedAxisTicks),
             ("Big Sur chart inspection preserves signed values and coordinates",ChartCoordinatesTests().testSignedValuesAndInspection),
             ("Big Sur fan dragging clamps outside the chart",ChartCoordinatesTests().testCurveDragClampsAtPlotEdges),

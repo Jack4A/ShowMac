@@ -4,13 +4,18 @@ enum AppInfo {
     static let developer="Jack4A"
     static let developerURL=URL(string:"https://github.com/Jack4A")!
     static let repositoryURL=URL(string:"https://github.com/Jack4A/ShowMac")!
+    static let releasesURL=repositoryURL.appendingPathComponent("releases/latest")
+    static let releaseMetadataURL=URL(string:"https://show-mac.cc/release.json")!
+    static let githubReleaseAPIURL=URL(string:"https://api.github.com/repos/Jack4A/ShowMac/releases/latest")!
+    static var downloadURL:URL {URL(string:"https://show-mac.cc/"+(AppLocalization.shared.resolvedLanguage.hasPrefix("zh") ? "zh":"en")+"/#download")!}
+    static var version:String {Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? ""}
 
     // Offscreen UI checks do not launch NSApplication; read the bundled artwork
     // directly rather than asking the application/LaunchServices for its icon.
     @MainActor static let icon:NSImage?=Bundle.main.url(forResource:"AppIcon",withExtension:"icns").flatMap {NSImage(contentsOf:$0)}
 
     static var versionLabel:String {
-        let version=Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "—"
+        let version=Self.version.isEmpty ? "—":Self.version
         let build=Bundle.main.object(forInfoDictionaryKey:"CFBundleVersion") as? String ?? "—"
         return version+" ("+build+")"
     }

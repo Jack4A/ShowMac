@@ -6368,5 +6368,56 @@
     "es": "Gratis y de código abierto · Licencia MIT",
     "ja": "無料・オープンソース · MIT ライセンス",
     "ko": "무료 오픈 소스 · MIT 라이선스"
+  },
+  "检查更新": {
+    "en": "Check for updates"
+  },
+  "检查更新…": {
+    "en": "Check for Updates…"
+  },
+  "正在检查更新…": {
+    "en": "Checking for updates…"
+  },
+  "尚未检查更新": {
+    "en": "Updates have not been checked"
+  },
+  "未发现新版本": {
+    "en": "No newer version found"
+  },
+  "暂时无法检查更新，请稍后重试。": {
+    "en": "Unable to check for updates. Please try again later."
+  },
+  "发现新版本 %@": {
+    "en": "Update available: %@"
+  },
+  "发现新版本": {
+    "en": "Update available"
+  },
+  "当前版本 %@，最新版本 %@。请选择下载来源，下载后替换应用即可。": {
+    "en": "You have version %@; version %@ is available. Choose a download source, then replace the app after downloading."
+  },
+  "前往官网下载": {
+    "en": "Download from website"
+  },
+  "前往 GitHub 下载": {
+    "en": "Download from GitHub"
+  },
+  "稍后": {
+    "en": "Later"
+  },
+  "当前版本": {
+    "en": "Current version"
+  },
+  "自动检查更新": {
+    "en": "Automatically check for updates"
+  },
+  "每天检查一次，仅获取公开版本信息。": {
+    "en": "Check once a day using public release information only."
+  },
+  "上次检查": {
+    "en": "Last checked"
+  },
+  "下载…": {
+    "en": "Download…"
   }
 }

@@ -10,7 +10,7 @@
 
 原生 macOS 温度、风扇与性能诊断工具。在菜单栏查看读数，进入主窗口观察近期趋势，或直接选择风扇档位、调整温度—转速曲线。
 
-**当前版本：[v1.18.3 · build 270](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
+**当前版本：[v1.18.4 · build 271](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
 
 <img src="docs/screenshots/v1.18.1/zh/overview-dark.png" width="1000" alt="ShowMac 1.18.1 深色实时监测界面，展示 CPU 温度、风扇转速、CPU 使用率与真实温度趋势">
 
@@ -24,8 +24,8 @@
 
 | Mac 类型 | v1.18.1 安装包 | 控制能力 |
 | --- | --- | --- |
-| Intel | `showmac-1.18.3-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
-| Apple Silicon | `showmac-1.18.3-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
+| Intel | `showmac-1.18.4-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
+| Apple Silicon | `showmac-1.18.4-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
 
 预编译应用不需要 Xcode、Swift 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
 
@@ -79,6 +79,10 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 在“设置”的“主题”中选择跟随系统、浅色或深色；“界面语言”支持英文、简繁中文、日语、韩语、德语、法语和西班牙语。应用缺省跟随系统语言，部分其他语种的文案会明确回退英文。
 
 同页可调整“采样频率”或点击“刷新读数”。展开“系统小组件”查看相关选项；小组件支持 macOS 11+ 通知中心和 macOS 14+ 桌面。
+
+## 检查更新
+
+打开 **设置 → 关于 ShowMac → 检查更新**，也可使用 **ShowMac → 检查更新…**。默认每天最多后台检查一次，可在设置中关闭。发现正式新版后，选择官网或 GitHub，下载适合本机的压缩包，退出 ShowMac 后替换「应用程序」中的软件。更新检测只获取公开版本信息，硬件读数仍保留在本机。
 
 ## 更多截图
 

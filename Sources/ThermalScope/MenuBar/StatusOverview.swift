@@ -103,6 +103,7 @@ struct StatusOverview:View {
             Button {onNavigate("metrics")} label:{Text(L("打开主窗口"))}
                 .font(.system(size:12,weight:.medium)).buttonStyle(.plain)
             Spacer(minLength:4)
+            AppUpdateBadge(updates:model.updates)
             freshness
             Button(action:onSettings) {Image(systemName:AppSymbols.resolve("gearshape"))}.help(L("设置")).accessibilityLabel(L("设置"))
             Button(action:onActions) {Image(systemName:AppSymbols.resolve("ellipsis"))}.help(L("更多操作")).accessibilityLabel(L("更多操作"))

@@ -64,6 +64,8 @@ struct PreferencesPage:View {
                 Spacer(minLength:12)
                 Text(L("免费开源 · MIT 许可证")).font(.caption).foregroundColor(Palette.secondaryText)
             }.font(.system(size:12))
+            Divider()
+            AppUpdateSettings(updates:model.updates)
         }.subtlePanel(padding:18)
             .accessibilityElement(children:.contain)
             .accessibilityLabel(L("关于ShowMac"))

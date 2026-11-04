@@ -10,7 +10,7 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Current release: [v1.18.3 · build 270](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Current release: [v1.18.4 · build 271](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
 <img src="docs/screenshots/v1.18.1/en/overview-dark.png" width="1000" alt="ShowMac 1.18.1 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
@@ -20,10 +20,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.3 archive | Control support |
+| Mac | v1.18.4 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.3-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.3-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.4-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.4-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -77,6 +77,10 @@ Menu bar components and popover cards are configured separately. The screenshot 
 In **Settings**, choose **Follow system**, **Light** or **Dark** under **Theme**. **Interface language** offers English, Simplified/Traditional Chinese, Japanese, Korean, German, French and Spanish. The app defaults to following the system language; some other locales use explicit English fallbacks.
 
 Set **Sampling interval** or use **Refresh readings** in the same page. Expand **System widgets** for widget options. Widgets support Notification Center on macOS 11+ and the desktop on macOS 14+.
+
+## Check for updates
+
+Open **Settings → About ShowMac → Check for updates**, or **ShowMac → Check for Updates…**. Background checks run at most once a day and can be disabled in Settings. When a stable update is available, choose the official website or GitHub, download the archive for your Mac, quit ShowMac and replace the app in Applications. Update checks request only public release metadata; hardware readings stay on your Mac.
 
 ## More screenshots
 

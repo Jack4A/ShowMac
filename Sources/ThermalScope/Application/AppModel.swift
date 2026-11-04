@@ -14,6 +14,7 @@ struct TimelineEvent: Identifiable {
     let processes=ProcessObserver()
     let optimization=PowerOptimizationModel()
     let diagnostics=DiagnosisStore()
+    let updates=AppUpdateController()
     let navigation=DiagnosticNavigation()
     @Published var language=UserDefaults.standard.string(forKey:"appLanguage") ?? "system" {
         didSet {UserDefaults.standard.set(language,forKey:"appLanguage");AppLocalization.shared.set(language);languageChanged?()}
@@ -403,5 +404,5 @@ struct TimelineEvent: Identifiable {
         do { try Export.csv(history).write(to:url,atomically:true,encoding:.utf8); report(String(format:L("已导出 %d 条采样。"),history.count),error:false) }
         catch { report(error.localizedDescription,error:true) }
     }
-    func shutdown() { widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
+    func shutdown() { updates.shutdown();widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
 }

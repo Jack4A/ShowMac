@@ -111,7 +111,7 @@ import WidgetUI
             }
             window.orderFront(nil)
             window.displayIfNeeded()
-        } else { updateVisualVisibility() }
+        } else { updateVisualVisibility();model.updates.start() }
     }
     @objc func statusItemClicked(_ sender:Any?) {
         if NSApp.currentEvent?.type == .rightMouseUp || NSApp.currentEvent?.modifierFlags.contains(.control) == true {showStatusActions()}
@@ -216,6 +216,7 @@ import WidgetUI
         action(L("打开ShowMac"),#selector(showWindow))
         action(L("偏好设置…"),#selector(showPreferences))
         action(L("GitHub 项目"),#selector(openProject))
+        action(model.updates.availableVersion == nil ? L("检查更新…"):model.updates.statusText+"…",#selector(checkForUpdates))
         action(L("关于ShowMac"),#selector(showAbout))
         menu.addItem(.separator())
         action(L("退出ShowMac"),#selector(quitApp))
@@ -254,11 +255,13 @@ import WidgetUI
     @objc func quitApp() { model.shutdown();NSApp.terminate(nil) }
     @objc func showAbout() {AppInfo.showAbout()}
     @objc func openProject() {NSWorkspace.shared.open(AppInfo.repositoryURL)}
+    @objc func checkForUpdates() {model.updates.checkNow(presentResult:true)}
     func installMainMenu() {
         let main=NSMenu()
         let appItem=NSMenuItem();let appMenu=NSMenu(title:L("ShowMac"))
         let about=NSMenuItem(title:L("关于ShowMac"),action:#selector(showAbout),keyEquivalent:"");about.target=self;appMenu.addItem(about)
         let project=NSMenuItem(title:L("GitHub 项目"),action:#selector(openProject),keyEquivalent:"");project.target=self;appMenu.addItem(project)
+        let updates=NSMenuItem(title:L("检查更新…"),action:#selector(checkForUpdates),keyEquivalent:"");updates.target=self;appMenu.addItem(updates)
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle:L("隐藏ShowMac"),action:#selector(NSApplication.hide(_:)),keyEquivalent:"h")
         appMenu.addItem(.separator())
@@ -301,6 +304,7 @@ import WidgetUI
         if args.contains("--menu-sensor-check") {MenuSensorCheck.run();return}
         if args.contains("--menu-composition-check") {MenuCompositionCheck.run();return}
         if args.contains("--menu-customization-check") {MenuCustomizationCheck.run();return}
+        if args.contains("--app-update-check") {AppUpdateCheck.run();return}
         if args.contains("--stress-check") {StressBenchmark.run();return}
         if args.count==2 && args[1]=="--hidden-view-update-check" {HiddenViewUpdateCheck.run();return}
         if args.count==2 && args[1]=="--render-performance-check" {RenderPerformanceBenchmark.run();return}
