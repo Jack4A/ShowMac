@@ -6419,5 +6419,8 @@
   },
   "下载…": {
     "en": "Download…"
+  },
+  "上次发现版本 %@。暂时无法重新检查，可前往官网或 GitHub 查看。": {
+    "en": "Version %@ was found previously. We could not check again; visit the website or GitHub for the latest release."
   }
 }

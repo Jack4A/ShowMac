@@ -46,6 +46,7 @@ enum AppUpdateState:Equatable {case idle,checking,current,available,failed}
     }
     var statusText:String {
         if state == .checking {return L("正在检查更新…")}
+        if state == .failed {return L("暂时无法检查更新，请稍后重试。")}
         if let version=availableVersion {return String(format:L("发现新版本 %@"),version.description)}
         switch state {
         case .idle:return L("尚未检查更新")
@@ -99,10 +100,12 @@ enum AppUpdateState:Equatable {case idle,checking,current,available,failed}
         let alert=NSAlert();alert.alertStyle = .informational
         alert.messageText=statusText
         if let version=availableVersion {
-            alert.informativeText=String(format:L("当前版本 %@，最新版本 %@。请选择下载来源，下载后替换应用即可。"),AppInfo.version,version.description)
+            alert.informativeText=state == .failed
+                ? String(format:L("上次发现版本 %@。暂时无法重新检查，可前往官网或 GitHub 查看。"),version.description)
+                : String(format:L("当前版本 %@，最新版本 %@。请选择下载来源，下载后替换应用即可。"),AppInfo.version,version.description)
             alert.addButton(withTitle:L("前往官网下载"))
             alert.addButton(withTitle:L("前往 GitHub 下载"))
-            alert.addButton(withTitle:L("稍后"))
+            alert.addButton(withTitle:L("稍后")).keyEquivalent="\u{1b}"
         }else {
             alert.informativeText=L("当前版本")+" "+AppInfo.versionLabel
             alert.addButton(withTitle:L("好"))

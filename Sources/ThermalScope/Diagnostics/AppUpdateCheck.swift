@@ -31,6 +31,7 @@ import ThermalCore
         require(controller.state == .available,"Website fallback failed")
         controller.checkNow();fetcher.finish(.github,nil);fetcher.finish(.website,nil)
         require(controller.state == .failed && controller.availableVersion != nil,"Outage erased a previously found update or claimed success")
+        require(controller.statusText==L("暂时无法检查更新，请稍后重试。"),"Cached update hid a failed manual refresh")
         controller.checkNow()
         controller.automaticChecks=false
         require(fetcher.cancelled==1 && controller.state != .checking,"Opting out did not cancel a check")
