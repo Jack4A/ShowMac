@@ -51,7 +51,10 @@ assets=dist/'assets';assets.mkdir();shutil.copy2(ROOT/'Resources/AppIcon.png',as
 for lang in ['en','zh']:
  target=assets/lang;target.mkdir()
  for name in ['overview-dark','overview-light','thermal-control','sensors','status-panel-dark','status-panel-light']:
-  shutil.copy2(args.screenshots/lang/(name+'.png'),target/(name+'.png'))
+  source=args.screenshots/lang/(name+'.png')
+  refreshed=ROOT/'docs/screenshots'/('v'+arm['version'])/lang/(name+'.png')
+  if refreshed.is_file():source=refreshed
+  shutil.copy2(source,target/(name+'.png'))
 downloads=dist/'downloads';downloads.mkdir()
 for file in release.iterdir():
  if file.is_file():shutil.copy2(file,downloads/file.name)

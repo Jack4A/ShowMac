@@ -10,7 +10,6 @@ The earlier Store scope retained the original UI, menu bar customization, readab
 
 `AppStore/project.yml` builds the original sources with the compile-time `APP_STORE` flag. It uses the separate registered bundle ID `com.jackjohn.showmac`, Team Jack John (`35PQA6NV57`), the shared group `group.com.jackjohn.showmac`, and `showmac-store` widget links. Desktop identity, controls and existing preferences remain unchanged. The Store bundle excludes the root helper; C-level fan writes and authorization launches are blocked, not hidden by a runtime/reviewer switch.
 
-The App Store Connect record is [ID 6830209769](https://appstoreconnect.apple.com/apps/6830209769/distribution), SKU `showmac-macos`. The requested price is CNY 5.90 or USD 1.00; a supported price point and paid-app agreement status must be verified in the portal. Do not publish private review-contact phone details in source.
 
 ## Build and verification
 

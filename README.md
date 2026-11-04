@@ -66,7 +66,7 @@ Open **Settings → Popover cards → Add card**, or click **Edit** in the menu 
 
 Menu bar components and popover cards are configured separately. The screenshot below shows a five-card example with both optional sections enabled.
 
-<img src="docs/screenshots/v1.18.1/en/status-panel-light.png" width="390" alt="Menu bar popover with five configurable cards, fan presets and top CPU processes">
+<img src="docs/screenshots/v1.18.2/en/status-panel-light.png" width="390" alt="Menu bar popover with five configurable cards, fan presets and top CPU processes">
 
 <img src="docs/screenshots/v1.18.1/en/settings.png" width="1000" alt="Settings with a draggable menu bar composition and controls to add, reorder or remove popover cards">
 

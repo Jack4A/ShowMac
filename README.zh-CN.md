@@ -68,7 +68,7 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 顶部菜单栏组件与弹窗卡片分别配置。下图展示五张卡片，并开启风扇控制与进程排行。
 
-<img src="docs/screenshots/v1.18.1/zh/status-panel-light.png" width="390" alt="最新菜单栏弹窗：五张可配置卡片、风扇档位与 CPU 进程排行">
+<img src="docs/screenshots/v1.18.2/zh/status-panel-light.png" width="390" alt="最新菜单栏弹窗：五张可配置卡片、风扇档位与 CPU 进程排行">
 
 <img src="docs/screenshots/v1.18.1/zh/settings.png" width="1000" alt="新版设置页：可拖动的菜单栏组合，以及添加、排序、删除弹窗卡片的控件">
 
