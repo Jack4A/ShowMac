@@ -4,7 +4,7 @@
 
 Free and open source under the [MIT license](LICENSE). All desktop features are included without purchase or activation. If you find ShowMac useful, [give it a Star on GitHub](https://github.com/Jack4A/ShowMac).
 
-Developer: [@Jack4A](https://github.com/Jack4A). Find developer information and the GitHub button in **Settings → About ShowMac**, or use **ShowMac → GitHub project**.
+Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at the top of **Settings** shows the app version, developer and GitHub link directly. You can also use **ShowMac → GitHub project**.
 
 <img src="Resources/AppIcon.png" width="72" alt="ShowMac app icon">
 

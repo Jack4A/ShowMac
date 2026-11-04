@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 import ThermalCore
 
@@ -8,6 +9,7 @@ struct PreferencesPage:View {
     @State private var showWidgets=false
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
+            aboutSection
             MenuSettings(model:model)
             VStack(spacing:10) {
                 preferenceRow("主题",detail:nil) {
@@ -38,20 +40,20 @@ struct PreferencesPage:View {
             DisclosureGroup(L("系统小组件"),isExpanded:$showWidgets) {
                 WidgetSettings(model:model).padding(.top,10)
             }.font(AppTypography.body).subtlePanel(padding:18)
-            aboutSection
         }
     }
     private var aboutSection:some View {
         VStack(alignment:.leading,spacing:12) {
             HStack(spacing:10) {
+                Image(nsImage:NSApp.applicationIconImage)
+                    .resizable().aspectRatio(contentMode:.fit)
+                    .frame(width:44,height:44).accessibilityHidden(true)
                 VStack(alignment:.leading,spacing:4) {
-                    Text("ShowMac").font(AppTypography.body.weight(.semibold))
+                    Text(L("关于ShowMac")).font(AppTypography.body.weight(.semibold))
                     Text(L("版本")+" "+AppInfo.versionLabel).font(.caption).foregroundColor(Palette.secondaryText)
                 }
                 Spacer()
                 Link("GitHub",destination:AppInfo.repositoryURL)
-                    .buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
-                Button(L("关于ShowMac")){AppInfo.showAbout()}
                     .buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
             }
             Divider()
@@ -62,6 +64,9 @@ struct PreferencesPage:View {
                 Text(L("免费开源 · MIT 许可证")).font(.caption).foregroundColor(Palette.secondaryText)
             }.font(.system(size:12))
         }.subtlePanel(padding:18)
+            .accessibilityElement(children:.contain)
+            .accessibilityLabel(L("关于ShowMac"))
+            .accessibilityIdentifier("settingsAbout")
     }
     func preferenceRow<Content:View>(_ title:String,detail:String?,@ViewBuilder content:()->Content)->some View {
         HStack(spacing:12) {

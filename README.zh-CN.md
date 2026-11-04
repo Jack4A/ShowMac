@@ -4,7 +4,7 @@
 
 基于 [MIT 许可证](LICENSE) 免费开源，完整版功能无需购买或激活。如果对你有帮助，欢迎[在 GitHub 点个 Star](https://github.com/Jack4A/ShowMac)。
 
-开发者：[@Jack4A](https://github.com/Jack4A)。在**设置底部的“关于 ShowMac”信息区**查看开发者与 GitHub 入口，也可以使用 **ShowMac → GitHub 项目**。
+开发者：[@Jack4A](https://github.com/Jack4A)。**设置顶部的“关于 ShowMac”卡片**直接展示软件版本、开发者与 GitHub 入口，也可以使用 **ShowMac → GitHub 项目**。
 
 <img src="Resources/AppIcon.png" width="72" alt="showmac应用图标">
 
