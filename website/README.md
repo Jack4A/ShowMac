@@ -15,6 +15,8 @@ The static preview cannot write statistics. To test the actual Pages worker and 
 
 The build verifies paired release archives, source commit, minimum macOS versions and checksums before copying downloads unchanged. `release.json` records app and site revisions separately. Screenshots use actual app captures in each language. The builder uses the newest documented capture no later than the downloaded app version, falling back to the 1.18.1 baseline. The 1.18.2 panel captures remain in use until a later capture replaces them. The curve demonstration is labeled example data and does not control hardware.
 
+The landing page and support guide explicitly label the 1.18.4 changes as a developer preview while public downloads remain 1.18.3. Its single-curve demonstration supports CPU/GPU MAX selection, fractional temperature edits and a draggable speed ceiling; all temperatures and fan ranges in the demonstration are illustrative. A site-only deployment must not advertise an unpublished app version in `release.json` or replace the verified release archives with local builds.
+
 ## Cloudflare Pages
 
 The tested command-line deployment uses Cloudflare's official Wrangler (Node.js 22):

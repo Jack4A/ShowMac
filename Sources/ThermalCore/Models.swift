@@ -3,11 +3,17 @@ import Foundation
 public enum SensorCategory:String,CaseIterable,Identifiable,Codable {
     case cpu="CPU",gpu="GPU",storage="存储",battery="电池",other="其他"
     public var id:String { rawValue }
-    public static func category(for key:String)->Self {
+    public static func category(for key:String,platform:SensorNamingPlatform = .current)->Self {
         if key.hasPrefix("TC") { return .cpu }
         if key.hasPrefix("TG") { return .gpu }
         if key.hasPrefix("TH") { return .storage }
         if key.hasPrefix("TB") { return .battery }
+        let probe=HardwareSensorReading(key:key,label:key,kind:.temperature,value:nil)
+        switch SensorCatalog.meaning(probe,platform:platform)?.component {
+        case .cpu:return .cpu
+        case .gpu:return .gpu
+        default:break
+        }
         return .other
     }
 }
@@ -81,8 +87,11 @@ public struct Snapshot: Codable, Identifiable {
         self.additionalSensors=additionalSensors
     }
     public var id: Date { date }
-    public var cpuTemperature: Double? { sensors.filter { $0.key.hasPrefix("TC") }.map(\.celsius).max() }
-    public func temperature(_ category:SensorCategory)->Double? { sensors.filter { $0.category==category }.map(\.celsius).max() }
+    public var cpuTemperature: Double? { temperature(.cpu) }
+    public func temperature(_ category:SensorCategory,platform:SensorNamingPlatform = .current)->Double? {
+        sensors.filter { SensorCategory.category(for:$0.key,platform:platform)==category }
+            .compactMap { HardwareSensorKind.temperature.valid($0.celsius) }.max()
+    }
     public var limited: Bool {
         speedLimit.map { $0 < 100 } == true || schedulerLimit.map { $0 < 100 } == true ||
         availableCPUs.map { $0 < totalCPUs } == true

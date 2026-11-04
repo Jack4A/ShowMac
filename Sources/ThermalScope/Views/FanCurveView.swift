@@ -14,28 +14,57 @@ struct FanCurveEditor:View {
     var minimum:Double {fan?.minimum ?? 0}
     var maximum:Double {max(minimum+1,fan?.maximum ?? 6000)}
     var available:Bool {ControlAvailability.fansAvailable(sample)}
+    var cpuSelected:Bool {curve.sensor != .gpu}
+    var gpuSelected:Bool {curve.sensor != .cpu}
+    var controlTemperature:Double? {sample.flatMap{curve.sensor.temperature(in:$0)}}
     func rpm(_ percent:Double)->Double {CurvePolicy.rpm(percent:percent,minimum:minimum,maximum:maximum)}
     var body:some View {
         VStack(alignment:.leading,spacing:12) {
             HStack {
-                Text(L(automatic && !AppDistribution.isAppStore ? "自定义曲线 · 未启用":"温度曲线")+" · RPM").font(AppTypography.section)
+                Text(L(automatic && !AppDistribution.isAppStore ? "自定义曲线 · 未启用":"温度曲线")+" · RPM").font(AppTypography.section).lineLimit(1)
                 Spacer()
-                Picker(L("温度来源"),selection:Binding(get:{curve.sensor},set:{curve.sensor=$0;onApply()})) {
-                    Text(L("自动选择温度")).tag(CurveSensor.hottest)
-                    Text("CPU").tag(CurveSensor.cpu)
-                    Text("GPU").tag(CurveSensor.gpu).disabled(sample?.temperature(.gpu)==nil)
-                }.labelsHidden().frame(width:160).disabled(busy || !available)
+                HStack(spacing:14) {
+                    sourceToggle(.cpu)
+                    sourceToggle(.gpu)
+                    if curve.sensor == .hottest {
+                        Text("MAX "+valueText(controlTemperature,"%.1f")+"°C")
+                            .foregroundColor(Palette.secondaryText).appMonospacedDigit()
+                            .accessibilityLabel(L("取最高温")+" · "+valueText(controlTemperature,"%.1f")+"°C")
+                    }
+                }.font(.system(size:12))
+                    .fixedSize(horizontal:true,vertical:false)
+                    .accessibilityElement(children:.contain).accessibilityLabel(L("温度来源"))
             }
             curveChart.frame(height:260)
             HStack {
-                Text(L(AppDistribution.isAppStore ? "温度与风扇读数实时更新":(automatic ? "拖动曲线，启用自定义调速":"拖动控制点，松手即生效"))).font(.system(size:12)).foregroundColor(Palette.secondaryText)
+                Text(L(AppDistribution.isAppStore ? "温度与风扇读数实时更新":"连续拖动调节，末端点设置最高转速")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
+                    .help(L("最高转速不超过风扇额定范围；高温保护可能超过曲线上限。"))
                 Spacer(minLength:8)
-                if let index=dragging,curve.points.indices.contains(index) {
-                    Text(String(format:"%.0f°C → %.0f RPM",curve.points[index].temperature,rpm(curve.points[index].percent))).font(.system(size:12,weight:.medium)).appMonospacedDigit()
+                if curve.points.indices.contains(dragging ?? selectedPoint) {
+                    let point=curve.points[dragging ?? selectedPoint]
+                    Text(String(format:"%.1f°C → %.0f RPM",point.temperature,rpm(point.percent))).font(.system(size:12,weight:.medium)).appMonospacedDigit()
                 }
             }
             if !available && !AppDistribution.isAppStore {Text(L("风扇或温度读数不可用，暂不能调速。")).font(.system(size:12)).foregroundColor(.orange)}
+            else if gpuSelected,sample?.temperature(.gpu)==nil {
+                Text(L(curve.sensor == .hottest ? "GPU 温度暂不可读，当前参考 CPU。":"GPU 温度暂不可读，无法按 GPU 调速。"))
+                    .font(.system(size:12)).foregroundColor(.orange)
+            }
         }.subtlePanel()
+    }
+    private func sourceToggle(_ source:CurveSensor)->some View {
+        let selected=source == .cpu ? cpuSelected:gpuSelected
+        let temperature=sample.flatMap{source.temperature(in:$0)}
+        let isOnlySource=curve.sensor==source
+        let otherTemperature=sample.flatMap{(source == .cpu ? CurveSensor.gpu:.cpu).temperature(in:$0)}
+        return Toggle(source.rawValue+" "+valueText(temperature,"%.1f")+"°C",isOn:Binding(get:{selected},set:{enabled in
+            if enabled {curve.sensor = .hottest}
+            else {curve.sensor = source == .cpu ? .gpu:.cpu}
+            onApply()
+        })).toggleStyle(.checkbox).fixedSize()
+            .disabled(busy || !available || isOnlySource || (!selected && temperature==nil) || (selected && otherTemperature==nil))
+            .help(L(isOnlySource ? "至少保留一个温度来源":"勾选 CPU 和 GPU 时，按两者最高温度调速。"))
+            .accessibilityIdentifier(source == .cpu ? "curveSourceCPU":"curveSourceGPU")
     }
     @ViewBuilder var curveChart:some View {
         MetricPlotView(series:[.init(id:"fan",points:curve.points.map{.init(x:$0.temperature,y:rpm($0.percent))},color:Palette.violet.opacity(automatic ? 0.5:1),markers:true)],xRange:30...100,yRange:minimum...(maximum+(maximum-minimum)*0.12),rules:sample.flatMap{curve.sensor.temperature(in:$0)}.map{[.init(id:"current",x:$0)]} ?? [],axes:true,xTicks:[30,40,50,60,70,80,90,100],xLabel:{String(format:"%.0f°C",$0)},onDrag:{location,coordinates in
@@ -63,22 +92,20 @@ struct FanCurveEditor:View {
         guard !busy,available,curve.points.indices.contains(selectedPoint) else{return}
         let point=curve.points[selectedPoint]
         switch direction {
-        case .left:setPoint(selectedPoint,temperature:point.temperature-2,percent:point.percent)
-        case .right:setPoint(selectedPoint,temperature:point.temperature+2,percent:point.percent)
-        case .up:setPoint(selectedPoint,temperature:point.temperature,percent:point.percent+5)
-        case .down:setPoint(selectedPoint,temperature:point.temperature,percent:point.percent-5)
+        case .left:setPoint(selectedPoint,temperature:point.temperature-0.1,percent:point.percent)
+        case .right:setPoint(selectedPoint,temperature:point.temperature+0.1,percent:point.percent)
+        case .up:setPoint(selectedPoint,temperature:point.temperature,percent:point.percent+1)
+        case .down:setPoint(selectedPoint,temperature:point.temperature,percent:point.percent-1)
         @unknown default:return
         }
         onApply()
     }
 
     func setPoint(_ index:Int,temperature:Double,percent:Double) {
-        guard curve.points.indices.contains(index),temperature.isFinite,percent.isFinite else{return}
-        let points=curve.points,last=index==points.count-1
-        let lowT=index>0 ? points[index-1].temperature+2:30
-        let highT=last ? 90:points[index+1].temperature-2
-        let lowP=index>0 ? points[index-1].percent:0
-        let highP=last ? 100:points[index+1].percent
-        curve.points[index]=CurvePoint(min(highT,max(lowT,temperature.rounded())),last ? 100:min(highP,max(lowP,percent.rounded())))
+        // Reversing an endpoint drag restores the original shape below its new
+        // ceiling instead of leaving points flattened by an earlier pointer move.
+        var edited=dragging==curve.points.count-1 ? (original ?? curve):curve
+        edited.movePoint(index,temperature:temperature,percent:percent)
+        curve=edited
     }
 }

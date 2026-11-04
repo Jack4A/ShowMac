@@ -22,10 +22,28 @@ public struct FanCurve:Codable,Equatable {
         for (index,p) in points.enumerated() {
             guard p.temperature.isFinite,p.percent.isFinite,(30...100).contains(p.temperature),(0...100).contains(p.percent) else { throw ScopeError.message("曲线温度范围为 30–100°C，转速范围为 0–100%") }
             if index>0 {
-                guard p.temperature-points[index-1].temperature>=2,p.percent>=points[index-1].percent else { throw ScopeError.message("温度控制点至少间隔 2°C，转速必须随温度升高而不降低") }
+                guard p.temperature-points[index-1].temperature>=2-1e-9,p.percent>=points[index-1].percent else { throw ScopeError.message("温度控制点至少间隔 2°C，转速必须随温度升高而不降低") }
             }
         }
-        guard let last=points.last,last.temperature<=90,last.percent==100 else { throw ScopeError.message("最后一个点必须在 90°C 或更低达到 100% 转速") }
+        guard let last=points.last,last.temperature<=90 else { throw ScopeError.message("最后一个控制点的温度不能超过 90°C") }
+    }
+    /// Drag continuously within neighboring temperatures. The last point sets the
+    /// curve ceiling; lowering it caps earlier points without reversing the curve.
+    /// CurveLease still overrides the curve with rated maximum RPM when hot.
+    public mutating func movePoint(_ index:Int,temperature:Double,percent:Double) {
+        guard points.indices.contains(index),temperature.isFinite,percent.isFinite else{return}
+        let last=index==points.count-1
+        let lowT=index>0 ? points[index-1].temperature+2:30
+        let highT=last ? 90:points[index+1].temperature-2
+        let lowP=index>0 && !last ? points[index-1].percent:0
+        let highP=last ? 100:points[index+1].percent
+        let target=min(highP,max(lowP,percent))
+        points[index]=CurvePoint(min(highT,max(lowT,temperature)),target)
+        if last {
+            for prior in points.indices where prior<index {
+                points[prior].percent=min(points[prior].percent,target)
+            }
+        }
     }
     public func percent(at temperature:Double)->Double {
         guard let first=points.first,let last=points.last else { return 100 }

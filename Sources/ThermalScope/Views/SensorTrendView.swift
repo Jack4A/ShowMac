@@ -4,11 +4,19 @@ import ThermalCore
 struct SensorTrendRangePicker:View {
     @Binding var minutes:Int
     var body:some View {
-        Picker(L("时间范围"),selection:$minutes) {
-            Text(L("5 分钟")).tag(5)
-            Text(L("10 分钟")).tag(10)
-            Text(L("30 分钟")).tag(30)
-        }.labelsHidden().frame(width:110)
+        Menu {
+            Picker(L("时间范围"),selection:$minutes) {
+                Text(L("5 分钟")).tag(5)
+                Text(L("10 分钟")).tag(10)
+                Text(L("30 分钟")).tag(30)
+            }.pickerStyle(.inline).labelsHidden()
+        } label:{
+            Text(String(format:L("%d 分钟"),minutes))
+        }.menuStyle(.borderlessButton).appControlSize(.small)
+            .font(.system(size:12,weight:.medium)).fixedSize().frame(minHeight:24)
+            .help(L("时间范围")).accessibilityLabel(L("时间范围"))
+            .accessibilityValue(String(format:L("%d 分钟"),minutes))
+            .accessibilityIdentifier("chartTimeRange")
     }
 }
 

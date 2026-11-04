@@ -47,7 +47,7 @@ Recent history is kept in memory for the current session, up to 30 minutes, and 
 
 ### Fan presets and curves
 
-Open **Thermal control**, then choose **Auto**, **Quiet**, **Balanced**, **Boost** or **Custom**. Presets apply immediately. Drag a curve point to change temperature and RPM; release it to apply. Arrow keys fine-tune the selected point. The temperature-source selector chooses which reading drives the curve.
+Open **Thermal control**, then choose **Auto**, **Quiet**, **Balanced**, **Boost** or **Custom**. Presets apply immediately. Drag a curve point to continuously change temperature and RPM; release it to apply. Drag the final point vertically to set the curve's maximum speed within the fan's rated range. Lowering it caps earlier points too. Arrow keys fine-tune the selected point by 0.1°C or one percentage point of the rated speed range. Select **CPU**, **GPU**, or both checkboxes above the curve; with both selected, the higher temperature drives the same curve. Current temperatures and the effective input are shown alongside them. Thermal protection can override the curve's maximum speed.
 
 Choose **Auto** to return control to macOS at any time. macOS then decides fan speed; the app's curve and temperature thresholds are inactive. App-controlled sessions apply thermal protection and last up to 30 minutes before returning control to macOS. The page shows control state and remaining time, and flags high temperature with fans near minimum speed without silently taking control. **Fan test…** asks for confirmation before a five-second maximum-speed test.
 

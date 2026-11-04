@@ -58,7 +58,6 @@ struct TemperaturePanel:View,Equatable {
     var start:Date {end.addingTimeInterval(-Double(timeline.minutes*60))}
     var full:[ModeRecord] {frozen ?? timeline.fullPoints}
     var points:[ModeRecord] {frozen.map{SensorTimeline.decimated($0)} ?? timeline.points}
-    var modes:[String] {Array(Set(full.map(\.mode))).sorted()}
     var scale:ClosedRange<Double> {MetricPlot.scale(full.map(\.temperature),automatic:automatic,baseline:20,upper:130)}
     var average:Double? {full.isEmpty ? nil:full.map(\.temperature).reduce(0,+)/Double(full.count)}
     private var warningKind:MetricKind? {timeline.sensor == .cpu ? .cpuTemperature:(timeline.sensor == .gpu ? .gpuTemperature:nil)}
@@ -72,23 +71,24 @@ struct TemperaturePanel:View,Equatable {
     }
     var body:some View {
         VStack(alignment:.leading,spacing:12) {
-            HStack {
-                Text(L("温度趋势")).font(.system(size:14,weight:.semibold));Spacer()
+            HStack(alignment:.firstTextBaseline,spacing:8) {
+                Text(L("温度趋势")).font(.system(size:14,weight:.semibold))
+                Text("°C").font(.system(size:11)).foregroundColor(Palette.secondaryText)
+                Spacer(minLength:16)
                 if timeline.isPreview {Text(L("模拟")).font(AppTypography.caption).foregroundColor(.orange)}
-                if allowsSensorSelection {Picker(L("温度来源"),selection:$timeline.sensor) {Text("CPU").tag(SensorCategory.cpu);Text("GPU").tag(SensorCategory.gpu);Text(L("硬盘 / 存储")).tag(SensorCategory.storage);Text(L("电池")).tag(SensorCategory.battery)}.labelsHidden().frame(width:135)}
-                Text("°C").font(.system(size:12)).foregroundColor(Palette.secondaryText)
-                Picker(L("时间范围"),selection:$timeline.minutes) {Text(L("5 分钟")).tag(5);Text(L("10 分钟")).tag(10);Text(L("30 分钟")).tag(30)}.labelsHidden().frame(width:90)
+                HStack(spacing:12) {
+                    if allowsSensorSelection {
+                        temperatureSourceMenu
+                        Divider().frame(height:14).opacity(0.4)
+                    }
+                    SensorTrendRangePicker(minutes:$timeline.minutes)
+                }.fixedSize(horizontal:true,vertical:false)
             }
             if points.isEmpty {
                 SensorUnavailableNotice()
             } else {
             if expanded {ChartOptions(automatic:$automatic,filled:$filled,paused:frozen != nil,onPause:togglePause)}
             else if !neutralPanels {options}
-            if modes.count>1 || (!neutralPanels && !modes.isEmpty) {
-                LazyVGrid(columns:[GridItem(.adaptive(minimum:180),alignment:.leading)],alignment:.leading,spacing:8) {
-                    ForEach(modes,id:\.self) {mode in HStack(spacing:6) {Circle().fill(color(mode)).frame(width:6,height:6);Text(L(mode)).font(.system(size:12)).foregroundColor(Palette.secondaryText)}}
-                }
-            }
             temperatureChart
             ChartReadout(date:hovered?.date,value:hovered.map{String(format:"%.1f°C",$0.temperature)} ?? "—",mode:hovered?.mode,color:hovered.map{color($0.mode)} ?? accent,paused:frozen != nil,supportsClickInspection:true)
             Divider().opacity(0.4)
@@ -111,6 +111,21 @@ struct TemperaturePanel:View,Equatable {
             if neutralPanels && !expanded {options}
             }
         }.modifier(TemperaturePanelSurface(neutral:neutralPanels)).onChange(of:timeline.sensor){_ in resume()}.onChange(of:timeline.minutes){_ in resume()}.onDisappear{resume()}
+    }
+    private var temperatureSourceMenu:some View {
+        Menu {
+            Picker(L("温度来源"),selection:$timeline.sensor) {
+                Text("CPU").tag(SensorCategory.cpu)
+                Text("GPU").tag(SensorCategory.gpu)
+                Text(L("硬盘 / 存储")).tag(SensorCategory.storage)
+                Text(L("电池")).tag(SensorCategory.battery)
+            }.pickerStyle(.inline).labelsHidden()
+        } label:{
+            Text(L(timeline.sensor.rawValue))
+        }.menuStyle(.borderlessButton).appControlSize(.small)
+            .font(.system(size:12,weight:.medium)).fixedSize().frame(minHeight:24)
+            .help(L("温度来源")).accessibilityLabel(L("温度来源"))
+            .accessibilityValue(L(timeline.sensor.rawValue)).accessibilityIdentifier("chartTemperatureSource")
     }
     private var options:some View {
         DisclosureGroup(L("图表选项"),isExpanded:$showOptions) {

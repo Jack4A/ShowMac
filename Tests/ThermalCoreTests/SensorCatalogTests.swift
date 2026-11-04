@@ -1,3 +1,4 @@
+import Foundation
 import ThermalCore
 
 final class SensorCatalogTests {
@@ -34,5 +35,22 @@ final class SensorCatalogTests {
         expectEqual(missing.first?.title,"直流输入功耗")
         expectEqual(missing.first?.value,20)
         expectTrue(SensorCatalog.common([reading("Tunknown")],platform:.generic).isEmpty)
+    }
+    func testTemperatureSourcesMatchKnownPlatformProbes() {
+        let sample=Snapshot(date:Date(),cpuUsage:10,sensors:[
+            SensorReading(key:"TCMb",label:"CPU",celsius:55),
+            SensorReading(key:"Te05",label:"CPU probe",celsius:62),
+            SensorReading(key:"Tg0d",label:"GPU probe",celsius:82),
+            SensorReading(key:"Tg0D",label:"Unverified probe",celsius:115),
+            SensorReading(key:"Tunknown",label:"Unknown probe",celsius:120),
+            SensorReading(key:"TG0P",label:"Invalid GPU",celsius:.infinity)
+        ],fans:[],speedLimit:100,schedulerLimit:100,availableCPUs:8,totalCPUs:8,thermalState:0,thermalWarning:nil,turbo:.unsupported,acPower:true,lowPower:false,smcAvailable:true)
+        expectEqual(sample.temperature(.cpu,platform:.appleM4),62)
+        expectEqual(sample.temperature(.gpu,platform:.appleM4),82)
+        expectEqual(sample.temperature(.cpu,platform:.generic),55)
+        expectNil(sample.temperature(.gpu,platform:.generic))
+        expectEqual(SensorCategory.category(for:"Tg0d",platform:.appleM4),.gpu)
+        expectEqual(SensorCategory.category(for:"Tg0D",platform:.appleM4),.other)
+        expectEqual(SensorCategory.category(for:"Tg0G",platform:.appleM4ProMax),.other)
     }
 }

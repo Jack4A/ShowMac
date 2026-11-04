@@ -46,7 +46,8 @@ public struct CommonSensorReading:Identifiable {
     public let sources:[String]
 }
 
-/// Presentation metadata only. It never changes control sensors, sampling or diagnosis.
+/// Exact component identities shared by display and temperature sources.
+/// Unknown or unverified probe IDs remain unclassified.
 public enum SensorCatalog {
     // Component identities cross-checked against the referenced SMC catalogs.
     // M4 mappings are deliberately exact and case-sensitive; these are probes, not core counts.

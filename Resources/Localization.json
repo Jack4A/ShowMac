@@ -1,4 +1,31 @@
 {
+  "取最高温": {
+    "en": "Use highest"
+  },
+  "控制温度": {
+    "en": "Control temperature"
+  },
+  "至少保留一个温度来源": {
+    "en": "Keep at least one temperature source selected"
+  },
+  "勾选 CPU 和 GPU 时，按两者最高温度调速。": {
+    "en": "Select CPU and GPU to control fan speed using the higher temperature."
+  },
+  "GPU 温度暂不可读，当前参考 CPU。": {
+    "en": "GPU temperature is unavailable; currently using CPU temperature."
+  },
+  "GPU 温度暂不可读，无法按 GPU 调速。": {
+    "en": "GPU temperature is unavailable; GPU fan control cannot run."
+  },
+  "最后一个控制点的温度不能超过 90°C": {
+    "en": "The final control point must be at or below 90°C"
+  },
+  "连续拖动调节，末端点设置最高转速": {
+    "en": "Drag smoothly to adjust; the final point sets the maximum speed"
+  },
+  "最高转速不超过风扇额定范围；高温保护可能超过曲线上限。": {
+    "en": "Speed stays within the fan's rated range. Thermal protection may exceed the curve's limit."
+  },
   "由 macOS 决定转速，不使用应用曲线": {
     "en": "macOS decides the fan speed; app curves are not applied"
   },

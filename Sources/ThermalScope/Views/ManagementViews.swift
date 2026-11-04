@@ -9,7 +9,6 @@ struct PreferencesPage:View {
     @State private var showWidgets=false
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
-            aboutSection
             MenuSettings(model:model)
             VStack(spacing:10) {
                 preferenceRow("主题",detail:nil) {
@@ -40,6 +39,7 @@ struct PreferencesPage:View {
             DisclosureGroup(L("系统小组件"),isExpanded:$showWidgets) {
                 WidgetSettings(model:model).padding(.top,10)
             }.font(AppTypography.body).subtlePanel(padding:18)
+            aboutSection
         }
     }
     private var aboutSection:some View {

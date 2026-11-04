@@ -89,7 +89,12 @@ struct MetricTrendChart:View {
     var scale:ClosedRange<Double> {MetricPlot.scale(values,automatic:automatic,upper:kind.fixedUpper)}
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
-            HStack {Text(L("趋势图")).font(AppTypography.section);Spacer();Text(kind.unit).font(.system(size:12)).foregroundColor(Palette.secondaryText);Picker(L("时间范围"),selection:$minutes){Text(L("5 分钟")).tag(5);Text(L("10 分钟")).tag(10);Text(L("30 分钟")).tag(30)}.labelsHidden().frame(width:100)}
+            HStack(alignment:.firstTextBaseline,spacing:8) {
+                Text(L("趋势图")).font(AppTypography.section)
+                Text(kind.unit).font(.system(size:11)).foregroundColor(Palette.secondaryText)
+                Spacer(minLength:16)
+                SensorTrendRangePicker(minutes:$minutes)
+            }
             ChartOptions(automatic:$automatic,filled:$filled,paused:frozen != nil,onPause:togglePause)
             if kind == .cpuUsage && warningsEnabled {Text(L("全机 CPU ≥70% 显示橙色；≥90% 连续采样满 10 秒显示红色。缺失或断档重新计时。")).font(.system(size:12)).foregroundColor(Palette.secondaryText)}
             trendChart

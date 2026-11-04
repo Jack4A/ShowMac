@@ -83,29 +83,52 @@
   const svg=document.querySelector('#curve-chart');
   if(!svg)return;
   const templates={auto:[[40,10],[55,25],[68,50],[80,78],[90,100]],quiet:[[40,4],[55,12],[68,34],[80,68],[90,100]],balanced:[[40,10],[55,25],[68,50],[80,78],[90,100]],boost:[[40,24],[55,45],[68,67],[80,90],[90,100]]};
-  let points=templates.auto.map(p=>[...p]),dragging=null;
+  let points=templates.auto.map(p=>[...p]),dragging=null,originalPoints=null;
   const x=t=>65+(t-30)/70*790,y=p=>260-p/100*230;
+  const readout=([t,p])=>`${t.toFixed(1)}°C → ${Math.round(1000+p*50)} RPM`;
+  function curvePercent(t){
+    if(t<=points[0][0])return points[0][1];
+    for(let i=1;i<points.length;i++)if(t<=points[i][0]){
+      const [a,b]=points[i-1],[c,d]=points[i];return b+(d-b)*(t-a)/(c-a);
+    }
+    return points[points.length-1][1];
+  }
+  function renderSources(){
+    const controls=[...document.querySelectorAll('[data-curve-source]')];
+    const selected=controls.filter(input=>input.checked);
+    controls.forEach(input=>{input.disabled=selected.length===1&&input.checked;});
+    if(!selected.length)return;
+    const temperature=Math.max(...selected.map(input=>Number(input.value)));
+    const percent=curvePercent(temperature);
+    document.querySelector('#curve-source-readout').textContent=(selected.length>1?'MAX':selected[0].dataset.curveSource)+` ${readout([temperature,percent])}`;
+    const marker=document.querySelector('#curve-input-marker');marker.setAttribute('cx',x(temperature));marker.setAttribute('cy',y(percent));
+  }
   function selectMode(mode){document.querySelectorAll('[data-mode]').forEach(b=>{const active=b.dataset.mode===mode;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});}
   function render(){
     const positions=points.map(([t,p])=>[x(t),y(p)]);
     document.querySelector('#curve-path').setAttribute('d',positions.map(([a,b],i)=>(i?'L':'M')+a.toFixed(1)+' '+b.toFixed(1)).join(' '));
     document.querySelector('#curve-area').setAttribute('d',`M${positions[0][0]} 260 `+positions.map(([a,b])=>`L${a} ${b}`).join(' ')+` L${positions[positions.length-1][0]} 260 Z`);
-    handles.forEach((handle,i)=>{const [t,p]=points[i];handle.setAttribute('cx',x(t));handle.setAttribute('cy',y(p));handle.setAttribute('aria-label',`Point ${i+1}: ${t}°C, ${1000+p*50} RPM`);handle.setAttribute('aria-valuenow',1000+p*50);});
+    handles.forEach((handle,i)=>{const [t,p]=points[i];handle.setAttribute('cx',x(t));handle.setAttribute('cy',y(p));handle.setAttribute('aria-label',(language==='zh'?`控制点 ${i+1}：`:`Point ${i+1}: `)+readout([t,p]));handle.setAttribute('aria-valuenow',Math.round(1000+p*50));});
+    renderSources();
   }
   function update(index,t,p){
-    const lowerT=index?points[index-1][0]+2:30,upperT=index===points.length-1?95:points[index+1][0]-2;
-    const lowerP=index?points[index-1][1]:0,upperP=index===points.length-1?100:points[index+1][1];
-    points[index]=[Math.round(Math.min(upperT,Math.max(lowerT,t))),index===points.length-1?100:Math.round(Math.min(upperP,Math.max(lowerP,p)))];
-    const point=points[index];document.querySelector('#curve-readout').textContent=`${point[0]}°C → ${1000+point[1]*50} RPM`;selectMode('custom');render();
+    const last=index===points.length-1;
+    if(last&&originalPoints)points=originalPoints.map(point=>[...point]);
+    const lowerT=index?points[index-1][0]+2:30,upperT=last?90:points[index+1][0]-2;
+    const lowerP=index&&!last?points[index-1][1]:0,upperP=last?100:points[index+1][1];
+    points[index]=[Math.min(upperT,Math.max(lowerT,t)),Math.min(upperP,Math.max(lowerP,p))];
+    if(last)for(let i=0;i<index;i++)points[i][1]=Math.min(points[i][1],points[index][1]);
+    document.querySelector('#curve-readout').textContent=readout(points[index]);selectMode('custom');render();
   }
   const handles=points.map((point,index)=>{
     const handle=document.createElementNS('http://www.w3.org/2000/svg','circle');handle.classList.add('curve-handle');handle.setAttribute('r','7');handle.setAttribute('tabindex','0');handle.setAttribute('role','slider');handle.setAttribute('aria-valuemin','1000');handle.setAttribute('aria-valuemax','6000');
-    handle.addEventListener('pointerdown',event=>{event.preventDefault();dragging=index;handle.setPointerCapture(event.pointerId);handle.focus();});
+    handle.addEventListener('pointerdown',event=>{event.preventDefault();dragging=index;originalPoints=points.map(point=>[...point]);handle.setPointerCapture(event.pointerId);handle.focus();});
     handle.addEventListener('pointermove',event=>{if(dragging!==index)return;const matrix=svg.getScreenCTM();if(!matrix)return;const location=new DOMPoint(event.clientX,event.clientY).matrixTransform(matrix.inverse());update(index,30+(location.x-65)/790*70,(260-location.y)/230*100);});
-    for(const type of ['pointerup','pointercancel','lostpointercapture'])handle.addEventListener(type,()=>{dragging=null;});
-    handle.addEventListener('keydown',event=>{const [t,p]=points[index];const movement={ArrowLeft:[t-1,p],ArrowRight:[t+1,p],ArrowUp:[t,p+2],ArrowDown:[t,p-2]}[event.key];if(movement){event.preventDefault();update(index,...movement);}});
+    for(const type of ['pointerup','pointercancel','lostpointercapture'])handle.addEventListener(type,()=>{dragging=null;originalPoints=null;});
+    handle.addEventListener('keydown',event=>{const [t,p]=points[index];const movement={ArrowLeft:[t-0.1,p],ArrowRight:[t+0.1,p],ArrowUp:[t,p+1],ArrowDown:[t,p-1]}[event.key];if(movement){event.preventDefault();update(index,...movement);}});
     document.querySelector('#curve-handles').append(handle);return handle;
   });
-  document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>{const mode=button.dataset.mode;if(templates[mode])points=templates[mode].map(p=>[...p]);selectMode(mode);const [t,p]=points[2];document.querySelector('#curve-readout').textContent=`${t}°C → ${1000+p*50} RPM`;render();}));
+  document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>{const mode=button.dataset.mode;if(templates[mode])points=templates[mode].map(p=>[...p]);selectMode(mode);document.querySelector('#curve-readout').textContent=readout(points[2]);render();}));
+  document.querySelectorAll('[data-curve-source]').forEach(input=>input.addEventListener('change',renderSources));
   render();
 })();
