@@ -45,9 +45,10 @@ struct PreferencesPage:View {
     private var aboutSection:some View {
         VStack(alignment:.leading,spacing:12) {
             HStack(spacing:10) {
-                Image(nsImage:NSApp.applicationIconImage)
-                    .resizable().aspectRatio(contentMode:.fit)
-                    .frame(width:44,height:44).accessibilityHidden(true)
+                if let icon=AppInfo.icon {
+                    Image(nsImage:icon).resizable().aspectRatio(contentMode:.fit)
+                        .frame(width:44,height:44).accessibilityHidden(true)
+                }
                 VStack(alignment:.leading,spacing:4) {
                     Text(L("关于ShowMac")).font(AppTypography.body.weight(.semibold))
                     Text(L("版本")+" "+AppInfo.versionLabel).font(.caption).foregroundColor(Palette.secondaryText)

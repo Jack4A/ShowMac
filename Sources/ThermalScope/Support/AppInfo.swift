@@ -5,6 +5,10 @@ enum AppInfo {
     static let developerURL=URL(string:"https://github.com/Jack4A")!
     static let repositoryURL=URL(string:"https://github.com/Jack4A/ShowMac")!
 
+    // Offscreen UI checks do not launch NSApplication; read the bundled artwork
+    // directly rather than asking the application/LaunchServices for its icon.
+    @MainActor static let icon:NSImage?=Bundle.main.url(forResource:"AppIcon",withExtension:"icns").flatMap {NSImage(contentsOf:$0)}
+
     static var versionLabel:String {
         let version=Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "—"
         let build=Bundle.main.object(forInfoDictionaryKey:"CFBundleVersion") as? String ?? "—"
