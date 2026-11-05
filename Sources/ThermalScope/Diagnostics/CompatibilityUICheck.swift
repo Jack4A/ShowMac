@@ -10,7 +10,7 @@ import ThermalCore
         _=NSApplication.shared
         let key=Bundle.main.bundleIdentifier ?? "local.jack.ThermalScope"
         let before=NSDictionary(dictionary:UserDefaults.standard.persistentDomain(forName:key) ?? [:])
-        AppLocalization.shared.set("zh-Hans")
+        AppLocalization.shared.set(ProcessInfo.processInfo.environment["THERMALSCOPE_CAPTURE_LANGUAGE"] == "en" ? "en":"zh-Hans")
         let model=AppModel()
         model.shutdown()
         do {
@@ -28,10 +28,16 @@ import ThermalCore
                 model.timeline.append(sample,mode:index<12 ? "系统自动":"均衡",publish:false)
             }
             model.timeline.resumeVisualUpdates()
+            model.electricity.resume()
+            let energyEnd=Date()
+            for index in 0...360 {
+                model.electricity.recordPower(25+Double(index%80),source:.system,at:energyEnd.addingTimeInterval(Double(index-360)*10),publish:false)
+            }
+            model.electricity.selectSource(.system);model.electricity.rate=0.6;model.electricity.currency="CNY"
             var count=0
             for theme in ["light","dark"] {
                 model.theme=theme
-                for page in [ConsolePage.metrics,.thermal,.sensors,.optimization] {
+                for page in [ConsolePage.metrics,.thermal,.sensors,.optimization,.electricity] {
                     model.tab=0;model.navigation.metric=nil;model.navigation.page=page
                     evidence[theme+"-"+page.rawValue]=try render(ConsoleShell(model:model),name:theme+"-"+page.rawValue,size:CGSize(width:1000,height:760))
                     count+=1
@@ -52,7 +58,7 @@ import ThermalCore
                 let encoder=JSONEncoder();encoder.outputFormatting=[.prettyPrinted,.sortedKeys]
                 try encoder.encode(evidence).write(to:URL(fileURLWithPath:folder).appendingPathComponent("appearance-metrics.json"))
             }
-            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, metric detail, settings, popover, scene manager and stop timer). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
+            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, electricity, metric detail, settings, popover, scene manager and stop timer). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
         } catch {print("FAIL: "+error.localizedDescription);exit(1)}
     }
     private struct RenderEvidence:Codable {

@@ -10,9 +10,9 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.10](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.11](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.10 · build 277** makes every collapsible section clickable across its full header, with matching light/dark hover feedback. Fan control runs continuously by default, with an optional one-shot **Set timer…** action. See the [release notes](docs/releases/v1.18.10.md).
+**1.18.11 · build 278** adds daily, weekly, monthly and yearly electricity history, with a configurable price per kWh and cost estimates. History stays on this Mac and survives app restarts; missing intervals are not extrapolated. See the [release notes](docs/releases/v1.18.11.md).
 
 <img src="docs/screenshots/v1.18.1/en/overview-dark.png" width="1000" alt="ShowMac 1.18.1 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
@@ -22,10 +22,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.10 archive | Control support |
+| Mac | v1.18.11 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.10-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.10-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.11-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.11-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -89,6 +89,14 @@ Menu bar components and popover cards are configured separately. The UI preview 
 <img src="docs/screenshots/v1.18.9/en/status-panel-light.png" width="390" alt="Menu bar preview with five sample cards and unified fan mode, one-shot timer and app switching controls">
 
 <img src="docs/screenshots/v1.18.1/en/settings.png" width="1000" alt="Settings with a draggable menu bar composition and controls to add, reorder or remove popover cards">
+
+### Electricity history and estimated cost
+
+Open **Electricity usage** in the sidebar or menu bar’s More menu. Switch between **Day / Week / Month / Year**, inspect the bars, and use **Set electricity rate** to enter your own price per kWh and currency. No price is assumed. One kWh is one unit of electricity; estimates use the current flat rate, including when viewing history.
+
+Device power, DC input power and battery discharge are recorded separately where available. Choose a source to inspect it; they are never added together. These are internal readings, not a wall-outlet meter or a utility bill. Coverage is shown explicitly. Recording starts with this version while ShowMac runs, including when its window is hidden. Sleep, app exit and unreadable intervals are excluded. Local history is saved periodically and on normal sleep/quit, and survives relaunch.
+
+<img src="docs/screenshots/v1.18.11/en/electricity-light.png" width="1000" alt="Electricity usage UI preview with sample readings and an example rate; real totals start when the updated app runs">
 
 ### Appearance, language and widgets
 

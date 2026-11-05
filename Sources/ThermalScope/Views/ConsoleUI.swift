@@ -33,6 +33,7 @@ struct ConsoleShell:View {
                 ScrollView(showsIndicators:false) {
                     VStack(alignment:.leading,spacing:monitorSample ? 24:16) {
                         if model.tab==1 { PreferencesPage(model:model) }
+                        else if navigation.page == .electricity {ElectricityUsagePage(store:model.electricity)}
                         else if model.snapshot != nil {
                             switch navigation.page {
                             case .metrics:
@@ -47,6 +48,7 @@ struct ConsoleShell:View {
                                 }
                             case .optimization:
                                 PerformanceDiagnosisPage(model:model)
+                            case .electricity:EmptyView()
                             case .thermal:EmptyView()
                             case .sensors:EmptyView()
                             case .processes:

@@ -6689,5 +6689,164 @@
   },
   "点击收起": {
     "en": "Click to collapse"
+  },
+  "设备总功耗": {
+    "en": "Device power"
+  },
+  "设备内部报告的总功耗，不包含所有插座侧损耗。": {
+    "en": "Total power reported inside the device; excludes some wall-outlet losses."
+  },
+  "直流输入侧功耗，可能包含充电，不包含电源适配器损耗。": {
+    "en": "DC input power may include charging and excludes power adapter losses."
+  },
+  "仅统计电池放电；费用为等效估算，不包含充电损耗。": {
+    "en": "Battery discharge only. Cost is an equivalent estimate and excludes charging losses."
+  },
+  "日": {
+    "en": "Day"
+  },
+  "周": {
+    "en": "Week"
+  },
+  "月": {
+    "en": "Month"
+  },
+  "年": {
+    "en": "Year"
+  },
+  "今天": {
+    "en": "Today"
+  },
+  "本周": {
+    "en": "This week"
+  },
+  "本月": {
+    "en": "This month"
+  },
+  "今年": {
+    "en": "This year"
+  },
+  "用电历史格式无效": {
+    "en": "Invalid electricity history format"
+  },
+  "用电历史记录无效": {
+    "en": "Invalid electricity history record"
+  },
+  "用电历史记录重复": {
+    "en": "Duplicate electricity history record"
+  },
+  "用电历史文件过大": {
+    "en": "Electricity history file is too large"
+  },
+  "历史记录无法读取，原文件已保留；本次数据暂未保存。": {
+    "en": "History could not be read. The original file is preserved; this session is not being saved."
+  },
+  "用电历史保存失败，已保留原文件；请检查可用空间和目录权限。": {
+    "en": "History could not be saved. The original file is preserved; check free space and folder permissions."
+  },
+  "用电统计": {
+    "en": "Electricity usage"
+  },
+  "查看已记录的用电量与电费估算。": {
+    "en": "View recorded electricity use and estimated cost."
+  },
+  "统计周期": {
+    "en": "Period"
+  },
+  "统计来源": {
+    "en": "Measurement source"
+  },
+  "统计说明": {
+    "en": "How this is calculated"
+  },
+  "功率随时间累计为用电量，1 度电 = 1 kWh。不同来源分别记录，不相加。": {
+    "en": "Power is integrated over time: 1 unit of electricity = 1 kWh. Sources are recorded separately and never added together."
+  },
+  "仅统计 ShowMac 运行且连续采样的时段；睡眠、退出和读取中断不补算，历史保存在本机。": {
+    "en": "Only continuous samples while ShowMac runs are counted. Sleep, app exit and reading gaps are excluded. History stays on this Mac."
+  },
+  "电费按当前统一单价估算；修改电价会重新估算历史费用，不含阶梯电价、峰谷电价或适配器损耗。": {
+    "en": "Cost uses the current flat rate. Changing it recalculates historical estimates; tiered rates, time-of-use pricing and adapter losses are excluded."
+  },
+  "按当前系统时区显示；跨时区的小时边界采用近似分摊。": {
+    "en": "Displayed in the current system time zone; hourly boundaries across time zones are prorated approximately."
+  },
+  "开始记录": {
+    "en": "Recording started"
+  },
+  "上一周期": {
+    "en": "Previous period"
+  },
+  "下一周期": {
+    "en": "Next period"
+  },
+  "已记录用电": {
+    "en": "Recorded electricity"
+  },
+  "度": {
+    "en": "kWh"
+  },
+  "已记录": {
+    "en": "Recorded"
+  },
+  "当前功率": {
+    "en": "Current power"
+  },
+  "估算电费": {
+    "en": "Estimated cost"
+  },
+  "设置电价": {
+    "en": "Set electricity rate"
+  },
+  "修改电价": {
+    "en": "Edit rate"
+  },
+  " / 度": {
+    "en": " / kWh"
+  },
+  "填写每度电价格后显示估算费用。": {
+    "en": "Set a price per kWh to estimate cost."
+  },
+  "采样估算，非实际账单": {
+    "en": "Sample estimate, not a utility bill"
+  },
+  "用电趋势": {
+    "en": "Electricity trend"
+  },
+  "度 / kWh": {
+    "en": "kWh"
+  },
+  "未采样": {
+    "en": "Not sampled"
+  },
+  "悬停或点击查看分时用电；空白时段未采样。": {
+    "en": "Hover or click to inspect usage. Blank periods were not sampled."
+  },
+  "尚无可累计的采样，连续运行片刻后显示。": {
+    "en": "No accumulated samples yet. Keep ShowMac running for a moment."
+  },
+  "当前来源暂无可读功率，已有历史仍会保留。": {
+    "en": "This source currently has no readable power. Existing history is preserved."
+  },
+  "币种": {
+    "en": "Currency"
+  },
+  "例如 0.60": {
+    "en": "e.g. 0.60"
+  },
+  "每度电单价": {
+    "en": "Price per kWh"
+  },
+  "按统一单价估算；历史费用也会随单价更新。": {
+    "en": "Uses a flat rate. Historical cost estimates update with this rate."
+  },
+  "%d 小时 %d 分钟": {
+    "en": "%d h %d min"
+  },
+  "保存": {
+    "en": "Save"
+  },
+  "%d 秒": {
+    "en": "%d sec"
   }
 }

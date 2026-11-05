@@ -17,7 +17,7 @@ class AppearanceComparisonTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.data = {}
         for theme in ["light", "dark"]:
-            for page in ["metrics", "thermal", "sensors", "optimization", "metric", "settings", "popover"]:
+            for page in ["metrics", "thermal", "sensors", "optimization", "electricity", "metric", "settings", "popover"]:
                 popup = page == "popover"
                 self.data[theme + "-" + page] = {
                     "width": 390 if popup else 1000, "height": 640 if popup else 760,
@@ -37,7 +37,7 @@ class AppearanceComparisonTests(unittest.TestCase):
         (self.root / "26/appearance-metrics.json").write_text(json.dumps(self.data))
 
     def test_same_binary_stable_chrome(self):
-        self.assertEqual(appearance.compare(self.root), 14)
+        self.assertEqual(appearance.compare(self.root), 16)
 
     def test_reversed_dark_selection_fails(self):
         self.change("dark-metrics", "selectedColor", [27, 27, 35, 255])
@@ -61,4 +61,4 @@ class AppearanceComparisonTests(unittest.TestCase):
 
     def test_small_raster_rounding_is_allowed(self):
         self.change("dark-metrics", "selectedColor", [78, 70, 81, 255])
-        self.assertEqual(appearance.compare(self.root), 14)
+        self.assertEqual(appearance.compare(self.root), 16)

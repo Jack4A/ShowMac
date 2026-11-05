@@ -26,6 +26,11 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
     static func main() {
         let core=CoreTests(),cooling=CoolingTests(),history=HistoryTests(),curve=CurveTests()
         let checks:[(String,() throws ->Void)]=[
+            ("Power integrates to kWh without mixing measurement sources",ElectricityUsageTests().testIntegrationAndSources),
+            ("Electricity history excludes outages, sleep and restart gaps",ElectricityUsageTests().testOutagesSleepAndRestart),
+            ("Electricity ignores invalid power, duplicate samples and backwards clocks",ElectricityUsageTests().testInvalidReadingsAndClockJumps),
+            ("Electricity periods split midnight and retain DST calendar boundaries",ElectricityUsageTests().testCalendarBoundariesAndDST),
+            ("Electricity archives reject corrupt and duplicate records",ElectricityUsageTests().testArchiveValidation),
             ("Named fan scenes persist curves and explicit resume intent",FanScenesTests().testSceneStorageAndRestoration),
             ("Invalid or deleted fan scenes cannot silently restore",FanScenesTests().testInvalidScenesCannotRestoreOrOverwrite),
             ("Continuous control exceeds thirty minutes and retains recovery",FanScenesTests().testContinuousControlOutlivesThirtyMinutesAndStops),

@@ -9,11 +9,11 @@ enum PreferencesSection:String,CaseIterable,Identifiable {
     var title:String {switch self {case .general:return "通用";case .menubar:return "状态栏";case .widgets:return "小组件"}}
 }
 enum ConsolePage:String,CaseIterable,Identifiable {
-    case metrics,thermal,optimization,processes,history,sensors
+    case metrics,thermal,optimization,processes,history,sensors,electricity
     var id:String {rawValue}
-    var title:String {switch self {case .metrics:return "实时监测";case .optimization:return "性能诊断";case .thermal:return "温度控制";case .processes:return "进程活动";case .history:return "操作记录";case .sensors:return "传感器"}}
-    var subtitle:String {switch self {case .metrics:return "查看当前指标和温度趋势。";case .optimization:return "先看需要关注的问题，再查看原因和处理方式。";case .thermal:return "选择档位，或直接拖动曲线调速。";case .processes:return "找出 CPU、内存和磁盘活动的来源。";case .history:return "回看最近的操作，导出采样记录。";case .sensors:return "查看这台 Mac 实际提供的全部传感器读数。"}}
-    var symbol:String {switch self {case .metrics:return "chart.xyaxis.line";case .optimization:return "stethoscope";case .thermal:return "thermometer.medium";case .processes:return "list.bullet.rectangle";case .history:return "clock.arrow.circlepath";case .sensors:return "sensor"}}
+    var title:String {switch self {case .metrics:return "实时监测";case .optimization:return "性能诊断";case .thermal:return "温度控制";case .processes:return "进程活动";case .history:return "操作记录";case .sensors:return "传感器";case .electricity:return "用电统计"}}
+    var subtitle:String {switch self {case .metrics:return "查看当前指标和温度趋势。";case .optimization:return "先看需要关注的问题，再查看原因和处理方式。";case .thermal:return "选择档位，或直接拖动曲线调速。";case .processes:return "找出 CPU、内存和磁盘活动的来源。";case .history:return "回看最近的操作，导出采样记录。";case .sensors:return "查看这台 Mac 实际提供的全部传感器读数。";case .electricity:return "查看已记录的用电量与电费估算。"}}
+    var symbol:String {switch self {case .metrics:return "chart.xyaxis.line";case .optimization:return "stethoscope";case .thermal:return "thermometer.medium";case .processes:return "list.bullet.rectangle";case .history:return "clock.arrow.circlepath";case .sensors:return "sensor";case .electricity:return "bolt.fill"}}
 }
 extension ConsoleSection {
     var page:ConsolePage {switch self {case .findings,.optimization:return .optimization;case .temperature:return .metrics;case .processes:return .processes}}

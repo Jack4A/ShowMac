@@ -28,6 +28,7 @@ struct TimelineEvent: Identifiable {
     let timeline=TemperatureTimelineStore()
     let metricHistory=MetricHistoryStore()
     let sensorHistory=SensorHistoryStore()
+    let electricity=ElectricityHistoryStore()
     let widgetPublisher=WidgetPublisher()
     private let controller=NativeControlClient()
     private let fanPreview=CommandLine.arguments.contains("--ui-check") ? FanControlPreview():nil
@@ -145,7 +146,7 @@ struct TimelineEvent: Identifiable {
         guard enabled != visualUpdatesEnabled else{return}
         visualUpdatesEnabled=enabled
         if enabled {
-            readings.resumeVisualUpdates();metricHistory.resumeVisualUpdates();sensorHistory.resumeVisualUpdates();timeline.resumeVisualUpdates();fanControl.resumeVisualUpdates()
+            readings.resumeVisualUpdates();metricHistory.resumeVisualUpdates();sensorHistory.resumeVisualUpdates();timeline.resumeVisualUpdates();fanControl.resumeVisualUpdates();electricity.resumeVisualUpdates()
         }
     }
     private func receiveTelemetry(_ value:SystemTelemetry) {
@@ -238,10 +239,11 @@ struct TimelineEvent: Identifiable {
             })
         }
         observers.append(center.addObserver(forName:NSWorkspace.willSleepNotification,object:nil,queue:.main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.fanSuspending=true;self?.stopCooling() }
+            MainActor.assumeIsolated { self?.electricity.suspend();self?.fanSuspending=true;self?.stopCooling() }
         })
         observers.append(center.addObserver(forName:NSWorkspace.didWakeNotification,object:nil,queue:.main) { [weak self] _ in
             MainActor.assumeIsolated {
+                self?.electricity.resume()
                 self?.stopCooling { [weak self] in
                     self?.fanSuspending=false;self?.resumeFanStopTimerAfterWake();self?.fanAutomationLastAttempt=nil;self?.prepareFanRestoration();self?.refresh(reset:true)
                 }
@@ -283,6 +285,7 @@ struct TimelineEvent: Identifiable {
         readings.update(sample,publish:visualUpdatesEnabled)
         metricHistory.record(sample,telemetry:telemetry,publish:visualUpdatesEnabled)
         sensorHistory.record(sample,menuSensors:retainedSensorReferences,publish:visualUpdatesEnabled)
+        if !isFanControlPreview {electricity.record(sample,telemetry:telemetry,publish:visualUpdatesEnabled)}
         widgetPublisher.record(sample,mode:coolingStatus,language:AppLocalization.shared.resolvedLanguage,history:metricHistory)
         optimization.record(sample,telemetry:telemetry)
         diagnostics.receive(sample,telemetry:telemetry,processes:processes,power:optimization)
@@ -484,5 +487,5 @@ struct TimelineEvent: Identifiable {
         do { try Export.csv(history).write(to:url,atomically:true,encoding:.utf8); report(String(format:L("已导出 %d 条采样。"),history.count),error:false) }
         catch { report(error.localizedDescription,error:true) }
     }
-    func shutdown() { fanSuspending=true;fanRestorePending=false;fanStopWork?.cancel();fanAutomationWork?.cancel();updates.shutdown();widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
+    func shutdown() { fanSuspending=true;fanRestorePending=false;fanStopWork?.cancel();fanAutomationWork?.cancel();electricity.shutdown();updates.shutdown();widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
 }

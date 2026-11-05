@@ -11,7 +11,7 @@ def compare(root):
         raise ValueError("Expected captures from exactly two macOS versions")
     first, second = [json.loads(path.read_text()) for path in captures]
     expected = {theme + "-" + page for theme in ["light", "dark"]
-                for page in ["metrics", "thermal", "sensors", "optimization", "metric", "settings", "popover"]}
+                for page in ["metrics", "thermal", "sensors", "optimization", "electricity", "metric", "settings", "popover"]}
     if set(first) != expected or set(second) != expected:
         raise ValueError("Incomplete light/dark layout captures")
     for name in sorted(expected):
