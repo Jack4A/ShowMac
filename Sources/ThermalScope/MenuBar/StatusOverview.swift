@@ -20,7 +20,8 @@ struct StatusOverview:View {
     }
     private var panelHeight:CGFloat {
         if editing {return height}
-        let contents=122+StatusCardLayout.height(count:model.statusPanel.cards.count)+(model.statusPanel.showFanControls ? 112:0)+(model.statusPanel.showProcesses ? 100:0)+(model.messageIsError ? 32:0)
+        let fanHeight=model.statusPanel.showFanControls ? 122+(model.systemFanHeatWarning || control.status?.protectionActive==true ? 18:0):0
+        let contents=122+StatusCardLayout.height(count:model.statusPanel.cards.count)+CGFloat(fanHeight)+(model.statusPanel.showProcesses ? 110:0)+(model.messageIsError ? 32:0)
         return min(height,max(240,contents))
     }
     var turbo:String {

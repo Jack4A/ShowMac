@@ -10,9 +10,9 @@
 
 原生 macOS 温度、风扇与性能诊断工具。在菜单栏查看读数，进入主窗口观察近期趋势，或直接选择风扇档位、调整温度—转速曲线。
 
-**公开下载：[v1.18.6](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
+**公开下载：[v1.18.7](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
 
-**1.18.6 · build 273** 加入按应用自动切换场景，并精简菜单栏控制卡片。为剪辑软件或游戏关联场景，前台应用优先；手动选档会暂停自动切换，详见[更新说明](docs/releases/v1.18.6.md)。
+**1.18.7 · build 274** 加入按应用自动切换场景，并精简菜单栏控制卡片。为剪辑软件或游戏关联场景，前台应用优先；手动选档会暂停自动切换，详见[更新说明](docs/releases/v1.18.7.md)。
 
 <img src="docs/screenshots/v1.18.1/zh/overview-dark.png" width="1000" alt="ShowMac 1.18.1 深色实时监测界面，展示 CPU 温度、风扇转速、CPU 使用率与真实温度趋势">
 
@@ -24,10 +24,10 @@
 2. 下载适合本机芯片的 ZIP，解压后将 **showmac.app** 拖到“应用程序”。
 3. 打开应用，点击顶部菜单栏项目。启动后先在菜单栏监测，不自动弹出主窗口。
 
-| Mac 类型 | v1.18.6 安装包 | 控制能力 |
+| Mac 类型 | v1.18.7 安装包 | 控制能力 |
 | --- | --- | --- |
-| Intel | `showmac-1.18.6-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
-| Apple Silicon | `showmac-1.18.6-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
+| Intel | `showmac-1.18.7-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
+| Apple Silicon | `showmac-1.18.7-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
 
 预编译应用不需要 Xcode、Swift 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
 
@@ -55,7 +55,7 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 随时选择“自动”即可将控制交回 macOS，由系统决定风扇转速，应用曲线及其温度阈值不再生效。应用接管默认“持续运行”，也可选择 30 分钟、1 小时或 2 小时；退出软件、控制传感器缺失或控制检查失败时交回系统，高温保护始终有效。页面顶部显示持续控制状态或剩余时间。高温且风扇接近最低转速时会明确提示，不会擅自切换控制模式。“风扇测试…”会先确认，再进行 5 秒满速测试。
 
-<img src="docs/screenshots/v1.18.6/zh/thermal-control.png" width="1000" alt="最新版温度控制界面：五个等宽档位与可拖动的温度—RPM 曲线，当前选择系统自动">
+<img src="docs/screenshots/v1.18.7/zh/thermal-control.png" width="1000" alt="最新版温度控制界面：五个等宽档位与可拖动的温度—RPM 曲线，当前选择系统自动">
 
 ### 保存自己的场景
 
@@ -69,7 +69,7 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 ### 按应用自动切换
 
-<img src="docs/screenshots/v1.18.6/zh/scene-manager.png" width="520" alt="场景与应用界面预览：命名场景、关联应用与自动切换开关">
+<img src="docs/screenshots/v1.18.7/zh/scene-manager.png" width="520" alt="场景与应用界面预览：命名场景、关联应用与自动切换开关">
 
 从温度控制或菜单栏风扇设置进入“场景与应用”，点击场景旁的应用图标，关联正在运行的应用，也可选择其他已安装应用。每个应用对应一个场景。配置好后打开“按应用切换”；此功能默认关闭。
 
@@ -88,7 +88,7 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 顶部菜单栏组件与弹窗卡片分别配置。下方界面预览展示五张示例卡片和精简后的风扇控制；使用示例读数，隐藏进程排行。
 
-<img src="docs/screenshots/v1.18.6/zh/status-panel-light.png" width="390" alt="最新菜单栏弹窗：五张可配置卡片、风扇档位与 CPU 进程排行">
+<img src="docs/screenshots/v1.18.7/zh/status-panel-light.png" width="390" alt="最新菜单栏弹窗：五张可配置卡片、风扇档位与 CPU 进程排行">
 
 <img src="docs/screenshots/v1.18.1/zh/settings.png" width="1000" alt="新版设置页：可拖动的菜单栏组合，以及添加、排序、删除弹窗卡片的控件">
 

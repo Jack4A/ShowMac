@@ -20,7 +20,13 @@ import ThermalCore
     }
     func decorate(_ source:Snapshot)->Snapshot {
         expire()
-        let sensors=scenario=="unavailable" ? []:(scenario=="protection" ? [SensorReading(key:"TC0P",label:"CPU",celsius:95)]:source.sensors)
+        let sensors:[SensorReading]
+        switch scenario {
+        case "unavailable":sensors=[]
+        case "protection":sensors=[SensorReading(key:"TC0P",label:"CPU",celsius:95)]
+        case "multi":sensors=[SensorReading(key:"TC0P",label:"CPU",celsius:65),SensorReading(key:"TG0P",label:"GPU",celsius:60)]
+        default:sensors=source.sensors
+        }
         let baseFans: [FanReading]
         if scenario=="multi" {
             baseFans=[FanReading(id:0,rpm:1000,minimum:1000,maximum:4900,manual:false,controllable:true),FanReading(id:1,rpm:1500,minimum:1500,maximum:6000,manual:false,controllable:true)]

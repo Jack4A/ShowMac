@@ -121,7 +121,7 @@ import WidgetUI
         if statusPopover.isShown {statusPopover.performClose(nil);return}
         guard let button=statusItem.button else{return}
         let available=button.window?.screen?.visibleFrame.height ?? 800
-        let height=min(540,max(320,available-32))
+        let height=min(640,max(320,available-32))
         let view=StatusOverview(model:model,height:height,onNavigate:{[weak self] value in
             self?.statusPopover.performClose(nil);self?.navigateStatusDestination(value)
         },onSettings:{[weak self] in
