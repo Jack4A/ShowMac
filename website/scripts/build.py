@@ -78,9 +78,10 @@ for manifest in [arm,intel]:
  archive=downloads/manifest['archive'];builds[manifest['architecture']]={'file':archive.name,'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}
 metadata={'version':arm['version'],'build':arm['build'],'minimumMacOS':arm['minimum_macos'],'sourceCommit':arm['source_commit'],'siteCommit':site_commit,'signing':arm['signing'],'notarized':arm['notarized'],'builds':builds}
 (dist/'release.json').write_text(json.dumps(metadata,indent=2)+'\n')
-(dist/'robots.txt').write_text('User-agent: *\nAllow: /\nSitemap: https://show-mac.cc/sitemap.xml\n')
+(dist/'robots.txt').write_text('User-agent: *\nAllow: /\nSitemap: https://show-mac.cc/sitemap.xml\nSitemap: https://show-mac.cc/sitemap.txt\n')
 urls=[f'https://show-mac.cc/{lang}/{page}' for lang in ['en','zh'] for page in ['','support/','privacy/']]
 (dist/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+''.join('<url><loc>'+u+'</loc></url>' for u in urls)+'</urlset>')
+(dist/'sitemap.txt').write_text('\n'.join(urls)+'\n',encoding='utf-8')
 if args.hosting=='cloudflare':
  shutil.copy2(SITE/'cloudflare/worker.mjs',dist/'_worker.js')
  shutil.copy2(SITE/'cloudflare/headers',dist/'_headers')
