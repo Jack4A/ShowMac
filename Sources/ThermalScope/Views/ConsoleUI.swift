@@ -43,7 +43,7 @@ struct ConsoleShell:View {
                                     TemperaturePanel(timeline:model.timeline,expanded:false,initialArea:true).equatable().id(ConsoleSection.temperature)
                                     SupplementaryMetrics(readings:model.readings,onTemperature:{showMetric($0)},onMemory:{showMetric(.memory)})
                                     OverviewRecommendations(store:model.diagnostics,onAction:model.follow,onReview:{navigation.go(.findings)})
-                                    DisclosureGroup(L("状态详情"),isExpanded:$diagnostics) {LiveThermalDetails(readings:model.readings).padding(.top,12)}
+                                    AppDisclosureGroup(L("状态详情"),isExpanded:$diagnostics) {LiveThermalDetails(readings:model.readings).padding(.top,12)}
                                 }
                             case .optimization:
                                 PerformanceDiagnosisPage(model:model)
@@ -51,7 +51,7 @@ struct ConsoleShell:View {
                             case .sensors:EmptyView()
                             case .processes:
                                 ProcessObserverPanel(observer:model.processes,onInspect:{navigation.applicationID=$0}).id(ConsoleSection.processes)
-                                DisclosureGroup(L("负载依据"),isExpanded:$loadEvidence) {LoadEvidencePanel(observer:model.processes).padding(.top,12)}
+                                AppDisclosureGroup(L("负载依据"),isExpanded:$loadEvidence) {LoadEvidencePanel(observer:model.processes).padding(.top,12)}
                             case .history:
                                 VStack(alignment:.leading,spacing:14) {
                                     HStack { Text(L("最近的操作")).font(AppTypography.section);Spacer();Button(L("导出采样")) {model.exportCSV()}.buttonStyle(.borderless) }

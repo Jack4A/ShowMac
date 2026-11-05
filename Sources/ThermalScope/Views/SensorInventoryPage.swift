@@ -90,7 +90,7 @@ struct SensorInventoryPage:View {
                 if !other.isEmpty {
                     if !query.isEmpty || filter != nil {section("用途未识别",rows:other)}
                     else {
-                        DisclosureGroup(isExpanded:$showOther) {
+                        AppDisclosureGroup(isExpanded:$showOther) {
                             grid(other).padding(.top,10)
                         } label:{Text(String(format:L("其他探头 · %d 项用途尚未公开"),other.count)).font(.system(size:13))}
                     }

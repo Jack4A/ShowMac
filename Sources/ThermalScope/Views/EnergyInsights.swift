@@ -7,7 +7,7 @@ struct OptimizationWorkbench:View {
     @ObservedObject var navigation:DiagnosticNavigation
     let globalBusy:Bool
     var body:some View {
-        DisclosureGroup(isExpanded:$navigation.optimizationExpanded) {
+        AppDisclosureGroup(isExpanded:$navigation.optimizationExpanded,inset:22) {
             VStack(alignment:.leading,spacing:16) {
                 Text(L("由建议准备方案，应用前可审阅每项改动。")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
                 AppSegmentedPicker(title:L("优化面板"),selection:navigation.optimizationTab,
@@ -21,7 +21,7 @@ struct OptimizationWorkbench:View {
                 Spacer()
                 Text(L(optimizer.backup != nil ? "有可恢复的改动":"按需调整")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
             }
-        }.subtlePanel()
+        }.subtlePanel(padding:0)
             .onAppear{if optimizer.backup != nil {navigation.optimizationExpanded=true}}
     }
 }

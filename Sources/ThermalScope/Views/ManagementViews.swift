@@ -33,9 +33,9 @@ struct PreferencesPage:View {
                     }
                 }
             }.subtlePanel(padding:18)
-            DisclosureGroup(L("系统小组件"),isExpanded:$showWidgets) {
+            AppDisclosureGroup(L("系统小组件"),isExpanded:$showWidgets,inset:18) {
                 WidgetSettings(model:model).padding(.top,10)
-            }.font(AppTypography.body).subtlePanel(padding:18)
+            }.font(AppTypography.body).subtlePanel(padding:0)
             aboutSection
         }
     }

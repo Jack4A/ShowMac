@@ -39,13 +39,13 @@ struct MenuSettings:View {
             }
             StatusCardEditor(model:model,embedded:true).subtlePanel(padding:18)
             if model.menuStyle == "custom" {
-                DisclosureGroup(L("字体与外观"),isExpanded:$showAppearance) {
+                AppDisclosureGroup(L("字体与外观"),isExpanded:$showAppearance,inset:18) {
                     VStack(alignment:.leading,spacing:18) {
                         MenuFontControls(model:model)
                         Divider().opacity(0.45)
                         MenuAppearanceControls(model:model)
                     }.padding(.top,14)
-                }.font(AppTypography.body).subtlePanel(padding:18)
+                }.font(AppTypography.body).subtlePanel(padding:0)
             }
         }.sheet(item:$editing) {component in
             MenuTileEditor(model:model,componentID:component.id,metric:component.metric,onClose:{editing=nil})

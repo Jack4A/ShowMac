@@ -119,7 +119,7 @@ struct TemperaturePanel:View,Equatable {
             .accessibilityIdentifier("chartTemperatureSource")
     }
     private var options:some View {
-        DisclosureGroup(L("图表选项"),isExpanded:$showOptions) {
+        AppDisclosureGroup(L("图表选项"),isExpanded:$showOptions) {
             ChartOptions(automatic:$automatic,filled:$filled,paused:frozen != nil,onPause:togglePause).padding(.top,8)
         }.font(.system(size:12))
     }

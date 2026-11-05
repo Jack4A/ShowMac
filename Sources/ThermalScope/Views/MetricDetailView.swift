@@ -35,7 +35,7 @@ struct MetricDetailView:View {
             if let sensor=kind.sensor {
                 fact("热压力",L(readings.snapshot?.thermalTitle ?? "未知"))
                 fact("运行模式",L(model.coolingStatus))
-                DisclosureGroup(L("传感器读数")) {
+                AppDisclosureGroup(L("传感器读数")) {
                     ForEach((readings.snapshot?.sensors ?? []).filter{$0.category==sensor}.sorted{$0.key<$1.key}) {reading in
                         HStack {Text(reading.label+" · "+reading.key).lineLimit(1);Spacer();Text(String(format:"%.1f°C",reading.celsius)).appMonospacedDigit()}.font(.system(size:12)).padding(.vertical,3)
                     }

@@ -85,7 +85,7 @@ struct PerformanceDiagnosisPage:View {
         return cpu+" / "+valueText(gpu,unit:"°C")
     }
     private var details:some View {
-        DisclosureGroup(L("诊断详情"),isExpanded:$showDetails) {
+        AppDisclosureGroup(L("诊断详情"),isExpanded:$showDetails,inset:22) {
             VStack(alignment:.leading,spacing:16) {
                 if !missing.isEmpty {
                     Text(L("暂不可用：")+missing.joined(separator:AppLocalization.shared.resolvedLanguage.hasPrefix("zh") ? "、":", "))
@@ -112,12 +112,12 @@ struct PerformanceDiagnosisPage:View {
                     ForEach(observations) {finding in DiagnosticFindingRow(finding:finding,onAction:model.follow)}
                 }
                 Divider()
-                DisclosureGroup(L("判定规则"),isExpanded:$showRules) {
+                AppDisclosureGroup(L("判定规则"),isExpanded:$showRules) {
                     Text(L("CPU：观察至少 45 秒，应用平均占用一个核心且当前仍活跃时提示。温度：CPU ≥90°C 或 GPU ≥85°C 持续 30 秒时提示；系统热压力与限速单独判断。内存依据系统压力，磁盘持续传输仅作信息。缺失或过期数据保持未知。"))
                         .font(AppTypography.caption).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true).padding(.top,6)
                 }
             }.padding(.top,12)
-        }.subtlePanel()
+        }.subtlePanel(padding:0)
     }
     @ViewBuilder private var adjustments:some View {
         if (AppDistribution.isAppStore || ControlAvailability.isAppleSilicon) && optimizer.backup==nil {

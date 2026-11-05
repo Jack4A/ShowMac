@@ -6677,5 +6677,17 @@
   },
   "开始": {
     "en": "Start"
+  },
+  "已展开": {
+    "en": "Expanded"
+  },
+  "已收起": {
+    "en": "Collapsed"
+  },
+  "点击展开": {
+    "en": "Click to expand"
+  },
+  "点击收起": {
+    "en": "Click to collapse"
   }
 }
