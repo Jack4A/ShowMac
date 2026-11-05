@@ -8,7 +8,7 @@ extension AppModel {
     }
     var fanControlSummary:String {
         if systemFansAutomatic {return "系统自动由 macOS 调速，下方曲线尚未启用。"}
-        return fanScenes.duration == .continuous ? "持续运行，退出软件时交回 macOS；高温保护始终有效。":"到期交回 macOS；高温保护始终有效。"
+        return fanStopTimer==nil ? "持续运行，退出软件时交回 macOS；高温保护始终有效。":"到期恢复系统自动，监控继续；高温保护始终有效。"
     }
     func confirmFanSelection(_ selection:FanModeSelection,curve:FanCurve,automatic:Bool=false) {
         fanRestorePending=false
@@ -33,16 +33,6 @@ extension AppModel {
                 applyFanCurve(curve,name:scene.name,selection:.scene(scene.id))
             }catch {report(error.localizedDescription,error:true)}
         } else {customCurve=curve;applyCustomCurve()}
-    }
-    func setFanDuration(_ duration:FanControlDuration) {
-        guard !busy,fanScenes.duration != duration else{return}
-        fanScenes.duration=duration
-        guard let curve=sessionCurve,coolingToken != nil else{return}
-        let selection:FanModeSelection=activeFanSceneID.map{.scene($0)} ?? fanScenes.selection
-        let previous=fanAutomationApplying
-        fanAutomationApplying=fanAutomation.enabled
-        defer {fanAutomationApplying=previous}
-        applyFanCurve(curve,name:activeFanScene?.name ?? controlName,selection:selection)
     }
     func saveFanScene(name:String,curve:FanCurve)->Bool {
         do {

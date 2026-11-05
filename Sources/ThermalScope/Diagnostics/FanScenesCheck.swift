@@ -7,7 +7,7 @@ import ThermalCore
         guard CommandLine.arguments.contains("--ui-check") else{print("Use --fan-scenes-check --ui-check.");exit(2)}
         _=NSApplication.shared
         Task { @MainActor in
-            do {try await check();print("PASS: named scene activation, continuous/timed telemetry, curve updates, rename/delete, rejected control, resume intent and preference isolation. Simulated helper only; no authorization or hardware writes.");exit(0)}
+            do {try await check();print("PASS: named scenes, one-shot timers, cancel/expiry/wake recovery, preserved countdown across app switches, rejected control, resume intent and preference isolation. Simulated helper only; no authorization or hardware writes.");exit(0)}
             catch {print("FAIL: \(error.localizedDescription)");exit(1)}
         }
         NSApp.run()
@@ -35,8 +35,9 @@ import ThermalCore
         model.applyFanScene(scene.id);try await settled(model)
         try require(model.coolingToken != nil && model.activeFanSceneID==scene.id && model.fanScenes.selection == .scene(scene.id),"Confirmed scene was not shared with app state")
         try require(model.fanControl.status?.continuous==true && model.fanControl.remaining()==nil,"Continuous control displayed an expiry")
-        model.setFanDuration(.hour1);try await settled(model)
+        try require(model.startFanStopTimer(minutes:60),"One-shot timer could not be started");try await settled(model)
         try require(model.fanControl.status?.continuous != true && (model.fanControl.remaining() ?? 0)>3500,"Timed control did not use the selected duration")
+        try require(model.fanScenes.duration == .continuous,"A one-shot timer replaced the persistent continuous default")
         var curve=scene.curve;curve.sensor = .gpu;curve.movePoint(1,temperature:54.125,percent:45.25)
         model.applyEditedFanCurve(curve);try await settled(model)
         try require(model.fanScenes.scenes.first{$0.id==scene.id}?.curve==curve && model.sessionCurve==curve,"Editing a named curve lost its scene or sensor")
@@ -74,13 +75,15 @@ import ThermalCore
         model.setFanAutomationEnabled(true);try await settled(model)
         try require(model.activeFanSceneID==editing.id && model.fanAutomation.enabled,"Opening an associated app did not select its scene")
         try require(model.fanAutomation.manualSelection == .strategy(.balanced),"Automatic activation overwrote the manual fallback")
-        model.setFanDuration(.hour1);try await settled(model)
+        try require(model.startFanStopTimer(minutes:60),"Automation timer could not be started");try await settled(model)
         try require(model.fanAutomation.enabled && (model.fanControl.remaining() ?? 0)>3500,"Changing duration disabled app rules or failed to apply the timer")
+        let originalTimer=model.fanStopTimer
         let token=model.coolingToken
         workspace=([editor],"com.fixture.unrelated");model.evaluateFanAutomation();try await settled(model)
         try require(model.coolingToken==token,"An unrelated app restarted the same fan session")
         workspace=([editor,game],game.id);model.evaluateFanAutomation();try await settled(model)
         try require(model.activeFanSceneID==gaming.id,"Foreground matching app did not win")
+        try require(model.fanStopTimer==originalTimer,"An application switch restarted the one-shot countdown")
         workspace=([editor],nil);model.evaluateFanAutomation();try await settled(model)
         try require(model.activeFanSceneID==editing.id,"Closing a game did not restore the remaining matched workload")
         workspace=([],nil);model.evaluateFanAutomation();try await settled(model)
@@ -93,6 +96,21 @@ import ThermalCore
         try require(decoded.enabled && decoded.manualSelection == .strategy(.quiet),"Relaunch lost enabled rules or the manual fallback")
         model.deleteFanScene(editing.id);try await settled(model)
         try require(!model.fanAutomation.enabled && model.systemFansAutomatic && !model.fanAutomation.rules.contains{$0.sceneID==editing.id},"Deleting an automated active scene left an orphan rule or control session")
+        model.applyFanScene(gaming.id);try await settled(model)
+        try require(model.startFanStopTimer(minutes:15),"Timer did not start after a scene switch");try await settled(model)
+        let validTimer=model.fanStopTimer
+        try require(!model.startFanStopTimer(minutes:0) && model.fanStopTimer==validTimer,"Invalid minutes replaced an active timer")
+        model.cancelFanStopTimer();try await settled(model)
+        try require(model.fanStopTimer==nil && model.fanControl.status?.continuous==true && model.activeFanSceneID==gaming.id,"Cancel did not keep the scene running continuously")
+        workspace=([game],game.id);model.setFanAutomationEnabled(true);try await settled(model)
+        try require(model.startFanStopTimer(minutes:1),"Expiry timer did not start");try await settled(model)
+        model.fanStopTimer=try FanStopTimer(minutes:1,now:Date().addingTimeInterval(-120))
+        model.expireFanStopTimerIfNeeded();try await settled(model)
+        try require(model.systemFansAutomatic && model.fanStopTimer==nil && !model.fanAutomation.enabled && model.fanScenes.selection.isAutomatic,"Timer expiry did not stop control and automatic rules")
+        model.fanStopTimer=try FanStopTimer(minutes:1,now:Date().addingTimeInterval(-120))
+        model.fanScenes.selection = .scene(gaming.id);model.fanAutomation.enabled=true
+        model.resumeFanStopTimerAfterWake()
+        try require(model.fanStopTimer==nil && model.fanScenes.selection.isAutomatic && !model.fanAutomation.enabled,"A timer that expired during sleep resumed a saved scene")
         model.restoreAuto();try await settled(model)
     }
 }

@@ -33,6 +33,8 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
             ("Application scenes prefer foreground and follow workload lifetime",FanAutomationTests().testForegroundPriorityAndWorkloadLifetime),
             ("Application mappings persist and move without duplicates",FanAutomationTests().testMappingsMoveAndSurviveRelaunch),
             ("Application rules reject invalid input and removed scenes",FanAutomationTests().testUntrustedRulesAreBoundedAndDeletedScenesDoNotRun),
+            ("One-shot fan timers are bounded and count sleep without clock extension",FanStopTimerTests().testOneShotClockAndSleepBoundaries),
+            ("Saved durations migrate back to continuous without losing scenes",FanStopTimerTests().testLegacyDurationsCannotBecomeTheNextDefault),
             ("Stable release versions compare numerically",ReleaseVersionTests().testNumericVersions),
             ("Update metadata excludes drafts, previews and malformed payloads",ReleaseVersionTests().testPublishedMetadata),
             ("All macOS versions share readable chart ticks",ChartCoordinatesTests().testSharedAxisTicks),

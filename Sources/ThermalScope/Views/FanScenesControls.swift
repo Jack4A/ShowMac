@@ -18,9 +18,7 @@ struct FanSceneControls:View {
                     .buttonStyle(AppChoiceButtonStyle(expanded:model.fanAutomation.enabled))
                     .help(L("场景与应用")).accessibilityLabel(L("场景与应用"))
             }
-            AppChoicePicker(title:L("控制时长"),selection:Binding(get:{model.fanScenes.duration},set:{model.setFanDuration($0)}),
-                            choices:FanControlDuration.allCases.map{AppChoice($0,L($0.title))})
-                .accessibilityIdentifier("fanDurationPicker")
+            FanStopTimerButton(model:model)
             if !compact {
                 Toggle(L("启动时恢复"),isOn:Binding(get:{model.fanScenes.restoreOnLaunch},set:{value in
                     model.fanScenes.restoreOnLaunch=value
@@ -83,7 +81,7 @@ struct FanSceneManager:View {
             if model.messageIsError {Text(L(model.message)).font(.system(size:11)).foregroundColor(.orange).fixedSize(horizontal:false,vertical:true)}
             Divider().opacity(0.6)
             HStack(spacing:12) {
-                AppChoicePicker(title:L("控制时长"),selection:Binding(get:{model.fanScenes.duration},set:{model.setFanDuration($0)}),choices:FanControlDuration.allCases.map{AppChoice($0,L($0.title))})
+                FanStopTimerButton(model:model)
                 Spacer()
                 Toggle(L("启动时恢复"),isOn:Binding(get:{model.fanScenes.restoreOnLaunch},set:{model.fanScenes.restoreOnLaunch=$0;if !$0 {model.fanRestorePending=false}}))
                     .toggleStyle(.checkbox).font(.system(size:12))

@@ -10,9 +10,9 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.8](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.9](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.8 · build 275** adds app-based scene switching and a simpler menu bar control card. Link editing apps or games to a scene; the foreground app takes priority, while a manual choice pauses automation. See the [release notes](docs/releases/v1.18.8.md).
+**1.18.9 · build 276** keeps fan control running by default and replaces the saved duration selector with a one-shot **Set timer…** action. Choose 15/30/60/120 minutes or enter a custom value; the countdown stays fixed across scene changes. See the [release notes](docs/releases/v1.18.9.md).
 
 <img src="docs/screenshots/v1.18.1/en/overview-dark.png" width="1000" alt="ShowMac 1.18.1 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
@@ -22,10 +22,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.8 archive | Control support |
+| Mac | v1.18.9 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.8-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.8-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.9-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.9-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -51,9 +51,9 @@ Recent history is kept in memory for the current session, up to 30 minutes, and 
 
 Open **Thermal control**, then choose **Auto**, **Quiet**, **Balanced**, **Boost** or **Custom**. Presets apply immediately. Drag a curve point to continuously change temperature and RPM; release it to apply. Drag the final point vertically to set the curve's maximum speed within the fan's rated range. Lowering it caps earlier points too. Arrow keys fine-tune the selected point by 0.1°C or one percentage point of the rated speed range. Select **CPU**, **GPU**, or both checkboxes above the curve; with both selected, the higher temperature drives the same curve. Current temperatures and the effective input are shown alongside them. Thermal protection can override the curve's maximum speed.
 
-Choose **Auto** to return control to macOS at any time. macOS then decides fan speed; the app's curve and temperature thresholds are inactive. App-controlled sessions default to **Keep running**, with optional 30-minute, 1-hour or 2-hour timers. Quitting, a missing control sensor or a failed control check returns fans to macOS; thermal protection remains active throughout. The page shows continuous control or the remaining time, and flags high temperature with fans near minimum speed without silently taking control. **Fan test…** asks for confirmation before a five-second maximum-speed test.
+Choose **Auto** to return control to macOS at any time. macOS then decides fan speed; the app's curve and temperature thresholds are inactive. App-controlled sessions keep running by default. Click **Set timer…** to return fans to system control after 15/30/60/120 minutes or a custom 1–1440 minutes. Cancel the timer to continue running. A timer applies to this app run only, keeps its original deadline across mode/app switches, and is not restored on relaunch. Quitting, a missing control sensor or a failed control check returns fans to macOS; thermal protection remains active throughout. The page shows continuous control or the remaining time, and flags high temperature with fans near minimum speed without silently taking control. **Fan test…** asks for confirmation before a five-second maximum-speed test.
 
-<img src="docs/screenshots/v1.18.7/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
+<img src="docs/screenshots/v1.18.9/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
 
 ### Saved fan scenes
 
@@ -65,7 +65,7 @@ Choose **Create or manage scenes…** to open **Scenes & apps**. Use **New scene
 
 ### Switch scenes with your apps
 
-<img src="docs/screenshots/v1.18.7/en/scene-manager.png" width="520" alt="Scenes and apps UI preview with named scenes, app associations and an opt-in automation switch">
+<img src="docs/screenshots/v1.18.9/en/scene-manager.png" width="520" alt="Scenes and apps UI preview with named scenes, app associations and an opt-in automation switch">
 
 Open **Scenes & apps** from Thermal control or the menu bar fan-control settings. Click the app icon beside a scene to link running apps, or choose another installed app. Each app maps to one scene. Turn on **Switch by app** when ready; it starts off.
 
@@ -86,7 +86,7 @@ Open **Settings → Popover cards → Add card**, or click **Edit** in the menu 
 
 Menu bar components and popover cards are configured separately. The UI preview below shows five example cards and the simplified fan controls. These previews use sample readings; process rankings are hidden.
 
-<img src="docs/screenshots/v1.18.7/en/status-panel-light.png" width="390" alt="Menu bar preview with five sample cards and unified fan mode, duration and app switching controls">
+<img src="docs/screenshots/v1.18.9/en/status-panel-light.png" width="390" alt="Menu bar preview with five sample cards and unified fan mode, one-shot timer and app switching controls">
 
 <img src="docs/screenshots/v1.18.1/en/settings.png" width="1000" alt="Settings with a draggable menu bar composition and controls to add, reorder or remove popover cards">
 

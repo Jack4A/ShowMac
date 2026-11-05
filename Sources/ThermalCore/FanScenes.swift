@@ -87,6 +87,8 @@ public struct FanSceneConfiguration:Codable,Equatable {
         }.prefix(limit).map{$0}
         if case .scene(let id)=value.selection,!value.scenes.contains(where:{$0.id==id}) {value.selection = .strategy(.system)}
         if let curve=value.confirmedCustomCurve,(try? curve.validate())==nil {value.confirmedCustomCurve=nil}
+        // Older releases saved a global duration. Timers now apply to one app run only.
+        value.duration = .continuous
         return value
     }
     public func curve(custom:FanCurve)->FanCurve? {

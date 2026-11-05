@@ -6638,5 +6638,44 @@
   },
   "关联": {
     "en": "Link"
+  },
+  "请输入 1–1440 分钟": {
+    "en": "Enter 1–1440 minutes"
+  },
+  "到期恢复系统自动，监控继续；高温保护始终有效。": {
+    "en": "Returns fans to system control when the timer ends; monitoring and thermal protection continue."
+  },
+  "默认持续运行，需要时再设置定时关闭。": {
+    "en": "Control keeps running by default. Set a timer only when needed."
+  },
+  "启用风扇控制后，可定时恢复系统自动。": {
+    "en": "Start fan control first, then set a timer to return to system control."
+  },
+  "定时关闭": {
+    "en": "Auto-off timer"
+  },
+  "定时关闭…": {
+    "en": "Set timer…"
+  },
+  "%d 分钟后关闭": {
+    "en": "Off in %d min"
+  },
+  "到时恢复系统自动，监控继续。": {
+    "en": "Returns fans to system control; monitoring continues."
+  },
+  "分钟数": {
+    "en": "Minutes"
+  },
+  "分钟后": {
+    "en": "minutes"
+  },
+  "1–1440 分钟，仅本次有效。": {
+    "en": "1–1440 minutes. This app run only."
+  },
+  "取消定时": {
+    "en": "Cancel timer"
+  },
+  "开始": {
+    "en": "Start"
   }
 }

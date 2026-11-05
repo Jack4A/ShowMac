@@ -38,8 +38,7 @@ struct StatusFanControl:View {
                     }),choices:choices,placeholder:L("状态未知"),labelWidth:104,listWidth:250,maximumListHeight:320)
                         .accessibilityIdentifier("statusFanMode")
                     Spacer(minLength:0)
-                    AppChoicePicker(title:L("控制时长"),selection:Binding(get:{model.fanScenes.duration},set:{model.setFanDuration($0)}),choices:FanControlDuration.allCases.map{AppChoice($0,L($0.title))},labelWidth:82)
-                        .accessibilityIdentifier("fanDurationPicker")
+                    FanStopTimerButton(model:model)
                     Button(action:onManage) {Image(systemName:AppSymbols.resolve("slider.horizontal.3"))}
                         .buttonStyle(.plain).foregroundColor(Palette.secondaryText).frame(width:23,height:28)
                         .help(L("场景与应用")).accessibilityLabel(L("场景与应用")).accessibilityIdentifier("fanSceneSettings")

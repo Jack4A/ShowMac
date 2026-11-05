@@ -43,13 +43,16 @@ import ThermalCore
                 evidence[theme+"-settings"]=try render(ConsoleShell(model:model),name:theme+"-settings",size:CGSize(width:1000,height:760));count+=1
                 evidence[theme+"-popover"]=try render(StatusOverview(model:model,height:640,onNavigate:{_ in},onSettings:{},onActions:{},onResize:{_ in}),name:theme+"-popover",size:CGSize(width:390,height:640));count+=1
                 _=try render(FanSceneManager(model:model,curve:.balanced,onClose:{}),name:theme+"-scene-manager-popover",size:CGSize(width:520,height:580));count+=1
+                model.fanStopTimer=try FanStopTimer(minutes:30)
+                _=try render(FanStopTimerButton(model:model).timerOptions,name:theme+"-stop-timer-popover",size:CGSize(width:260,height:250));count+=1
+                model.fanStopTimer=nil
             }
             guard before.isEqual(NSDictionary(dictionary:UserDefaults.standard.persistentDomain(forName:key) ?? [:])) else {throw ScopeError.message("Compatibility check changed saved preferences")}
             if let folder=ProcessInfo.processInfo.environment["THERMALSCOPE_COMPATIBILITY_OUTPUT"] {
                 let encoder=JSONEncoder();encoder.outputFormatting=[.prettyPrinted,.sortedKeys]
                 try encoder.encode(evidence).write(to:URL(fileURLWithPath:folder).appendingPathComponent("appearance-metrics.json"))
             }
-            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, metric detail, settings, popover and scene manager). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
+            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, metric detail, settings, popover, scene manager and stop timer). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
         } catch {print("FAIL: "+error.localizedDescription);exit(1)}
     }
     private struct RenderEvidence:Codable {
