@@ -124,10 +124,10 @@ public struct FanControlProgress {
     public let protectionActive:Bool
 }
 public enum CurveLease {
-    public static func run(hardware:CoolingHardware,curve:FanCurve,duration:Double=1800,
+    public static func run(hardware:CoolingHardware,curve:FanCurve,duration:Double=1800,continuous:Bool=false,
                            sample:()->Snapshot,now:()->Double,isCancelled:()->Bool,wait:()->Void,onUpdate:(FanControlProgress)->Void = {_ in},onApplied:()->Void = {}) throws {
         try curve.validate()
-        guard duration>0,duration<=1800 else { throw ScopeError.message("曲线会话最长 30 分钟") }
+        guard duration.isFinite,duration>0,duration<=86400 else { throw ScopeError.message("无效控制时长") }
         if isCancelled() { return }
         let fans=hardware.fans()
         guard !fans.isEmpty,fans.allSatisfy({$0.controllable && $0.manual==false && $0.minimum != nil && $0.maximum != nil}) else {
@@ -137,7 +137,7 @@ public enum CurveLease {
             guard let low=fan.minimum,let high=fan.maximum,low.isFinite,high.isFinite,low>0,high>=low,high<=12000 else { throw ScopeError.message("无法验证风扇额定范围") }
         }
         for fan in fans { try CoolingLease.validateInheritedTarget(hardware,fan:fan) }
-        let deadline=now()+duration
+        let deadline=continuous ? Double.infinity:now()+duration
         var active=false,previous:Double?
         var lastTargets:[Int:Double]=[:]
         do {

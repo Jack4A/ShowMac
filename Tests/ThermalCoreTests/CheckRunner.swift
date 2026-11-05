@@ -26,6 +26,10 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
     static func main() {
         let core=CoreTests(),cooling=CoolingTests(),history=HistoryTests(),curve=CurveTests()
         let checks:[(String,() throws ->Void)]=[
+            ("Named fan scenes persist curves and explicit resume intent",FanScenesTests().testSceneStorageAndRestoration),
+            ("Invalid or deleted fan scenes cannot silently restore",FanScenesTests().testInvalidScenesCannotRestoreOrOverwrite),
+            ("Continuous control exceeds thirty minutes and retains recovery",FanScenesTests().testContinuousControlOutlivesThirtyMinutesAndStops),
+            ("Timed fan control and continuous protocol stay bounded",FanScenesTests().testTimedControlAndProtocolBoundaries),
             ("Stable release versions compare numerically",ReleaseVersionTests().testNumericVersions),
             ("Update metadata excludes drafts, previews and malformed payloads",ReleaseVersionTests().testPublishedMetadata),
             ("All macOS versions share readable chart ticks",ChartCoordinatesTests().testSharedAxisTicks),

@@ -6449,5 +6449,113 @@
   },
   "上次发现版本 %@。暂时无法重新检查，可前往官网或 GitHub 查看。": {
     "en": "Version %@ was found previously. We could not check again; visit the website or GitHub for the latest release."
+  },
+  "场景": {
+    "en": "Scene"
+  },
+  "场景模式": {
+    "en": "Fan scenes"
+  },
+  "选择场景": {
+    "en": "Choose scene"
+  },
+  "新建或管理场景…": {
+    "en": "Create or manage scenes…"
+  },
+  "控制时长": {
+    "en": "Control duration"
+  },
+  "持续运行": {
+    "en": "Keep running"
+  },
+  "持续控制": {
+    "en": "Continuous control"
+  },
+  "1 小时": {
+    "en": "1 hour"
+  },
+  "2 小时": {
+    "en": "2 hours"
+  },
+  "启动时恢复": {
+    "en": "Restore on launch"
+  },
+  "重新启动或唤醒后恢复上次确认的风扇模式；首次控制仍需系统授权。": {
+    "en": "Restore the last confirmed fan mode after relaunch or wake. System authorization is still required on first control."
+  },
+  "使用中": {
+    "en": "Active"
+  },
+  "删除场景": {
+    "en": "Delete scene"
+  },
+  "保存当前曲线": {
+    "en": "Save current curve"
+  },
+  "场景名称": {
+    "en": "Scene name"
+  },
+  "保存并使用": {
+    "en": "Save and use"
+  },
+  "删除“%@”场景？": {
+    "en": "Delete the “%@” scene?"
+  },
+  "当前场景会停止，风扇恢复系统自动。": {
+    "en": "The active scene will stop and fans will return to system control."
+  },
+  "其他场景保持不变。": {
+    "en": "Other scenes will remain unchanged."
+  },
+  "输入名称后按回车保存": {
+    "en": "Press Return to save the name"
+  },
+  "持续运行，退出软件时交回 macOS；高温保护始终有效。": {
+    "en": "Control continues until you stop it or quit. Thermal protection stays active."
+  },
+  "到期交回 macOS；高温保护始终有效。": {
+    "en": "Control returns to macOS when the timer expires. Thermal protection stays active."
+  },
+  "上次的风扇模式未恢复：传感器或风扇暂不可用。": {
+    "en": "The previous fan mode could not resume: sensors or fans are unavailable."
+  },
+  "上次的风扇模式未恢复：风扇正由其他程序控制。": {
+    "en": "The previous fan mode could not resume: another app is controlling the fans."
+  },
+  "无效场景": {
+    "en": "Invalid scene"
+  },
+  "场景名称不能为空，且不能超过 80 字节": {
+    "en": "Scene names must be nonempty and no longer than 80 UTF-8 bytes."
+  },
+  "已有同名场景": {
+    "en": "A scene with this name already exists."
+  },
+  "最多保存 32 个场景": {
+    "en": "You can save up to 32 scenes."
+  },
+  "持续控制只能用于风扇模式，不能同时设置到期时间": {
+    "en": "Continuous control is only available for fan modes and cannot include an expiry time."
+  },
+  "剪辑": {
+    "en": "Video editing"
+  },
+  "游戏": {
+    "en": "Gaming"
+  },
+  "办公": {
+    "en": "Office"
+  },
+  "影音": {
+    "en": "Media"
+  },
+  "编程": {
+    "en": "Coding"
+  },
+  "传感器或风扇暂不可用，未应用场景。": {
+    "en": "Sensors or fans are unavailable. The scene was not applied."
+  },
+  "改名后按回车保存；选中场景后，拖动主界面曲线即可更新曲线和温度来源。": {
+    "en": "Press Return to save a name. Select a scene, then edit its curve and temperature source in the main window."
   }
 }

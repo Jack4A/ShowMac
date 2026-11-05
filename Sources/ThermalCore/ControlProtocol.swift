@@ -6,11 +6,12 @@ public struct ControlRequest:Codable {
     public var profile:String?
     public var curve:FanCurve?
     public var duration:Double?
+    public var continuous:Bool?
     public var label:String?
     public var powerPlan:PowerOptimizationPlan?
     public var powerBackup:PowerBackup?
-    public init(_ command:String,profile:String?=nil,curve:FanCurve?=nil,duration:Double?=nil,label:String?=nil,powerPlan:PowerOptimizationPlan?=nil,powerBackup:PowerBackup?=nil) {
-        self.command=command;self.profile=profile;self.curve=curve;self.duration=duration;self.label=label;self.powerPlan=powerPlan;self.powerBackup=powerBackup
+    public init(_ command:String,profile:String?=nil,curve:FanCurve?=nil,duration:Double?=nil,label:String?=nil,powerPlan:PowerOptimizationPlan?=nil,powerBackup:PowerBackup?=nil,continuous:Bool?=nil) {
+        self.command=command;self.profile=profile;self.curve=curve;self.duration=duration;self.label=label;self.powerPlan=powerPlan;self.powerBackup=powerBackup;self.continuous=continuous
     }
     public func validate() throws {
         guard ["hello","status","profile","auto","turbo-disable","turbo-enable","test-fans","shutdown","power-optimize","power-restore"].contains(command) else { throw ScopeError.message("未知控制命令") }
@@ -22,7 +23,8 @@ public struct ControlRequest:Codable {
             guard let profile,ThermalProfile.allCases.contains(where:{$0.command==profile && $0 != .automatic}) else { throw ScopeError.message("无效模式") }
             if profile=="custom" { guard let curve else { throw ScopeError.message("缺少曲线") };try curve.validate() }
         }
-        if let duration { guard duration.isFinite,duration>0,duration<=1800 else { throw ScopeError.message("无效控制时长") } }
+        if let duration { guard duration.isFinite,duration>0,duration<=86400 else { throw ScopeError.message("无效控制时长") } }
+        if continuous==true,command != "profile" || duration != nil {throw ScopeError.message("持续控制只能用于风扇模式，不能同时设置到期时间")}
         if let label { guard label.utf8.count<=80 else { throw ScopeError.message("模式名称过长") } }
     }
 }
@@ -35,8 +37,9 @@ public struct FanSessionStatus:Codable,Equatable {
     public let remainingSeconds:Double
     public let targets:[FanTarget]
     public let protectionActive:Bool
-    public init(remainingSeconds:Double,targets:[FanTarget],protectionActive:Bool) {
-        self.remainingSeconds=remainingSeconds;self.targets=targets;self.protectionActive=protectionActive
+    public let continuous:Bool?
+    public init(remainingSeconds:Double,targets:[FanTarget],protectionActive:Bool,continuous:Bool=false) {
+        self.remainingSeconds=remainingSeconds;self.targets=targets;self.protectionActive=protectionActive;self.continuous=continuous ? true:nil
     }
 }
 public struct ControlReply:Codable {

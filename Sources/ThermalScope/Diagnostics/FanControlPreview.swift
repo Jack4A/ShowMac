@@ -36,12 +36,12 @@ import ThermalCore
     }
     func status()->ControlReply {
         expire()
-        let seconds=max(0,deadline-ProcessInfo.processInfo.systemUptime)
+        let seconds=deadline.isFinite ? max(0,deadline-ProcessInfo.processInfo.systemUptime):0
         let targets=(lastSample?.fans ?? []).compactMap {fan -> FanTarget? in
             guard let curve,let low=fan.minimum,let high=fan.maximum,let sample=lastSample,let temperature=curve.sensor.temperature(in:sample) else{return nil}
             return FanTarget(id:fan.id,rpm:CurvePolicy.rpm(percent:CurvePolicy.requiresMaximum(sample) ? 100:curve.percent(at:temperature),minimum:low,maximum:high))
         }
-        return ControlReply(ok:true,message:token==nil ? "模拟：风扇由系统管理":"模拟：策略已确认生效",session:token,profile:token==nil ? nil:"custom",label:token==nil ? nil:label,fanStatus:token==nil ? nil:FanSessionStatus(remainingSeconds:seconds,targets:targets,protectionActive:scenario=="protection"))
+        return ControlReply(ok:true,message:token==nil ? "模拟：风扇由系统管理":"模拟：策略已确认生效",session:token,profile:token==nil ? nil:"custom",label:token==nil ? nil:label,fanStatus:token==nil ? nil:FanSessionStatus(remainingSeconds:seconds,targets:targets,protectionActive:scenario=="protection",continuous:deadline.isInfinite))
     }
     func handle(_ request:ControlRequest)throws->ControlReply {
         try request.validate()
@@ -50,7 +50,7 @@ import ThermalCore
         case "auto","shutdown":curve=nil;token=nil
         case "profile":
             guard request.profile=="custom",let next=request.curve else{throw ScopeError.message("界面模拟不执行此控制命令")}
-            curve=next;label=request.label ?? "自定义曲线";token=UUID().uuidString;deadline=ProcessInfo.processInfo.systemUptime+(request.duration ?? 1800)
+            curve=next;label=request.label ?? "自定义曲线";token=UUID().uuidString;deadline=request.continuous==true ? .infinity:ProcessInfo.processInfo.systemUptime+(request.duration ?? 1800)
         case "test-fans":curve = .manual(percent:100);label="风扇验证";token=UUID().uuidString;deadline=ProcessInfo.processInfo.systemUptime+5
         default:throw ScopeError.message("界面模拟不执行此控制命令")
         }

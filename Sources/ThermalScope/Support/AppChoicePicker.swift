@@ -50,6 +50,9 @@ struct AppChoicePicker<Value:Hashable>:View {
     var minimumWidth:CGFloat=0
     var placeholder:String?=nil
     var actions:[AppChoiceAction]=[]
+    var labelWidth:CGFloat?=nil
+    var listWidth:CGFloat?=nil
+    var maximumListHeight:CGFloat?=nil
     @State private var presented=false
     @State private var hovered=false
     @State private var focusedIndex=0
@@ -61,7 +64,7 @@ struct AppChoicePicker<Value:Hashable>:View {
         Button {presented.toggle()} label:{
             HStack(spacing:8) {
                 if let choice=selectedChoice {choiceIcon(choice)}
-                Text(selectedTitle).lineLimit(1)
+                Text(selectedTitle).lineLimit(1).frame(width:labelWidth,alignment:.leading)
                 Image(systemName:"chevron.down").font(.system(size:9,weight:.semibold))
                     .foregroundColor(Palette.violet.opacity(0.8))
             }.font(.system(size:12,weight:.medium)).foregroundColor(Palette.violet)
@@ -81,7 +84,7 @@ struct AppChoicePicker<Value:Hashable>:View {
             .accessibilityLabel(title).accessibilityValue(selectedTitle)
             .popover(isPresented:$presented,arrowEdge:.bottom) {options}
     }
-    private var options:some View {
+    private var optionRows:some View {
         VStack(alignment:.leading,spacing:3) {
             ForEach(choices.indices,id:\.self) {index in
                 let choice=choices[index]
@@ -91,7 +94,7 @@ struct AppChoicePicker<Value:Hashable>:View {
                         Image(systemName:"checkmark").font(.system(size:11,weight:.semibold))
                             .frame(width:12).opacity(selected ? 1:0)
                         choiceIcon(choice)
-                        Text(choice.title).font(.system(size:12,weight:selected ? .medium:.regular))
+                        Text(choice.title).lineLimit(1).font(.system(size:12,weight:selected ? .medium:.regular))
                         Spacer(minLength:14)
                     }.foregroundColor(selected ? Palette.violet:Palette.primaryText)
                         .padding(.horizontal,10).padding(.vertical,7)
@@ -102,7 +105,7 @@ struct AppChoicePicker<Value:Hashable>:View {
                 }.buttonStyle(.plain)
                     .onHover{inside in if inside {focusedIndex=index}}
                     .accessibilityLabel(choice.title)
-                    .accessibilityAddTraits(selected ? .isSelected:[])
+                    .accessibilityAddTraits(selected ? .isSelected:[]).id(index)
             }
             if !actions.isEmpty {
                 if !choices.isEmpty {Divider().opacity(0.45).padding(.vertical,3)}
@@ -115,10 +118,23 @@ struct AppChoicePicker<Value:Hashable>:View {
                                 RoundedRectangle(cornerRadius:5,style:.continuous)
                                     .fill(focusedIndex==choices.count+index ? Palette.controlBackground:.clear)
                             }.contentShape(Rectangle())
-                    }.buttonStyle(.plain).onHover{inside in if inside {focusedIndex=choices.count+index}}
+                    }.buttonStyle(.plain).onHover{inside in if inside {focusedIndex=choices.count+index}}.id(choices.count+index)
                 }
             }
-        }.padding(6).frame(minWidth:max(160,minimumWidth),alignment:.leading)
+        }
+    }
+    @ViewBuilder private var optionContents:some View {
+        if let maximumListHeight {
+            ScrollViewReader {proxy in
+                ScrollView {optionRows}
+                    .frame(width:listWidth,height:min(maximumListHeight,CGFloat(choices.count+actions.count)*32+(actions.isEmpty ? 0:10)))
+                    .onChange(of:focusedIndex){index in proxy.scrollTo(index,anchor:.center)}
+                    .onAppear{proxy.scrollTo(choices.firstIndex{$0.value==selection} ?? 0,anchor:.center)}
+            }
+        } else {optionRows.frame(width:listWidth)}
+    }
+    private var options:some View {
+        optionContents.padding(6).frame(minWidth:max(160,minimumWidth),alignment:.leading)
             .background(Palette.surface)
             .appOverlay {
                 RoundedRectangle(cornerRadius:8,style:.continuous)

@@ -305,6 +305,7 @@ import WidgetUI
         if args.contains("--menu-composition-check") {MenuCompositionCheck.run();return}
         if args.contains("--menu-customization-check") {MenuCustomizationCheck.run();return}
         if args.contains("--app-update-check") {AppUpdateCheck.run();return}
+        if args.contains("--fan-scenes-check") {FanScenesCheck.run();return}
         if args.contains("--stress-check") {StressBenchmark.run();return}
         if args.count==2 && args[1]=="--hidden-view-update-check" {HiddenViewUpdateCheck.run();return}
         if args.count==2 && args[1]=="--render-performance-check" {RenderPerformanceBenchmark.run();return}

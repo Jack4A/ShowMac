@@ -6,7 +6,6 @@ struct StatusOverview:View {
     @ObservedObject var model:AppModel
     @ObservedObject var readings:LiveReadings
     @ObservedObject var control:FanControlReadings
-    @State private var pending:FanStrategy?
     @State private var editing=false
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorScheme) private var scheme
@@ -21,12 +20,12 @@ struct StatusOverview:View {
     }
     private var panelHeight:CGFloat {
         if editing {return height}
-        let contents=122+StatusCardLayout.height(count:model.statusPanel.cards.count)+(model.statusPanel.showFanControls ? 82:0)+(model.statusPanel.showProcesses ? 100:0)+(model.messageIsError ? 32:0)
+        let contents=122+StatusCardLayout.height(count:model.statusPanel.cards.count)+(model.statusPanel.showFanControls ? 118:0)+(model.statusPanel.showProcesses ? 100:0)+(model.messageIsError ? 32:0)
         return min(height,max(240,contents))
     }
     var selection:FanStrategy? {
-        if model.busy,let pending {return pending}
-        return model.activeFanStrategy ?? (model.coolingToken != nil ? pending:nil)
+        if model.busy,let pending=model.pendingFanStrategy {return pending}
+        return model.activeFanStrategy
     }
     var turbo:String {
         guard let state=readings.snapshot?.turbo else{return "未知"}
@@ -136,7 +135,8 @@ struct StatusOverview:View {
             } else if model.coolingToken != nil {
                 AppTimelineView(interval:1) {_ in
                     Group {
-                        if let seconds=control.remaining() {
+                        if control.status?.continuous==true {Text(L("持续控制"))}
+                        else if let seconds=control.remaining() {
                             Text(seconds>0 ? String(format:L("剩余 %02d:%02d"),Int(ceil(seconds))/60,Int(ceil(seconds))%60):L("正在恢复自动…")).appMonospacedDigit()
                         } else {Text(L("控制中"))}
                     }.font(.system(size:11)).foregroundColor(.secondary).frame(maxWidth:.infinity,alignment:.leading)
@@ -145,6 +145,7 @@ struct StatusOverview:View {
             if AppDistribution.isAppStore {
                 Text(L(AppDistribution.monitoringOnlyMessage)).font(.system(size:11)).foregroundColor(.secondary).fixedSize(horizontal:false,vertical:true)
             } else if ControlAvailability.fansAvailable(readings.snapshot) {
+                FanSceneControls(model:model,compact:true,onManage:{model.navigation.showFanSceneManager=true;onNavigate("thermal")})
                 FanStrategySelector(selected:selection,busy:model.busy,available:true,compact:true,onSelect:choose)
             } else {
                 Button(L("恢复系统自动")){choose(.system)}.buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
@@ -154,7 +155,7 @@ struct StatusOverview:View {
     }
     func choose(_ strategy:FanStrategy) {
         guard !model.busy,strategy == .system || ControlAvailability.fansAvailable(readings.snapshot) else{return}
-        pending=strategy;model.applyFanStrategy(strategy)
+        model.applyFanStrategy(strategy)
     }
 }
 

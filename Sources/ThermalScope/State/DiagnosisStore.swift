@@ -26,6 +26,7 @@ extension ConsoleSection {
     @Published var applicationID:String?
     @Published var showWakeRequests=false
     @Published var showFanTroubleshooting=false
+    @Published var showFanSceneManager=false
     @Published var optimizationExpanded=false
     @Published var optimizationTab=0
     func go(_ section:ConsoleSection) {metric=nil;page=section.page;self.section=nil;self.section=section}

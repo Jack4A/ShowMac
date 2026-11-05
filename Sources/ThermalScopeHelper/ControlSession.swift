@@ -26,7 +26,7 @@ final class SessionControl {
         condition.lock();defer{condition.unlock()}
         let status:FanSessionStatus?
         if running,applied,let progress {
-            status=FanSessionStatus(remainingSeconds:max(0,progress.deadline-ts_continuous_seconds()),targets:progress.targets,protectionActive:progress.protectionActive)
+            status=FanSessionStatus(remainingSeconds:progress.deadline.isFinite ? max(0,progress.deadline-ts_continuous_seconds()):0,targets:progress.targets,protectionActive:progress.protectionActive,continuous:progress.deadline.isInfinite)
         } else {status=nil}
         return ControlReply(ok:failure==nil,message:failure ?? (running ? "控制已确认生效":"风扇由系统管理"),session:session,profile:profile,label:label,fanStatus:status)
     }
@@ -39,7 +39,7 @@ final class SessionControl {
         }
         if !ignorePreviousFailure,let failure, failure.contains("恢复自动风扇失败") {throw ScopeError.message(failure)}
     }
-    func start(curve:FanCurve,mode:String,name:String,duration:Double) throws {
+    func start(curve:FanCurve,mode:String,name:String,duration:Double,continuous:Bool=false) throws {
         try curve.validate();try stop()
         condition.lock()
         cancelled=false;running=true;applied=false;failure=nil;progress=nil
@@ -49,7 +49,7 @@ final class SessionControl {
             var errorText:String?
             do {
                 let hardware=self.fanHardware,sampler=HardwareSampler()
-                try CurveLease.run(hardware:hardware,curve:curve,duration:duration,
+                try CurveLease.run(hardware:hardware,curve:curve,duration:duration,continuous:continuous,
                     sample:{sampler.sample()},now:{ts_continuous_seconds()},isCancelled:{self.shouldStop()},
                     wait:{for _ in 0..<20 {if self.shouldStop(){break};usleep(100000)}},onUpdate:{progress in
                         self.condition.lock();self.progress=progress;self.condition.unlock()
@@ -110,7 +110,7 @@ final class SessionControl {
             if mode != .custom {try setTurbo(disable:mode.disablesTurbo)}
             do {
                 try start(curve:mode == .custom ? request.curve!:mode.curve,
-                          mode:mode.command,name:request.label ?? mode.rawValue,duration:request.duration ?? 1800)
+                          mode:mode.command,name:request.label ?? mode.rawValue,duration:request.duration ?? 1800,continuous:request.continuous==true)
             } catch {
                 // A mode change is a transaction: do not leave half the preset applied.
                 if mode != .custom,previous>=0 {
