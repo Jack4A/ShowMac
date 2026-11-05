@@ -47,10 +47,9 @@ struct SensorInventoryPage:View {
     }
     var toolbar:some View {
         HStack(spacing:12) {
-            Picker(L("显示范围"),selection:$showAll) {
-                Text(L("常用读数")).tag(false)
-                Text(L("全部传感器")).tag(true)
-            }.pickerStyle(.segmented).labelsHidden().fixedSize(horizontal:true,vertical:false)
+            AppSegmentedPicker(title:L("显示范围"),selection:showAll,
+                               choices:[AppChoice(false,L("常用读数")),AppChoice(true,L("全部传感器"))],onSelect:{showAll=$0})
+                .fixedSize(horizontal:true,vertical:false)
             NativeSearchField(title:L("搜索传感器名称或编号"),text:$search).frame(height:24)
             AppChoicePicker(title:L("传感器类型"),selection:$filter,
                             choices:[AppChoice(nil,L("全部"))]+HardwareSensorKind.allCases.map{AppChoice(Optional($0),L($0.title))})

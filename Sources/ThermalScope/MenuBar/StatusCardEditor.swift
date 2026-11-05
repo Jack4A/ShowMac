@@ -21,7 +21,7 @@ struct StatusCardEditor:View {
                 count
                 Spacer()
                 addButton.popover(isPresented:$choosing,arrowEdge:.bottom) {
-                    sourcePicker.padding(12).frame(width:390,height:440)
+                    sourcePicker.padding(12).frame(width:390,height:440).appBackground{Palette.surface}
                         .preferredColorScheme(model.colorScheme)
                 }
             }
@@ -56,7 +56,7 @@ struct StatusCardEditor:View {
     }
     private var addButton:some View {
         Button {search="";choosing=true} label:{Label(L("添加卡片"),systemImage:AppSymbols.resolve("plus"))}
-            .disabled(model.statusPanel.cards.count>=StatusPanelConfiguration.limit).appControlSize(.small)
+            .disabled(model.statusPanel.cards.count>=StatusPanelConfiguration.limit).buttonStyle(AppChoiceButtonStyle(expanded:choosing))
     }
     @ViewBuilder private var visibilityControls:some View {
         Toggle(L("显示风扇控制"),isOn:$model.statusPanel.showFanControls)
@@ -83,7 +83,7 @@ struct StatusCardEditor:View {
     private var sourcePicker:some View {
         VStack(spacing:10) {
             HStack {
-                Button {choosing=false} label:{Label(L("返回"),systemImage:AppSymbols.resolve("chevron.left"))}.appControlSize(.small)
+                Button {choosing=false} label:{Label(L("返回"),systemImage:AppSymbols.resolve("chevron.left"))}.buttonStyle(AppChoiceButtonStyle())
                 Spacer()
                 Text(L("添加卡片")).font(.system(size:12,weight:.medium))
             }
@@ -107,7 +107,7 @@ struct StatusCardEditor:View {
                     }
                 }
                 if metrics.isEmpty && common.isEmpty && hardware.isEmpty {Text(L("没有匹配的传感器")).foregroundColor(.secondary)}
-            }.listStyle(.inset).appHideScrollIndicators()
+            }.listStyle(.inset).appChoiceListSurface().appHideScrollIndicators()
         }
     }
     private func matches(_ option:MenuSensorOption)->Bool {
@@ -125,7 +125,8 @@ struct StatusCardEditor:View {
                 Text(source.valueText(value)+" "+source.unit).font(.system(size:11)).appMonospacedDigit().foregroundColor(.secondary)
                 if selected {Image(systemName:AppSymbols.resolve("checkmark")).font(.system(size:10))}
             }.font(.system(size:12)).padding(.vertical,4).contentShape(Rectangle()).tag(source)
-            .foregroundColor(selected ? Color.secondary:Color.primary)
+            .foregroundColor(selected ? Palette.violet:Palette.primaryText)
+            .listRowBackground(selected ? Palette.controlBackground:Palette.surface)
             .accessibilityLabel(title+(detail.map{" · "+$0} ?? "")+(selected ? " · "+L("已添加"):""))
     }
 }

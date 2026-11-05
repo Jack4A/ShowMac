@@ -10,9 +10,8 @@ struct OptimizationWorkbench:View {
         DisclosureGroup(isExpanded:$navigation.optimizationExpanded) {
             VStack(alignment:.leading,spacing:16) {
                 Text(L("由建议准备方案，应用前可审阅每项改动。")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
-                Picker(L("优化面板"),selection:$navigation.optimizationTab) {
-                    Text(L("措施")).tag(0);Text(L("效果")).tag(1)
-                }.labelsHidden().pickerStyle(.segmented).frame(maxWidth:.infinity,alignment:.leading).accentColor(Palette.action)
+                AppSegmentedPicker(title:L("优化面板"),selection:navigation.optimizationTab,
+                                   choices:[AppChoice(0,L("措施")),AppChoice(1,L("效果"))],expands:true,onSelect:{navigation.optimizationTab=$0})
                 if navigation.optimizationTab==0 {OptimizationPlanView(optimizer:optimizer,globalBusy:globalBusy)}
                 else {OptimizationResults(optimizer:optimizer)}
             }.padding(.top,14)
@@ -86,10 +85,8 @@ private struct OptimizationPlanView:View {
             Group {
                 if SystemCapabilities.lowPowerMode {Toggle(L("使用系统低电量模式"),isOn:$optimizer.lowPower)}
                 if optimizer.lowPower {
-                    Picker(L("节能范围"),selection:$optimizer.scope) {
-                        Text(L("当前供电模式")).tag(PowerScope.current)
-                        Text(L("电池开启，插电关闭")).tag(PowerScope.batteryAutomatic)
-                    }.pickerStyle(.menu)
+                    AppChoicePicker(title:L("节能范围"),selection:$optimizer.scope,
+                                    choices:[AppChoice(PowerScope.current,L("当前供电模式")),AppChoice(.batteryAutomatic,L("电池开启，插电关闭"))])
                     Text(L("由 macOS 按供电状态使用配置；可能降低性能峰值。")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
                 }
                 Toggle(L("显示器闲置 5 分钟后休眠"),isOn:$optimizer.displaySleep)

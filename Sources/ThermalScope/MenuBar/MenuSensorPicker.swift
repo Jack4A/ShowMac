@@ -20,9 +20,10 @@ struct MenuSensorPicker:View {
             HStack(spacing:6) {
                 Text(source.title(in:model)).lineLimit(1)
                 Spacer(minLength:2)
-                Image(systemName:AppSymbols.resolve("chevron.up.chevron.down")).font(.system(size:10))
+                Image(systemName:AppSymbols.resolve("chevron.down")).font(.system(size:9,weight:.semibold))
             }.frame(width:175)
-        }.accessibilityLabel(L("选择状态栏读数")+" · "+source.title(in:model))
+        }.buttonStyle(AppChoiceButtonStyle(expanded:showing))
+            .accessibilityLabel(L("选择状态栏读数")+" · "+source.title(in:model))
             .popover(isPresented:$showing,arrowEdge:.bottom) {
                 VStack(spacing:0) {
                     NativeSearchField(title:L("搜索传感器名称或编号"),text:$search).frame(height:24).padding(12)
@@ -46,8 +47,8 @@ struct MenuSensorPicker:View {
                             if !rows.isEmpty {Section(header:Text(L(kind.title))) {ForEach(rows){optionRow($0)}}}
                         }
                         if metrics.isEmpty && common.isEmpty && hardware.isEmpty {Text(L("没有匹配的传感器")).foregroundColor(.secondary)}
-                    }.listStyle(.inset).appHideScrollIndicators()
-                }.frame(width:390,height:440)
+                    }.listStyle(.inset).appChoiceListSurface().appHideScrollIndicators()
+                }.frame(width:390,height:440).appBackground{Palette.surface}.preferredColorScheme(model.colorScheme)
             }
     }
     private func optionRow(_ option:MenuSensorOption)->some View {
@@ -64,6 +65,8 @@ struct MenuSensorPicker:View {
                 Text(value).font(AppTypography.caption).appMonospacedDigit().foregroundColor(.secondary)
                 Image(systemName:AppSymbols.resolve("checkmark")).font(.system(size:10)).opacity(source==item ? 1:0).frame(width:10)
         }.padding(.vertical,3).contentShape(Rectangle()).tag(item)
+            .foregroundColor(source==item ? Palette.violet:Palette.primaryText)
+            .listRowBackground(source==item ? Palette.controlHover:Palette.surface)
             .accessibilityElement(children:.combine)
             .accessibilityLabel(title+" · "+(detail.map{$0+" · "} ?? "")+value)
     }

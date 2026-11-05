@@ -34,7 +34,8 @@ struct WidgetPreviewSheet:View {
     var body:some View {
         VStack(alignment:.leading,spacing:18) {
             HStack {Text(L("系统小组件")).font(.title2.bold());Spacer();Button(L("完成"),action:onClose).keyboardShortcut(.cancelAction)}
-            Picker(L("尺寸"),selection:$size){Text(L("小")).tag(WidgetCardSize.small);Text(L("中")).tag(WidgetCardSize.medium);Text(L("大")).tag(WidgetCardSize.large)}.pickerStyle(.segmented).labelsHidden().frame(maxWidth:.infinity,alignment:.leading)
+            AppSegmentedPicker(title:L("尺寸"),selection:size,
+                               choices:[AppChoice(WidgetCardSize.small,L("小")),AppChoice(.medium,L("中")),AppChoice(.large,L("大"))],expands:true,onSelect:{size=$0})
             ScrollView(showsIndicators:false) {
                 VStack(alignment:.leading,spacing:18) {
                     HStack {Spacer();WidgetStatusContent(snapshot:snapshot,size:size,linksEnabled:false).padding(16).frame(width:dimensions.width,height:dimensions.height).appBackground(Palette.surface,in:RoundedRectangle(cornerRadius:24)).overlay(RoundedRectangle(cornerRadius:24).stroke(Palette.border.opacity(0.7),lineWidth:1));Spacer()}

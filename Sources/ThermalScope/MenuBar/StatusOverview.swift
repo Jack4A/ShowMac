@@ -77,11 +77,11 @@ struct StatusOverview:View {
     var header:some View {
         VStack(spacing:5) {
             HStack {
-                Button(L(editing ? "完成":"编辑")){editing.toggle()}.appControlSize(.small)
+                Button(L(editing ? "完成":"编辑")){editing.toggle()}.buttonStyle(AppChoiceButtonStyle(expanded:editing))
                 Spacer()
-                Picker(L("趋势时间范围"),selection:$model.statusMinutes) {
-                    Text(L("2 分钟")).tag(2);Text(L("5 分钟")).tag(5);Text(L("10 分钟")).tag(10)
-                }.labelsHidden().frame(width:88).appControlSize(.small)
+                AppChoicePicker(title:L("趋势时间范围"),selection:$model.statusMinutes,
+                                choices:[AppChoice(2,L("2 分钟")),AppChoice(5,L("5 分钟")),AppChoice(10,L("10 分钟"))])
+                    .accessibilityIdentifier("statusTimeRange")
             }
             HStack(spacing:5) {
                 Button {onNavigate("thermal")} label:{

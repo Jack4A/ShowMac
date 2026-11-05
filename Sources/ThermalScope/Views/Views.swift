@@ -10,8 +10,10 @@ struct ChartOptions:View {
     var body:some View {
         HStack(spacing:10) {
             Button(action:onPause) {Label(L(paused ? "继续实时":"暂停图表"),systemImage:AppSymbols.resolve(paused ? "play.fill":"pause.fill"))}.buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
-            Picker(L("纵轴刻度"),selection:$automatic) {Text(L("固定刻度")).tag(false);Text(L("自动刻度")).tag(true)}.pickerStyle(.segmented).labelsHidden().fixedSize()
-            Picker(L("图形样式"),selection:$filled) {Text(L("线条")).tag(false);Text(L("面积")).tag(true)}.pickerStyle(.segmented).labelsHidden().fixedSize()
+            AppSegmentedPicker(title:L("纵轴刻度"),selection:automatic,
+                               choices:[AppChoice(false,L("固定刻度")),AppChoice(true,L("自动刻度"))],compact:true,onSelect:{automatic=$0}).fixedSize()
+            AppSegmentedPicker(title:L("图形样式"),selection:filled,
+                               choices:[AppChoice(false,L("线条")),AppChoice(true,L("面积"))],compact:true,onSelect:{filled=$0}).fixedSize()
             Spacer(minLength:0)
         }.font(.system(size:12)).appControlSize(.small)
     }

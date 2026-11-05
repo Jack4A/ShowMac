@@ -7,21 +7,18 @@ struct MenuFontControls:View {
         VStack(alignment:.leading,spacing:12) {
             HStack {
             Text(L("数值字体"));Spacer()
-            Picker(L("数值字体"),selection:$model.menuTypography.family) {
-                ForEach(MenuFontFamily.allCases) {Text(L($0.title)).tag($0)}
-            }.labelsHidden().frame(width:200,alignment:.trailing)
+            AppChoicePicker(title:L("数值字体"),selection:$model.menuTypography.family,
+                            choices:MenuFontFamily.allCases.map{AppChoice($0,L($0.title))}).frame(width:200,alignment:.trailing)
             }
             HStack {
             Text(L("字号"));Spacer()
-            Picker(L("字号"),selection:$model.menuTypography.size) {
-                ForEach([10.0,11,11.5,12,13],id:\.self) {Text(String(format:"%g pt",$0)).tag($0)}
-            }.labelsHidden().frame(width:200,alignment:.trailing)
+            AppChoicePicker(title:L("字号"),selection:$model.menuTypography.size,
+                            choices:[10.0,11,11.5,12,13].map{AppChoice($0,String(format:"%g pt",$0))}).frame(width:200,alignment:.trailing)
             }
             HStack {
             Text(L("字重"));Spacer()
-            Picker(L("字重"),selection:$model.menuTypography.weight) {
-                ForEach(MenuFontWeight.allCases) {Text(L($0.title)).tag($0)}
-            }.labelsHidden().frame(width:200,alignment:.trailing)
+            AppChoicePicker(title:L("字重"),selection:$model.menuTypography.weight,
+                            choices:MenuFontWeight.allCases.map{AppChoice($0,L($0.title))}).frame(width:200,alignment:.trailing)
             }
         }.font(AppTypography.body)
     }
@@ -66,13 +63,8 @@ struct MenuAppearanceControls:View {
 struct MenuPresetGallery:View {
     @ObservedObject var model:AppModel
     var body:some View {
-        Menu {
-            ForEach(MenuBarPreset.allCases) {preset in
-                Button(L(preset.title)) {model.applyMenuPreset(preset.rawValue)}
-                    .help(L(preset.title))
-            }
-        } label:{Image(systemName:AppSymbols.resolve("sparkles"))}
-            .menuStyle(.borderlessButton).help(L("快速样式")).accessibilityLabel(L("快速样式"))
+        AppChoicePicker(title:L("快速样式"),selection:Binding<Int>(get:{-1},set:{model.applyMenuPreset($0)}),
+                        choices:MenuBarPreset.allCases.map{AppChoice($0.rawValue,L($0.title))},placeholder:L("快速样式"))
     }
 }
 
@@ -108,8 +100,11 @@ struct MenuTileEditor:View {
             Divider()
             Form {
                 Section(header:Text(L("显示方式"))) {
-                    Picker(L("项目样式"),selection:style) {ForEach(styles){Text(L($0.title)).tag($0)}}
-                        .accessibilityLabel(component.title(in:model)+" · "+L("项目样式"))
+                    HStack {
+                        Text(L("项目样式"));Spacer()
+                        AppChoicePicker(title:L("项目样式"),selection:style,choices:styles.map{AppChoice($0,L($0.title))})
+                            .accessibilityLabel(component.title(in:model)+" · "+L("项目样式"))
+                    }
                     HStack {Text(L("图标"));Spacer();iconMenu}
                 }
                 Section {
@@ -124,46 +119,41 @@ struct MenuTileEditor:View {
                 Text(L("更改会立即保存。")).font(AppTypography.caption).foregroundColor(.secondary)
             }
                 .padding(.horizontal,20).padding(.bottom,16)
-        }.font(AppTypography.body).frame(width:420,height:330)
+        }.font(AppTypography.body).frame(width:420,height:330).appBackground{Palette.canvas}
             .onDisappear{customColorPanel.close()}
     }
     private var colorMenu:some View {
-        Menu {
-            Picker(L("项目颜色"),selection:Binding<String?>(get:{selectedColor},set:{chooseColor($0)})) {
-                Label {Text(L("黑白（默认）"))} icon:{Image(nsImage:MenuComponentColorPreset.swatch(hex:nil,dark:scheme == .dark))}.tag(String?.none)
-                ForEach(MenuComponentColorPreset.allCases) {preset in
-                    Label {Text(L(preset.title))} icon:{Image(nsImage:MenuComponentColorPreset.swatch(hex:preset.rawValue,dark:scheme == .dark))}.tag(Optional(preset.rawValue))
-                }
-                if let selectedColor,MenuComponentColorPreset(rawValue:selectedColor)==nil {
-                    Label {Text(L("自定义"))} icon:{Image(nsImage:MenuComponentColorPreset.swatch(hex:selectedColor,dark:scheme == .dark))}.tag(Optional(selectedColor))
-                }
-            }.pickerStyle(.inline).labelsHidden()
-            Divider()
-            Button(L("自定义…")) {
+        AppChoicePicker(title:L("项目颜色"),selection:Binding<String?>(get:{selectedColor},set:{chooseColor($0)}),choices:colorChoices,
+                        actions:[AppChoiceAction(title:L("自定义…"),action:{
                 customColorPanel.show(color:MenuBarAppearanceRenderer.color(hex:selectedColor) ?? (scheme == .dark ? .white:.black)) {hex in
                     model.updateMenuComponent(id:componentID){$0.colorHex=hex}
                 }
-            }
-        } label:{
-            Label {Text(L(colorTitle))} icon:{Image(nsImage:MenuComponentColorPreset.swatch(hex:selectedColor,dark:scheme == .dark))}
-        }.menuStyle(.borderlessButton).accessibilityLabel(component.title(in:model)+" · "+L("项目颜色"))
+            })]).accessibilityLabel(component.title(in:model)+" · "+L("项目颜色"))
+    }
+    private var colorChoices:[AppChoice<String?>] {
+        var choices=[AppChoice<String?>(nil,L("黑白（默认）"),image:MenuComponentColorPreset.swatch(hex:nil,dark:scheme == .dark))]
+        choices += MenuComponentColorPreset.allCases.map{AppChoice(Optional($0.rawValue),L($0.title),image:MenuComponentColorPreset.swatch(hex:$0.rawValue,dark:scheme == .dark))}
+        if let selectedColor,MenuComponentColorPreset(rawValue:selectedColor)==nil {
+            choices.append(AppChoice(Optional(selectedColor),L("自定义"),image:MenuComponentColorPreset.swatch(hex:selectedColor,dark:scheme == .dark)))
+        }
+        return choices
     }
     var iconMenu:some View {
-        Menu {
-            Button(L("跟随样式")){model.setMenuComponentIcon("auto",id:componentID)}
-            Button(L("无图标")){model.setMenuComponentIcon("none",id:componentID)}
-            Divider()
-            ForEach(MenuIconOption.options(component)) {option in
-                Button {model.setMenuComponentIcon("sf:"+option.symbol,id:componentID)} label:{Label(L(option.title),systemImage:AppSymbols.resolve(option.symbol))}
+        AppChoicePicker(title:L("图标"),selection:Binding<String>(get:{component.icon ?? "auto"},set:{model.setMenuComponentIcon($0,id:componentID)}),choices:iconChoices,
+                        actions:[AppChoiceAction(title:L("选择图片…"),action:{model.chooseMenuIcon(metric,componentID:componentID)})])
+            .accessibilityLabel(component.title(in:model)+" · "+L("图标"))
+    }
+    private var iconChoices:[AppChoice<String>] {
+        var choices=[AppChoice("auto",L("跟随样式"),symbol:component.source.symbol),AppChoice("none",L("无图标"),symbol:"minus.circle")]
+        choices += MenuIconOption.options(component).map{AppChoice("sf:"+$0.symbol,L($0.title),symbol:$0.symbol)}
+        if let token=component.icon,!choices.contains(where:{$0.value==token}) {
+            switch MenuIconStore.icon(token,metric:metric,preview:model.isFanControlPreview,options:MenuIconOption.options(component)) {
+            case .image(let image):choices.append(AppChoice(token,L("自定义图片"),image:MenuIconStore.thumbnail(image)))
+            case .symbol(let name):choices.append(AppChoice(token,L("自定义图标"),symbol:name))
+            default:break
             }
-            Divider()
-            Button(L("选择图片…")){model.chooseMenuIcon(metric,componentID:componentID)}
-        } label:{
-            HStack(spacing:5) {
-                iconPreview.frame(width:14,height:14)
-                Text(L(iconTitle))
-            }
-        }.menuStyle(.borderlessButton).accessibilityLabel(component.title(in:model)+" · "+L("图标"))
+        }
+        return choices
     }
     @ViewBuilder var iconPreview:some View {
         switch MenuIconStore.icon(component.icon,metric:metric,preview:model.isFanControlPreview,options:MenuIconOption.options(component)) {

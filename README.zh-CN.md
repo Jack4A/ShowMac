@@ -4,17 +4,19 @@
 
 基于 [MIT 许可证](LICENSE) 免费开源，完整版功能无需购买或激活。如果对你有帮助，欢迎[在 GitHub 点个 Star](https://github.com/Jack4A/ShowMac)。
 
-开发者：[@Jack4A](https://github.com/Jack4A)。**设置顶部的“关于 ShowMac”卡片**直接展示软件版本、开发者与 GitHub 入口，也可以使用 **ShowMac → GitHub 项目**。
+开发者：[@Jack4A](https://github.com/Jack4A)。**设置底部的“关于 ShowMac”卡片**直接展示软件版本、开发者与 GitHub 入口，也可以使用 **ShowMac → GitHub 项目**。
 
 <img src="Resources/AppIcon.png" width="72" alt="showmac应用图标">
 
 原生 macOS 温度、风扇与性能诊断工具。在菜单栏查看读数，进入主窗口观察近期趋势，或直接选择风扇档位、调整温度—转速曲线。
 
-**当前版本：[v1.18.4 · build 271](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
+**公开下载：[v1.18.3](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
+
+当前源码与本地开发版为 **1.18.4 · build 271**，加入更新检测、连续调节的 CPU/GPU 温控曲线，以及覆盖主窗口和状态栏弹窗的统一浅深色选择组件。下文包含这些开发版用法，公开安装包仍为 1.18.3，详见[开发版更新说明](docs/releases/v1.18.4.md)。
 
 <img src="docs/screenshots/v1.18.1/zh/overview-dark.png" width="1000" alt="ShowMac 1.18.1 深色实时监测界面，展示 CPU 温度、风扇转速、CPU 使用率与真实温度趋势">
 
-本文截图来自最新版的英文界面；应用内可在“设置 → 界面语言”切换中文。仓库默认首页使用英文。
+本文截图使用中文界面，具体拍摄版本见图片说明；应用内可在“设置 → 界面语言”切换语言。仓库默认首页使用英文。
 
 ## 下载与启动
 
@@ -22,10 +24,10 @@
 2. 下载适合本机芯片的 ZIP，解压后将 **showmac.app** 拖到“应用程序”。
 3. 打开应用，点击顶部菜单栏项目。启动后先在菜单栏监测，不自动弹出主窗口。
 
-| Mac 类型 | v1.18.1 安装包 | 控制能力 |
+| Mac 类型 | v1.18.3 安装包 | 控制能力 |
 | --- | --- | --- |
-| Intel | `showmac-1.18.4-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
-| Apple Silicon | `showmac-1.18.4-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
+| Intel | `showmac-1.18.3-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
+| Apple Silicon | `showmac-1.18.3-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
 
 预编译应用不需要 Xcode、Swift 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
 
@@ -77,6 +79,8 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 ### 主题、语言与小组件
 
 在“设置”的“主题”中选择跟随系统、浅色或深色；“界面语言”支持英文、简繁中文、日语、韩语、德语、法语和西班牙语。应用缺省跟随系统语言，部分其他语种的文案会明确回退英文。
+
+下拉选择与分段选项统一使用紫色主题，覆盖风扇档位、图表选项、字体、图标、颜色和状态栏弹窗时间范围。展开选择列表后，可用方向键和回车选择，Esc 取消且保留主弹窗。自定义颜色和图片仍使用系统面板。
 
 同页可调整“采样频率”或点击“刷新读数”。展开“系统小组件”查看相关选项；小组件支持 macOS 11+ 通知中心和 macOS 14+ 桌面。
 
