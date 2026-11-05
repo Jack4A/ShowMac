@@ -10,9 +10,9 @@
 
 原生 macOS 温度、风扇与性能诊断工具。在菜单栏查看读数，进入主窗口观察近期趋势，或直接选择风扇档位、调整温度—转速曲线。
 
-**公开下载：[v1.18.7](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
+**公开下载：[v1.18.8](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
 
-**1.18.7 · build 274** 加入按应用自动切换场景，并精简菜单栏控制卡片。为剪辑软件或游戏关联场景，前台应用优先；手动选档会暂停自动切换，详见[更新说明](docs/releases/v1.18.7.md)。
+**1.18.8 · build 275** 加入按应用自动切换场景，并精简菜单栏控制卡片。为剪辑软件或游戏关联场景，前台应用优先；手动选档会暂停自动切换，详见[更新说明](docs/releases/v1.18.8.md)。
 
 <img src="docs/screenshots/v1.18.1/zh/overview-dark.png" width="1000" alt="ShowMac 1.18.1 深色实时监测界面，展示 CPU 温度、风扇转速、CPU 使用率与真实温度趋势">
 
@@ -24,10 +24,10 @@
 2. 下载适合本机芯片的 ZIP，解压后将 **showmac.app** 拖到“应用程序”。
 3. 打开应用，点击顶部菜单栏项目。启动后先在菜单栏监测，不自动弹出主窗口。
 
-| Mac 类型 | v1.18.7 安装包 | 控制能力 |
+| Mac 类型 | v1.18.8 安装包 | 控制能力 |
 | --- | --- | --- |
-| Intel | `showmac-1.18.7-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
-| Apple Silicon | `showmac-1.18.7-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
+| Intel | `showmac-1.18.8-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
+| Apple Silicon | `showmac-1.18.8-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
 
 预编译应用不需要 Xcode、Swift 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
 

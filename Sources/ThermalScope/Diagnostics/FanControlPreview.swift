@@ -24,11 +24,11 @@ import ThermalCore
         switch scenario {
         case "unavailable":sensors=[]
         case "protection":sensors=[SensorReading(key:"TC0P",label:"CPU",celsius:95)]
-        case "multi":sensors=[SensorReading(key:"TC0P",label:"CPU",celsius:65),SensorReading(key:"TG0P",label:"GPU",celsius:60)]
+        case "multi","failure":sensors=[SensorReading(key:"TC0P",label:"CPU",celsius:65),SensorReading(key:"TG0P",label:"GPU",celsius:60)]
         default:sensors=source.sensors
         }
         let baseFans: [FanReading]
-        if scenario=="multi" {
+        if scenario=="multi" || scenario=="failure" {
             baseFans=[FanReading(id:0,rpm:1000,minimum:1000,maximum:4900,manual:false,controllable:true),FanReading(id:1,rpm:1500,minimum:1500,maximum:6000,manual:false,controllable:true)]
         } else {baseFans=scenario=="unavailable" ? []:source.fans}
         let temperature=sensors.filter{$0.category == .cpu || $0.category == .gpu}.map(\.celsius).max() ?? 60
