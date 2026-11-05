@@ -10,9 +10,9 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.5](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.6](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.5 · build 272** adds persistent fan control and named scenes that restore after relaunch. Save separate curves for video editing, gaming, office work, media or coding, then switch from the console or menu bar popover. See the [release notes](docs/releases/v1.18.5.md).
+**1.18.6 · build 273** adds app-based scene switching and a simpler menu bar control card. Link editing apps or games to a scene; the foreground app takes priority, while a manual choice pauses automation. See the [release notes](docs/releases/v1.18.6.md).
 
 <img src="docs/screenshots/v1.18.1/en/overview-dark.png" width="1000" alt="ShowMac 1.18.1 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
@@ -22,10 +22,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.5 archive | Control support |
+| Mac | v1.18.6 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.5-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.5-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.6-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.6-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -53,15 +53,23 @@ Open **Thermal control**, then choose **Auto**, **Quiet**, **Balanced**, **Boost
 
 Choose **Auto** to return control to macOS at any time. macOS then decides fan speed; the app's curve and temperature thresholds are inactive. App-controlled sessions default to **Keep running**, with optional 30-minute, 1-hour or 2-hour timers. Quitting, a missing control sensor or a failed control check returns fans to macOS; thermal protection remains active throughout. The page shows continuous control or the remaining time, and flags high temperature with fans near minimum speed without silently taking control. **Fan test…** asks for confirmation before a five-second maximum-speed test.
 
-<img src="docs/screenshots/v1.18.1/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
+<img src="docs/screenshots/v1.18.6/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
 
 ### Saved fan scenes
 
 Use **Thermal control → Choose scene** to switch between **Video editing**, **Gaming**, **Office**, **Media** and **Coding** templates. Each stores its own curve, CPU/GPU source and maximum-speed point. These scenes change fan control only; they do not change Turbo Boost or system power settings.
 
-Choose **Create or manage scenes…** to save the displayed curve under a new name, rename a scene (press Return), or delete it. Deleting the active scene returns fans to Auto. Select a scene and edit the main curve to update it. The same selector is available in the menu bar popover.
+Choose **Create or manage scenes…** to open **Scenes & apps**. Use **New scene** to save the displayed curve under a new name; each scene has a menu for renaming or deleting it. Deleting the active scene returns fans to Auto. Select a scene and edit the main curve to update it. The menu bar popover combines presets and saved scenes in one **Fan mode** selector.
 
 **Restore on launch** is enabled by default. After relaunch or wake, ShowMac restores the last successfully confirmed mode; selecting Auto remembers Auto. macOS may ask for authorization again. If a fan controller already owns the fans or required readings are unavailable, ShowMac reports the problem instead of claiming that the scene resumed. Disable the checkbox to stop automatic restoration.
+
+### Switch scenes with your apps
+
+<img src="docs/screenshots/v1.18.6/en/scene-manager.png" width="520" alt="Scenes and apps UI preview with named scenes, app associations and an opt-in automation switch">
+
+Open **Scenes & apps** from Thermal control or the menu bar fan-control settings. Click the app icon beside a scene to link running apps, or choose another installed app. Each app maps to one scene. Turn on **Switch by app** when ready; it starts off.
+
+A matching foreground app takes priority. Switching to an unrelated app keeps the matched workload scene while that app is running. When all linked apps quit, ShowMac returns to the mode selected before enabling automation. Rules and the enabled state survive relaunch; matching still depends on which apps are running. Choosing a mode or editing a curve manually pauses automation. Re-enable the switch to resume. A timed session ending or rejected control also pauses switching; it does not repeatedly request authorization. Only application identities are read—no window contents or Accessibility permission.
 
 Before applying control, quit other fan controllers to avoid competing commands. On Intel, Turbo Boost control reuses an already installed, macOS-approved `com.rugarciap.DisableTurboBoost` extension. ShowMac does not bundle or download that driver.
 
@@ -76,9 +84,9 @@ Before applying control, quit other fan controllers to avoid competing commands.
 
 Open **Settings → Popover cards → Add card**, or click **Edit** in the menu bar popover. Keep 1–8 metric or sensor cards; use the arrows to reorder and the remove button to delete. Fan controls and top CPU processes can be shown independently. Changes save automatically.
 
-Menu bar components and popover cards are configured separately. The screenshot below shows a five-card example with both optional sections enabled.
+Menu bar components and popover cards are configured separately. The UI preview below shows five example cards and the simplified fan controls. These previews use sample readings; process rankings are hidden.
 
-<img src="docs/screenshots/v1.18.2/en/status-panel-light.png" width="390" alt="Menu bar popover with five configurable cards, fan presets and top CPU processes">
+<img src="docs/screenshots/v1.18.6/en/status-panel-light.png" width="390" alt="Menu bar preview with five sample cards and unified fan mode, duration and app switching controls">
 
 <img src="docs/screenshots/v1.18.1/en/settings.png" width="1000" alt="Settings with a draggable menu bar composition and controls to add, reorder or remove popover cards">
 

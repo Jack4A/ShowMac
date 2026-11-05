@@ -10,11 +10,12 @@ extension AppModel {
         if systemFansAutomatic {return "系统自动由 macOS 调速，下方曲线尚未启用。"}
         return fanScenes.duration == .continuous ? "持续运行，退出软件时交回 macOS；高温保护始终有效。":"到期交回 macOS；高温保护始终有效。"
     }
-    func confirmFanSelection(_ selection:FanModeSelection,curve:FanCurve) {
+    func confirmFanSelection(_ selection:FanModeSelection,curve:FanCurve,automatic:Bool=false) {
         fanRestorePending=false
         var settings=fanScenes;settings.selection=selection
         if selection == .strategy(.custom) {settings.confirmedCustomCurve=curve}
         fanScenes=settings
+        if !automatic {fanAutomation.manualSelection=selection}
         if case .scene(let id)=selection {activeFanSceneID=id}
         else {activeFanSceneID=nil;if selection == .strategy(.custom) {customCurve=curve}}
     }
@@ -38,6 +39,9 @@ extension AppModel {
         fanScenes.duration=duration
         guard let curve=sessionCurve,coolingToken != nil else{return}
         let selection:FanModeSelection=activeFanSceneID.map{.scene($0)} ?? fanScenes.selection
+        let previous=fanAutomationApplying
+        fanAutomationApplying=fanAutomation.enabled
+        defer {fanAutomationApplying=previous}
         applyFanCurve(curve,name:activeFanScene?.name ?? controlName,selection:selection)
     }
     func saveFanScene(name:String,curve:FanCurve)->Bool {
@@ -54,14 +58,16 @@ extension AppModel {
     func deleteFanScene(_ id:String) {
         guard !busy else{return}
         if activeFanSceneID==id {restoreAuto()}
+        fanAutomation.removeScene(id)
         fanScenes.remove(id)
+        fanAutomationLastAttempt=nil;scheduleFanAutomation()
     }
     func prepareFanRestoration() {
-        fanRestorePending = !isFanControlPreview && AppDistribution.hardwareControlAvailable && fanScenes.resumeSelection != nil
+        fanRestorePending = !isFanControlPreview && !fanAutomation.enabled && AppDistribution.hardwareControlAvailable && fanScenes.resumeSelection != nil
         fanRestoreDeadline=Date().addingTimeInterval(30)
     }
     func restoreSavedFanModeIfNeeded() {
-        guard fanRestorePending,!isFanControlPreview,!fanSuspending,!busy else{return}
+        guard fanRestorePending,!fanAutomation.enabled,!isFanControlPreview,!fanSuspending,!busy else{return}
         guard coolingToken==nil else{return}
         guard let snapshot,ControlAvailability.fansAvailable(snapshot),fanScenes.curve(custom:customCurve)?.sensor.temperature(in:snapshot) != nil else {
             if Date()>fanRestoreDeadline {fanRestorePending=false;report("上次的风扇模式未恢复：传感器或风扇暂不可用。",error:true)}

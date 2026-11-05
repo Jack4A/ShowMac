@@ -1,11 +1,11 @@
-showmac 1.18.5 — 安装 / Installation
-Intel Mac (x86_64) · macOS 11+ · build 272
+showmac 1.18.6 — 安装 / Installation
+Intel Mac (x86_64) · macOS 11+ · build 273
 
 兼容性：已检查主程序、辅助程序与小组件的实际 macOS 11.0 部署目标、弱链接及随包 Swift 运行库。macOS 11/12 真机运行验证仍待完成。
 Compatibility: Deployment stamps, weak frameworks and bundled Swift runtimes are checked; physical-device runtime validation on macOS 11/12 remains pending.
 
 简体中文
-1. 打开 https://show-mac.cc/zh/#download，下载 showmac-1.18.5-macOS-x86_64.zip。
+1. 打开 https://show-mac.cc/zh/#download，下载 showmac-1.18.6-macOS-x86_64.zip。
 2. 解压，将 showmac.app 拖到“应用程序”，然后打开。
 3. 点击顶部状态栏图标查看曲线；从面板打开完整控制台，或点击 Dock 图标。
 4. 关闭主窗口会隐藏 Dock 图标，状态栏仍监测；从应用菜单或状态栏菜单选择退出才能彻底退出。
@@ -19,7 +19,7 @@ Compatibility: Deployment stamps, weak frameworks and bundled Swift runtimes are
 睿频控制复用本机已经安装并获系统批准的 com.rugarciap.DisableTurboBoost 扩展；安装包不包含这个内核驱动。
 
 English
-1. Open https://show-mac.cc/en/#download and download showmac-1.18.5-macOS-x86_64.zip.
+1. Open https://show-mac.cc/en/#download and download showmac-1.18.6-macOS-x86_64.zip.
 2. Extract the archive, drag showmac.app into Applications, then launch it.
 3. Click the top menu bar item for graphs. Open the console from that panel, or click the Dock icon.
 4. Closing the main window hides the Dock icon while monitoring continues in the menu bar. Choose Quit from the app or menu bar menu to fully exit.
@@ -46,3 +46,6 @@ https://github.com/Jack4A/ShowMac
 使用说明 / Usage
 https://github.com/Jack4A/ShowMac/blob/main/README.md
 https://github.com/Jack4A/ShowMac/blob/main/README.zh-CN.md
+
+按应用切换：在“场景与应用”关联应用后开启开关。前台匹配应用优先，全部退出后恢复原模式；手动选档会暂停规则。
+App switching: link apps in Scenes & apps, then enable Switch by app. Matching foreground apps take priority; when all linked apps quit, the previous mode returns. Manual mode selection pauses rules.

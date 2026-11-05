@@ -16,7 +16,8 @@ import ThermalCore
     private static func settled(_ model:AppModel)async throws {
         let deadline=Date().addingTimeInterval(5)
         while Date()<deadline {
-            let confirming=model.coolingToken != nil && !(model.snapshot?.fans.isEmpty==false && model.snapshot!.fans.allSatisfy{$0.manual==true})
+            let expectedManual=model.coolingToken != nil
+            let confirming=model.snapshot?.fans.contains{$0.manual != expectedManual} ?? expectedManual
             if !model.busy,!confirming {return}
             try await Task.sleep(nanoseconds:50_000_000)
         }
@@ -49,10 +50,49 @@ import ThermalCore
         model.fanScenes.restoreOnLaunch=false
         try require(model.fanScenes.resumeSelection==nil,"Disabling restoration retained resume intent")
         model.restoreAuto();try await settled(model)
+        try await checkApplicationRules()
         setenv("THERMALSCOPE_PREVIEW_FAN_STATE","failure",1)
         let rejected=AppModel();defer{rejected.shutdown()}
         rejected.applyFanScene(rejected.fanScenes.scenes[0].id);try await settled(rejected)
         try require(rejected.fanScenes.selection.isAutomatic && rejected.activeFanSceneID==nil && rejected.messageIsError,"Rejected control was persisted as a confirmed scene")
+        let app=FanApplication(bundleID:"com.fixture.rejected",name:"Rejected app")
+        rejected.fanApplicationSnapshot={([app],app.id)}
+        rejected.associateFanApplication(app,sceneID:rejected.fanScenes.scenes[0].id)
+        rejected.setFanAutomationEnabled(true);try await settled(rejected)
+        try require(!rejected.fanAutomation.enabled && rejected.messageIsError && rejected.coolingToken==nil,"Failed automatic control kept retrying or claimed active automation")
         try require(preferences().isEqual(to:before as! [AnyHashable:Any]),"Scene fixtures changed user preferences")
+    }
+    private static func checkApplicationRules()async throws {
+        let model=AppModel();defer{model.shutdown()}
+        let editor=FanApplication(bundleID:"com.fixture.editor",name:"Fixture editor")
+        let game=FanApplication(bundleID:"com.fixture.game",name:"Fixture game")
+        var workspace:(running:[FanApplication],frontmost:String?)=([editor],editor.id)
+        model.fanApplicationSnapshot={workspace}
+        model.applyFanStrategy(.balanced);try await settled(model)
+        let editing=model.fanScenes.scenes[0],gaming=model.fanScenes.scenes[1]
+        model.associateFanApplication(editor,sceneID:editing.id);model.associateFanApplication(game,sceneID:gaming.id)
+        model.setFanAutomationEnabled(true);try await settled(model)
+        try require(model.activeFanSceneID==editing.id && model.fanAutomation.enabled,"Opening an associated app did not select its scene")
+        try require(model.fanAutomation.manualSelection == .strategy(.balanced),"Automatic activation overwrote the manual fallback")
+        model.setFanDuration(.hour1);try await settled(model)
+        try require(model.fanAutomation.enabled && (model.fanControl.remaining() ?? 0)>3500,"Changing duration disabled app rules or failed to apply the timer")
+        let token=model.coolingToken
+        workspace=([editor],"com.fixture.unrelated");model.evaluateFanAutomation();try await settled(model)
+        try require(model.coolingToken==token,"An unrelated app restarted the same fan session")
+        workspace=([editor,game],game.id);model.evaluateFanAutomation();try await settled(model)
+        try require(model.activeFanSceneID==gaming.id,"Foreground matching app did not win")
+        workspace=([editor],nil);model.evaluateFanAutomation();try await settled(model)
+        try require(model.activeFanSceneID==editing.id,"Closing a game did not restore the remaining matched workload")
+        workspace=([],nil);model.evaluateFanAutomation();try await settled(model)
+        try require(model.activeFanStrategy == .balanced && model.fanAutomation.enabled,"Closing all associated apps did not restore the manual fallback")
+        model.applyFanStrategy(.quiet);try await settled(model)
+        workspace=([editor],editor.id);model.evaluateFanAutomation();try await settled(model)
+        try require(!model.fanAutomation.enabled && model.activeFanStrategy == .quiet,"Automatic rules overrode a manual selection")
+        model.setFanAutomationEnabled(true);try await settled(model)
+        let decoded=FanSceneAutomation.decode(try JSONEncoder().encode(model.fanAutomation),scenes:model.fanScenes.scenes)
+        try require(decoded.enabled && decoded.manualSelection == .strategy(.quiet),"Relaunch lost enabled rules or the manual fallback")
+        model.deleteFanScene(editing.id);try await settled(model)
+        try require(!model.fanAutomation.enabled && model.systemFansAutomatic && !model.fanAutomation.rules.contains{$0.sceneID==editing.id},"Deleting an automated active scene left an orphan rule or control session")
+        model.restoreAuto();try await settled(model)
     }
 }

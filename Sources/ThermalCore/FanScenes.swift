@@ -41,7 +41,7 @@ public enum FanControlDuration:String,Codable,CaseIterable,Identifiable {
     }
 }
 
-public enum FanModeSelection:Codable,Equatable {
+public enum FanModeSelection:Codable,Hashable {
     case strategy(FanStrategy)
     case scene(String)
     public var isAutomatic:Bool {self == .strategy(.system)}

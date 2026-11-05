@@ -170,6 +170,14 @@ struct TimelineEvent: Identifiable {
     }
     @Published var activeFanSceneID:String?
     @Published var pendingFanStrategy:FanStrategy?
+    @Published var fanAutomation=FanSceneAutomation() {
+        didSet {if !isFanControlPreview,let data=try? JSONEncoder().encode(fanAutomation) {UserDefaults.standard.set(data,forKey:"fanSceneAutomation")}}
+    }
+    @Published var fanAutomationApplication:FanApplication?
+    var fanAutomationApplying=false
+    var fanAutomationLastAttempt:FanModeSelection?
+    var fanAutomationWork:DispatchWorkItem?
+    var fanApplicationSnapshot:(()->(running:[FanApplication],frontmost:String?))?
     var queuedFanSelection:FanModeSelection = .strategy(.custom)
     var fanRestorePending=false
     var fanRestoreDeadline=Date.distantPast
@@ -180,10 +188,12 @@ struct TimelineEvent: Identifiable {
     }
     func applyFanCurve(_ curve:FanCurve,name:String,selection:FanModeSelection = .strategy(.custom)) {
         guard !busy else{return}
+        pauseFanAutomationForManualSelection()
         queuedCurve=curve;queuedName=name;queuedFanSelection=selection;applyProfile(.custom)
     }
     func applyCustomCurve() {
         guard !busy else{return}
+        pauseFanAutomationForManualSelection()
         queuedCurve=nil;queuedName="自定义曲线";queuedFanSelection = .strategy(.custom);applyProfile(.custom)
     }
     @Published var tab=0
@@ -213,17 +223,25 @@ struct TimelineEvent: Identifiable {
         let savedInterval=UserDefaults.standard.double(forKey:"sampleInterval")
         if savedInterval==2 || savedInterval==5 { interval=savedInterval }
         if let data=UserDefaults.standard.data(forKey:"customFanCurve"),let curve=try? JSONDecoder().decode(FanCurve.self,from:data),(try? curve.validate()) != nil { customCurve=curve }
-        if !isFanControlPreview {fanScenes=FanSceneConfiguration.decode(UserDefaults.standard.data(forKey:"fanSceneConfiguration"))}
+        if !isFanControlPreview {
+            fanScenes=FanSceneConfiguration.decode(UserDefaults.standard.data(forKey:"fanSceneConfiguration"))
+            fanAutomation=FanSceneAutomation.decode(UserDefaults.standard.data(forKey:"fanSceneAutomation"),scenes:fanScenes.scenes)
+        }
         prepareFanRestoration()
         schedule()
         let center=NSWorkspace.shared.notificationCenter
+        for notification in [NSWorkspace.didLaunchApplicationNotification,NSWorkspace.didTerminateApplicationNotification,NSWorkspace.didActivateApplicationNotification] {
+            observers.append(center.addObserver(forName:notification,object:nil,queue:.main) { [weak self] _ in
+                MainActor.assumeIsolated {self?.scheduleFanAutomation()}
+            })
+        }
         observers.append(center.addObserver(forName:NSWorkspace.willSleepNotification,object:nil,queue:.main) { [weak self] _ in
             MainActor.assumeIsolated { self?.fanSuspending=true;self?.stopCooling() }
         })
         observers.append(center.addObserver(forName:NSWorkspace.didWakeNotification,object:nil,queue:.main) { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.stopCooling { [weak self] in
-                    self?.fanSuspending=false;self?.prepareFanRestoration();self?.refresh(reset:true)
+                    self?.fanSuspending=false;self?.fanAutomationLastAttempt=nil;self?.prepareFanRestoration();self?.refresh(reset:true)
                 }
             }
         })
@@ -295,6 +313,7 @@ struct TimelineEvent: Identifiable {
         statusChanged?(sample)
         if message=="正在读取本机传感器…" { message="监测已启动 · 硬件设置保持原样" }
         restoreSavedFanModeIfNeeded()
+        evaluateFanAutomation()
     }
     func addEvent(_ title:String,detail:String,warning:Bool) {
         events.insert(TimelineEvent(title:title,detail:detail,warning:warning),at:0)
@@ -311,7 +330,10 @@ struct TimelineEvent: Identifiable {
             fanControl.update(reply.ok && reply.session != nil ? reply.fanStatus:nil,publish:visualUpdatesEnabled)
             let previous=coolingToken
             if coolingToken != reply.session {coolingToken=reply.session;sessionCurve=nil;activeFanSceneID=nil}
-            if poll,previous != nil,reply.session==nil,!fanSuspending,!fanRestorePending {fanScenes.selection = .strategy(.system)}
+            if poll,previous != nil,reply.session==nil,!fanSuspending,!fanRestorePending {
+                fanScenes.selection = .strategy(.system)
+                pauseFanAutomationForManualSelection()
+            }
             let nextProfile=reply.profile.flatMap { command in ThermalProfile.allCases.first(where:{$0.command==command}) }
             if requestedProfile != nextProfile {requestedProfile=nextProfile}
             if let label=reply.label,controlName != label { controlName=label }
@@ -372,6 +394,7 @@ struct TimelineEvent: Identifiable {
     }
     func applyProfile(_ profile:ThermalProfile) {
         guard !busy else{return}
+        pauseFanAutomationForManualSelection()
         if profile == .automatic {restoreAuto();return}
         if ControlAvailability.isAppleSilicon,profile != .custom {
             queuedCurve=profile.curve;queuedName=profile.rawValue+"模式"
@@ -384,24 +407,38 @@ struct TimelineEvent: Identifiable {
         let name=profile == .custom ? queuedName:profile.rawValue
         let selection:FanModeSelection=profile == .custom ? queuedFanSelection:.strategy(profile == .performance ? .cooling:(profile == .quiet || profile == .eco ? .quiet:.balanced))
         let duration=fanScenes.duration
+        let automatic=fanAutomationApplying
         queuedFanSelection=selection
         control(ControlRequest("profile",profile:profile.command,curve:curve,duration:duration.seconds,label:name,continuous:duration == .continuous)) { [weak self] result in
-            guard case .success(let reply)=result,reply.ok,let session=reply.session,reply.profile==profile.command,self?.coolingToken==session else{return}
+            guard case .success(let reply)=result,reply.ok,let session=reply.session,reply.profile==profile.command,self?.coolingToken==session else{
+                if automatic {self?.pauseFanAutomationForManualSelection()}
+                return
+            }
             self?.sessionCurve=curve
-            self?.confirmFanSelection(selection,curve:curve)
+            self?.confirmFanSelection(selection,curve:curve,automatic:automatic)
         }
     }
     func restoreAuto() {
         guard !busy else{return}
+        pauseFanAutomationForManualSelection()
+        if !fanAutomationApplying {fanAutomation.manualSelection = .strategy(.system)}
         fanRestorePending=false;fanScenes.selection = .strategy(.system)
         queuedFanSelection = .strategy(.system)
         if coolingToken==nil,let fans=snapshot?.fans,!fans.isEmpty,fans.allSatisfy({$0.manual==false}) {
             report("风扇由系统管理",error:false);return
         }
         if !isFanControlPreview,let app=conflictingApp(["Macs Fan Control","smcFanControl","TG Pro"]) {report("请先退出 \(app)，避免它覆盖风扇设置。",error:true);return}
-        control(ControlRequest("auto"))
+        let automatic=fanAutomationApplying
+        control(ControlRequest("auto")) { [weak self] result in
+            if automatic {
+                if case .success(let reply)=result,reply.ok {return}
+                self?.pauseFanAutomationForManualSelection()
+            }
+        }
     }
     func startFanTest() {
+        guard !busy else{return}
+        pauseFanAutomationForManualSelection()
         fanRestorePending=false
         if let app=conflictingApp(["Macs Fan Control","smcFanControl","TG Pro"]) {report("请先退出 \(app)，避免争抢风扇控制。",error:true);return}
         control(ControlRequest("test-fans"))
@@ -439,5 +476,5 @@ struct TimelineEvent: Identifiable {
         do { try Export.csv(history).write(to:url,atomically:true,encoding:.utf8); report(String(format:L("已导出 %d 条采样。"),history.count),error:false) }
         catch { report(error.localizedDescription,error:true) }
     }
-    func shutdown() { updates.shutdown();widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
+    func shutdown() { fanSuspending=true;fanRestorePending=false;fanAutomationWork?.cancel();updates.shutdown();widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
 }

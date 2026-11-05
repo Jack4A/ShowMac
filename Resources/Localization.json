@@ -6557,5 +6557,86 @@
   },
   "改名后按回车保存；选中场景后，拖动主界面曲线即可更新曲线和温度来源。": {
     "en": "Press Return to save a name. Select a scene, then edit its curve and temperature source in the main window."
+  },
+  "按应用切换": {
+    "en": "Switch by app"
+  },
+  "场景与应用": {
+    "en": "Scenes & apps"
+  },
+  "前台应用优先；关联应用全部退出后恢复原模式。手动选档会暂停自动切换。": {
+    "en": "The foreground app takes priority. When all linked apps quit, the previous mode returns. Choosing a mode manually pauses automation."
+  },
+  "我的场景": {
+    "en": "My scenes"
+  },
+  "新建场景": {
+    "en": "New scene"
+  },
+  "未关联应用": {
+    "en": "No linked apps"
+  },
+  "以当前曲线创建；使用场景后可在主界面拖动曲线修改。": {
+    "en": "Create from the current curve. Use a scene, then edit its curve in the main window."
+  },
+  "使用": {
+    "en": "Use"
+  },
+  "保存名称": {
+    "en": "Save name"
+  },
+  "编辑曲线": {
+    "en": "Edit curve"
+  },
+  "重命名": {
+    "en": "Rename"
+  },
+  "关联应用": {
+    "en": "Link apps"
+  },
+  "打开这些应用时使用“%@”": {
+    "en": "Use “%@” when these apps are running"
+  },
+  "选择一个应用，为这个场景建立规则。": {
+    "en": "Choose an app to link it to this scene."
+  },
+  "选择其他应用…": {
+    "en": "Choose another app…"
+  },
+  "每个应用对应一个场景；重新关联会替换原规则。": {
+    "en": "Each app uses one scene. Linking it elsewhere replaces its previous rule."
+  },
+  "已关联": {
+    "en": "Linked"
+  },
+  "未关联": {
+    "en": "Not linked"
+  },
+  "选择要关联的应用": {
+    "en": "Choose apps to link"
+  },
+  "无法识别这个应用或场景": {
+    "en": "This app or scene could not be identified"
+  },
+  "最多关联 128 个应用": {
+    "en": "You can link up to 128 apps"
+  },
+  "风扇正由其他程序控制，按应用切换已暂停。": {
+    "en": "Another app is controlling the fans. App-based switching has been paused."
+  },
+  "风扇模式": {
+    "en": "Fan mode"
+  },
+  "未匹配应用": {
+    "en": "No matching app"
+  },
+  "手动选择": {
+    "en": "Manual"
+  },
+  "在场景与应用设置中关联应用；手动选档会暂停自动切换。": {
+    "en": "Link apps in Scenes & apps. Choosing a mode manually pauses automation."
+  },
+  "关联": {
+    "en": "Link"
   }
 }
