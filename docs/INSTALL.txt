@@ -1,16 +1,16 @@
-showmac 1.18.4 — 安装 / Installation
-Intel Mac (x86_64) · macOS 11+ · build 271
+showmac 1.18.5 — 安装 / Installation
+Intel Mac (x86_64) · macOS 11+ · build 272
 
 兼容性：已检查主程序、辅助程序与小组件的实际 macOS 11.0 部署目标、弱链接及随包 Swift 运行库。macOS 11/12 真机运行验证仍待完成。
 Compatibility: Deployment stamps, weak frameworks and bundled Swift runtimes are checked; physical-device runtime validation on macOS 11/12 remains pending.
 
 简体中文
-1. 打开 https://show-mac.cc/zh/#download，下载 showmac-1.18.4-macOS-x86_64.zip。
+1. 打开 https://show-mac.cc/zh/#download，下载 showmac-1.18.5-macOS-x86_64.zip。
 2. 解压，将 showmac.app 拖到“应用程序”，然后打开。
 3. 点击顶部状态栏图标查看曲线；从面板打开完整控制台，或点击 Dock 图标。
 4. 关闭主窗口会隐藏 Dock 图标，状态栏仍监测；从应用菜单或状态栏菜单选择退出才能彻底退出。
 5. 在“设置 → 语言”选择简体中文、English 或跟随系统。
-6. 温度控制中选档立即生效，拖动曲线松手后生效；首次接管需要 macOS 管理员授权，30 分钟后恢复自动。
+6. 温度控制中选档立即生效，拖动曲线松手后生效；首次接管需要 macOS 管理员授权，默认持续控制，退出时交回系统；可选定时结束，重启后可恢复所选场景。
 
 此安装包用于 Intel x86_64；Apple Silicon Mac 请选择单独的 arm64 安装包。最低系统 macOS 11，实际验证机型 Intel MacBookPro16,1。
 当前为 ad-hoc 签名、未经公证的开发构建，macOS 可能提示无法验证开发者。正式签名、公证和更多机型验证仍待完成。
@@ -19,12 +19,12 @@ Compatibility: Deployment stamps, weak frameworks and bundled Swift runtimes are
 睿频控制复用本机已经安装并获系统批准的 com.rugarciap.DisableTurboBoost 扩展；安装包不包含这个内核驱动。
 
 English
-1. Open https://show-mac.cc/en/#download and download showmac-1.18.4-macOS-x86_64.zip.
+1. Open https://show-mac.cc/en/#download and download showmac-1.18.5-macOS-x86_64.zip.
 2. Extract the archive, drag showmac.app into Applications, then launch it.
 3. Click the top menu bar item for graphs. Open the console from that panel, or click the Dock icon.
 4. Closing the main window hides the Dock icon while monitoring continues in the menu bar. Choose Quit from the app or menu bar menu to fully exit.
 5. Select English, Simplified Chinese or Follow System under Settings → Language.
-6. Fan presets apply immediately; curve edits apply on release. First use requires macOS administrator authorization; control returns to automatic after 30 minutes.
+6. Fan presets apply immediately; curve edits apply on release. First use requires macOS administrator authorization; control continues until stopped or the app quits; timers and relaunch restoration are available.
 
 This package targets Intel x86_64; choose the separate arm64 archive for Apple Silicon Macs. Minimum macOS version: 11. Validated machine: Intel MacBookPro16,1.
 This is an ad-hoc signed, non-notarized development build. macOS may report that the developer cannot be verified. Developer ID signing, notarization and wider hardware validation remain pending.

@@ -10,9 +10,9 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.4](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.5](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.4 · build 271** adds update checks, continuous CPU/GPU curve editing and unified light/dark selectors throughout the app and menu bar popover. See the [release notes](docs/releases/v1.18.4.md).
+**1.18.5 · build 272** adds persistent fan control and named scenes that restore after relaunch. Save separate curves for video editing, gaming, office work, media or coding, then switch from the console or menu bar popover. See the [release notes](docs/releases/v1.18.5.md).
 
 <img src="docs/screenshots/v1.18.1/en/overview-dark.png" width="1000" alt="ShowMac 1.18.1 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
@@ -22,10 +22,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.4 archive | Control support |
+| Mac | v1.18.5 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.4-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.4-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.5-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.5-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -51,9 +51,17 @@ Recent history is kept in memory for the current session, up to 30 minutes, and 
 
 Open **Thermal control**, then choose **Auto**, **Quiet**, **Balanced**, **Boost** or **Custom**. Presets apply immediately. Drag a curve point to continuously change temperature and RPM; release it to apply. Drag the final point vertically to set the curve's maximum speed within the fan's rated range. Lowering it caps earlier points too. Arrow keys fine-tune the selected point by 0.1°C or one percentage point of the rated speed range. Select **CPU**, **GPU**, or both checkboxes above the curve; with both selected, the higher temperature drives the same curve. Current temperatures and the effective input are shown alongside them. Thermal protection can override the curve's maximum speed.
 
-Choose **Auto** to return control to macOS at any time. macOS then decides fan speed; the app's curve and temperature thresholds are inactive. App-controlled sessions apply thermal protection and last up to 30 minutes before returning control to macOS. The page shows control state and remaining time, and flags high temperature with fans near minimum speed without silently taking control. **Fan test…** asks for confirmation before a five-second maximum-speed test.
+Choose **Auto** to return control to macOS at any time. macOS then decides fan speed; the app's curve and temperature thresholds are inactive. App-controlled sessions default to **Keep running**, with optional 30-minute, 1-hour or 2-hour timers. Quitting, a missing control sensor or a failed control check returns fans to macOS; thermal protection remains active throughout. The page shows continuous control or the remaining time, and flags high temperature with fans near minimum speed without silently taking control. **Fan test…** asks for confirmation before a five-second maximum-speed test.
 
 <img src="docs/screenshots/v1.18.1/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
+
+### Saved fan scenes
+
+Use **Thermal control → Choose scene** to switch between **Video editing**, **Gaming**, **Office**, **Media** and **Coding** templates. Each stores its own curve, CPU/GPU source and maximum-speed point. These scenes change fan control only; they do not change Turbo Boost or system power settings.
+
+Choose **Create or manage scenes…** to save the displayed curve under a new name, rename a scene (press Return), or delete it. Deleting the active scene returns fans to Auto. Select a scene and edit the main curve to update it. The same selector is available in the menu bar popover.
+
+**Restore on launch** is enabled by default. After relaunch or wake, ShowMac restores the last successfully confirmed mode; selecting Auto remembers Auto. macOS may ask for authorization again. If a fan controller already owns the fans or required readings are unavailable, ShowMac reports the problem instead of claiming that the scene resumed. Disable the checkbox to stop automatic restoration.
 
 Before applying control, quit other fan controllers to avoid competing commands. On Intel, Turbo Boost control reuses an already installed, macOS-approved `com.rugarciap.DisableTurboBoost` extension. ShowMac does not bundle or download that driver.
 
