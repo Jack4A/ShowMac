@@ -33,7 +33,7 @@ Fan control depends on the machine's AppleSMC capabilities; quit other fan contr
 Turbo Boost control reuses an already installed and macOS-approved com.rugarciap.DisableTurboBoost extension. That kernel driver is not included.
 
 更新 / Updates
-设置顶部「关于 ShowMac」可检查更新、关闭自动检查；发现新版后可跳转官网或 GitHub 下载。默认每天最多检查一次，只获取公开版本信息。
+设置底部「关于 ShowMac」可检查更新、关闭自动检查；发现新版后可跳转官网或 GitHub 下载。默认每天最多检查一次，只获取公开版本信息。
 Use Settings → About ShowMac to check for updates or disable automatic checks. Choose the website or GitHub to download a newer version. Background checks run at most once a day and request public release information only.
 
 完整性 / Integrity

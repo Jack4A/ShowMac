@@ -10,9 +10,9 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.3](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.4](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-The current source and local development build are **1.18.4 · build 271**. They add update checks, continuous CPU/GPU curve editing and unified light/dark selectors throughout the app and menu bar popover. The usage below includes these development changes; public archives remain 1.18.3. See the [development notes](docs/releases/v1.18.4.md).
+**1.18.4 · build 271** adds update checks, continuous CPU/GPU curve editing and unified light/dark selectors throughout the app and menu bar popover. See the [release notes](docs/releases/v1.18.4.md).
 
 <img src="docs/screenshots/v1.18.1/en/overview-dark.png" width="1000" alt="ShowMac 1.18.1 live metrics in dark mode, with temperature, fan and CPU cards and a sampled temperature history">
 
@@ -22,10 +22,10 @@ The current source and local development build are **1.18.4 · build 271**. They
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.3 archive | Control support |
+| Mac | v1.18.4 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.3-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.3-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.4-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.4-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
