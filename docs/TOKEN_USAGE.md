@@ -4,7 +4,7 @@ Usage statistics combines electricity and AI token history. Day/week/month/year 
 
 ## Engine and coverage
 
-Starting in 1.18.15, ShowMac directly bundles the MIT-licensed [Tokscale core](https://github.com/junhoyeo/tokscale), pinned at `82613d2f5e96654ce3729892afbb0025979f1c75`. Its complete 60-client registry is exposed in the tool filter and searchable source list. No Node, Python, Rust installation, account login or API key is required on the user's Mac.
+Starting in 1.18.16, ShowMac directly bundles the MIT-licensed [Tokscale core](https://github.com/junhoyeo/tokscale), pinned at `82613d2f5e96654ce3729892afbb0025979f1c75`. Its complete 60-client registry is exposed in the tool filter and searchable source list. No Node, Python, Rust installation, account login or API key is required on the user's Mac.
 
 Sources include Codex, Claude Code, Cursor, Gemini, OpenCode, Cline, Roo Code, Kilo Code, Kiro, Zed, Trae, Warp, GitHub Copilot, OpenClaw, Kimi, Qwen and the other clients listed in [the complete source catalog](AGENT-USAGE.md). ShowMac uses upstream parsers and deduplication directly rather than maintaining a second hand-written implementation.
 
@@ -24,4 +24,4 @@ The app checks source metadata every minute on a utility queue, reuses unchanged
 
 `~/Library/Application Support/ShowMac/agent-usage-cache.json` stores numeric counts, timestamps, model/source names and hashed event identifiers. It is user-private (0600), written atomically, and contains no conversation text or login credentials. Parsing can read transcript files in memory to extract metadata or upstream estimates, but no transcript text leaves the parser. The old Swift-parser cache is left untouched. Existing electricity history is unchanged. A failed engine run preserves the last successful snapshot and shows a coverage warning.
 
-Source code and upstream license are vendored under `Vendor/tokscale`; app resources include `AgentEngineNotices.txt` with upstream and dependency notices. Source changes are recorded in `Vendor/tokscale/UPSTREAM.json`. Build/test toolchain is Rust 1.97.1, pinned lockfiles; release targets are Intel/Apple Silicon, macOS 11+. Test fixtures do not read private sessions. UI previews use synthetic sample data.
+Source code and upstream license are vendored under `Vendor/tokscale`; app resources include `AgentEngineNotices.txt` with upstream MIT, nested Apache-2.0 decoder and dependency notices. Source changes are recorded in `Vendor/tokscale/UPSTREAM.json`. Build/test toolchain is Rust 1.97.1, pinned lockfiles; release targets are Intel/Apple Silicon, macOS 11+. Test fixtures do not read private sessions. UI previews use synthetic sample data.

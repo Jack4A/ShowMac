@@ -5,6 +5,12 @@ import json,subprocess,sys
 root=Path(__file__).resolve().parents[1]
 metadata=json.loads(subprocess.check_output(['cargo','metadata','--manifest-path',str(root/'UsageEngine/Cargo.toml'),'--locked','--format-version=1'],text=True))
 parts=['ShowMac Agent Usage Engine\nTokscale upstream commit: 82613d2f5e96654ce3729892afbb0025979f1c75\nSource: https://github.com/junhoyeo/tokscale\n\n'+(root/'Vendor/tokscale/LICENSE').read_text()]
+# Tokscale also vendors a structured-clone decoder under Apache-2.0.
+# Retain nested notices in binary distributions, in addition to registry crates.
+for file in sorted((root/'Vendor/tokscale').rglob('LICENSE*')):
+ if file.is_file() and file != root/'Vendor/tokscale/LICENSE':
+  parts.append('\n\n'+str(file.relative_to(root))+'\n'+file.read_text(errors='replace'))
+parts.append('\nTokscale claude_desktop/v8.rs adapts blob-decoder 0.2.2 (Apache-2.0); upstream modifications are described in that source file.\n')
 for package in sorted(metadata['packages'],key=lambda p:(p['name'],p['version'])):
  if not package.get('source',''):continue
  folder=Path(package['manifest_path']).parent
