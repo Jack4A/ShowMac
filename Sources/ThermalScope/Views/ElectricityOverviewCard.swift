@@ -7,26 +7,48 @@ struct ElectricityOverviewCard:View {
     let onOpen:()->Void
     private var range:DateInterval {ElectricityPeriod.day.interval(containing:Date())}
     private var today:ElectricityTotals {store.history.totals(source:store.source,in:range)}
-    var body:some View {
-        Button(action:onOpen) {
-            HStack(spacing:18) {
-                Image(systemName:"chart.bar.fill").foregroundColor(Palette.violet).font(.system(size:17))
-                VStack(alignment:.leading,spacing:5) {
-                    Text(L("今日用电")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-                    HStack(spacing:8) {
-                        Text(today.observedSeconds>0 ? ElectricityFormat.number(today.kilowattHours,maximum:3)+" "+L("度"):"—").font(AppTypography.number(17,weight:.semibold))
-                        if let cost=today.cost(rate:store.rate) {Text(ElectricityFormat.money(cost,currency:store.currency)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)}
-                    }
-                }.frame(maxWidth:.infinity,alignment:.leading)
-                Divider().frame(height:30)
-                VStack(alignment:.leading,spacing:5) {
-                    Text(L("今日 Token")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-                    Text(tokens.hasScanned && !tokens.snapshot.events.isEmpty ? TokenFormat.compact(tokens.report(in:range).counts.total):"—").font(AppTypography.number(17,weight:.semibold)).appMonospacedDigit()
-                }.frame(maxWidth:.infinity,alignment:.leading)
-                Image(systemName:"chevron.right").font(.system(size:12,weight:.medium)).foregroundColor(Palette.secondaryText)
-            }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel(padding:16).contentShape(Rectangle())
-        }.buttonStyle(.plain).help(L("查看用电与 Token 统计")).accessibilityLabel(L("用量统计")+" · "+ElectricityFormat.number(today.kilowattHours,maximum:3)+" kWh · "+TokenFormat.number(tokens.report(in:range).counts.total)+" tokens").accessibilityIdentifier("electricityOverviewCard")
+    private var energyValue:String {
+        today.observedSeconds>0 ? ElectricityFormat.number(today.kilowattHours,maximum:3)+" "+L("度"):"—"
     }
+    private var tokenCount:Int64 {tokens.report(in:range).counts.total}
+    private var tokenValue:String {tokens.hasScanned && !tokens.snapshot.events.isEmpty ? TokenFormat.compact(tokenCount):"—"}
+    private var accessibilitySummary:String {
+        let energy=ElectricityFormat.number(today.kilowattHours,maximum:3)
+        let count=TokenFormat.number(tokenCount)
+        return L("用量统计")+" · "+energy+" kWh · "+count+" tokens"
+    }
+    var body:some View {
+        Button(action:onOpen) {content}
+            .buttonStyle(.plain).help(L("查看用电与 Token 统计"))
+            .accessibilityLabel(accessibilitySummary).accessibilityIdentifier("electricityOverviewCard")
+    }
+    private var content:some View {
+        HStack(spacing:18) {
+            Image(systemName:"chart.bar.fill").foregroundColor(Palette.violet).font(.system(size:17))
+            energySummary.frame(maxWidth:.infinity,alignment:.leading)
+            Divider().frame(height:30)
+            tokenSummary.frame(maxWidth:.infinity,alignment:.leading)
+            Image(systemName:"chevron.right").font(.system(size:12,weight:.medium)).foregroundColor(Palette.secondaryText)
+        }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel(padding:16).contentShape(Rectangle())
+    }
+    private var energySummary:some View {
+        VStack(alignment:.leading,spacing:5) {
+            Text(L("今日用电")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+            HStack(spacing:8) {
+                Text(energyValue).font(AppTypography.number(17,weight:.semibold))
+                if let cost=today.cost(rate:store.rate) {
+                    Text(ElectricityFormat.money(cost,currency:store.currency)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+                }
+            }
+        }
+    }
+    private var tokenSummary:some View {
+        VStack(alignment:.leading,spacing:5) {
+            Text(L("今日 Token")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+            Text(tokenValue).font(AppTypography.number(17,weight:.semibold)).appMonospacedDigit()
+        }
+    }
+
 }
 
 struct ElectricityPowerCurve:View {

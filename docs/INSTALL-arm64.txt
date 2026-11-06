@@ -1,11 +1,11 @@
-showmac 1.18.13 — Apple Silicon arm64 实验版 / Experimental Build
-macOS 11+ · build 280 · ad-hoc signed · not notarized
+showmac 1.18.14 — Apple Silicon arm64 实验版 / Experimental Build
+macOS 11+ · build 281 · ad-hoc signed · not notarized
 
 兼容性：已检查主程序、辅助程序与小组件的实际 macOS 11.0 部署目标、弱链接及随包 Swift 运行库。macOS 11/12 真机运行验证仍待完成。
 Compatibility: Deployment stamps, weak frameworks and bundled Swift runtimes are checked; physical-device runtime validation on macOS 11/12 remains pending.
 
 简体中文
-1. 打开 https://show-mac.cc/zh/#download，下载 showmac-1.18.13-macOS-arm64.zip，也可从 GitHub Releases 下载。
+1. 打开 https://show-mac.cc/zh/#download，下载 showmac-1.18.14-macOS-arm64.zip，也可从 GitHub Releases 下载。
 2. 解压，将 showmac.app 拖到“应用程序”后打开。仅用于 Apple Silicon Mac。
 3. 点击顶部状态栏图标，从面板打开控制台；在“设置 → 语言”选择简体中文或 English。
 4. 此版本支持实验性独立风扇档位与温度曲线；首次接管需要系统管理员授权，可从“风扇测试”执行 5 秒验证。选档立即生效，拖动曲线松手后生效，默认持续控制，退出时交回系统；可选定时结束，重启后可恢复所选场景。Intel 睿频和电源设置控制仍禁用。
@@ -18,7 +18,7 @@ Compatibility: Deployment stamps, weak frameworks and bundled Swift runtimes are
 完整下载本架构四个附件后运行：shasum -a 256 -c SHA256SUMS-arm64.txt。
 
 English
-1. Open https://show-mac.cc/en/#download and download showmac-1.18.13-macOS-arm64.zip, or use GitHub Releases.
+1. Open https://show-mac.cc/en/#download and download showmac-1.18.14-macOS-arm64.zip, or use GitHub Releases.
 2. Extract it and drag showmac.app into Applications. This package is for Apple Silicon Macs.
 3. Click the menu bar item and open the console from its panel. Select English or Simplified Chinese in Settings → Language.
 4. This version supports experimental independent fan presets and temperature curves. Authorize through macOS on first use; a five-second verification is available under Fan test. Presets apply immediately, curve edits apply on release, and control continues until stopped or the app quits; timers and relaunch restoration are available. Intel Turbo and power-setting controls remain disabled.
@@ -31,7 +31,7 @@ It shares the Intel build's application identifier; replace the existing app rat
 Download all four arm64 assets into one folder and run: shasum -a 256 -c SHA256SUMS-arm64.txt.
 
 Assets / 附件
-showmac-1.18.13-macOS-arm64.zip
+showmac-1.18.14-macOS-arm64.zip
 INSTALL-arm64.txt
 release-manifest-arm64.json
 SHA256SUMS-arm64.txt

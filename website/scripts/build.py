@@ -63,7 +63,7 @@ for candidate in (ROOT/'docs/screenshots').iterdir():
 capture_roots=[directory for _,directory in sorted(capture_roots,reverse=True)]
 for lang in ['en','zh']:
  target=assets/lang;target.mkdir()
- for name in ['overview-dark','overview-light','thermal-control','sensors','status-panel-dark','status-panel-light']+(['electricity-dark','electricity-light'] if release_version>=(1,18,11) else [])+(['token-usage-dark','token-usage-light'] if release_version>=(1,18,13) else []):
+ for name in ['overview-dark','overview-light','thermal-control','sensors','status-panel-dark','status-panel-light']+(['electricity-dark','electricity-light'] if release_version>=(1,18,11) else [])+(['token-usage-dark','token-usage-light'] if release_version>=(1,18,14) else []):
   source=args.screenshots/lang/(name+'.png')
   for directory in capture_roots:
    refreshed=directory/lang/(name+'.png')
