@@ -6848,5 +6848,59 @@
   },
   "%d 秒": {
     "en": "%d sec"
+  },
+  "功率历史格式无效": {
+    "en": "Invalid power history format"
+  },
+  "功率历史记录无效": {
+    "en": "Invalid power history record"
+  },
+  "功率历史记录重复": {
+    "en": "Duplicate power history record"
+  },
+  "功率历史文件过大": {
+    "en": "Power history file is too large"
+  },
+  "功率明细无法读取，原文件已保留；用电汇总仍可查看。": {
+    "en": "Power detail could not be read. The original file is preserved; electricity totals are still available."
+  },
+  "今日用电": {
+    "en": "Today’s electricity"
+  },
+  "设置电价，查看费用估算": {
+    "en": "Set your rate to estimate cost"
+  },
+  "等待用电采样": {
+    "en": "Waiting for electricity samples"
+  },
+  "近 2 分钟实测功率": {
+    "en": "Measured power · 2 min"
+  },
+  "查看用电量、电费和历史功率": {
+    "en": "View electricity use, estimated cost and power history"
+  },
+  "尚无实测功率明细": {
+    "en": "No measured power details yet"
+  },
+  "实测功率曲线": {
+    "en": "Measured power curve"
+  },
+  "实测功率": {
+    "en": "Measured power"
+  },
+  "悬停或点击查看实测时间与功率": {
+    "en": "Hover or click to inspect the measured time and wattage"
+  },
+  "功率时段": {
+    "en": "Power time window"
+  },
+  "全天": {
+    "en": "Full day"
+  },
+  "此时段只有电量汇总，尚无实测功率明细。": {
+    "en": "This period has electricity totals only; measured power details were not recorded."
+  },
+  "功率曲线保留带时间戳的实测峰谷点，较长周期会抽稀；采样断点不连接。": {
+    "en": "Power curves retain timestamped measured peaks and lows. Longer periods are thinned; sampling gaps are not connected."
   }
 }

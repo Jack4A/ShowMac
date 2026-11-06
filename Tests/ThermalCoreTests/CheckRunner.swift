@@ -26,6 +26,9 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
     static func main() {
         let core=CoreTests(),cooling=CoolingTests(),history=HistoryTests(),curve=CurveTests()
         let checks:[(String,() throws ->Void)]=[
+            ("Power history retains original timestamps and measured peaks after compaction",ElectricityPowerTests().testRealSamplesSurviveCompaction),
+            ("Power curves and inspection preserve outages and restart gaps",ElectricityPowerTests().testGapsAndRestartStaySeparate),
+            ("Power history rejects invalid data and never derives legacy watts",ElectricityPowerTests().testRejectsInvalidAndDoesNotInventLegacyPower),
             ("Power integrates to kWh without mixing measurement sources",ElectricityUsageTests().testIntegrationAndSources),
             ("Electricity history excludes outages, sleep and restart gaps",ElectricityUsageTests().testOutagesSleepAndRestart),
             ("Electricity ignores invalid power, duplicate samples and backwards clocks",ElectricityUsageTests().testInvalidReadingsAndClockJumps),

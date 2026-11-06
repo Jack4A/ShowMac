@@ -33,8 +33,17 @@ import ThermalCore
             let total=reloaded.history.totals(source:.system,in:range)
             guard abs(total.wattHours-10)<0.000001,total.observedSeconds==600,
                   reloaded.source == .dcInput,reloaded.rate==0.6,reloaded.currency=="USD" else{throw ScopeError.message("Electricity persistence lost usage or preferences")}
+            let powers=reloaded.powerRecords(in:range,source:.system)
+            guard !powers.isEmpty,powers.allSatisfy({$0.value==60}) else{throw ScopeError.message("Measured power history did not survive restart")}
             reloaded.recordPower(60,source:.system,at:start.addingTimeInterval(3600),publish:false)
             guard reloaded.history.totals(source:.system,in:range)==total else{throw ScopeError.message("Restart fabricated electricity for a missing interval")}
+            let powerFile=directory.appendingPathComponent("electricity-power-history.json")
+            let badPower=Data("unreadable power fixture".utf8)
+            try badPower.write(to:powerFile,options:.atomic)
+            let brokenPower=ElectricityHistoryStore(fileURL:file,defaults:defaults)
+            brokenPower.recordPower(100,source:.system,at:start.addingTimeInterval(4000),publish:false)
+            brokenPower.shutdown()
+            guard brokenPower.storageIssue != nil,try Data(contentsOf:powerFile)==badPower else{throw ScopeError.message("Unreadable power history was overwritten")}
             let original=Data("unreadable history fixture".utf8)
             try original.write(to:file,options:.atomic)
             let damaged=ElectricityHistoryStore(fileURL:file,defaults:defaults)

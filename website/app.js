@@ -42,10 +42,10 @@
     const image=document.querySelector('#product-screenshot');
     if(image){
       const files={overview:theme==='dark'?'overview-dark':'overview-light',thermal:'thermal-control',sensors:'sensors',electricity:'electricity-'+theme};
-      const names={overview:'ShowMac live metrics with sampled temperature history',thermal:'ShowMac fan presets and editable temperature-to-RPM curve',sensors:'ShowMac sensor overview with readable names and recent trends',electricity:'ShowMac electricity history and cost estimate preview with sample power readings'};
-      image.src=new URL('assets/'+language+'/'+files[value]+'.png',siteBase);image.alt=language==='zh'?{overview:'ShowMac 实时监测、温度趋势和当前读数',thermal:'ShowMac 温度控制档位与风扇曲线',sensors:'ShowMac 传感器名称、读数与近期趋势',electricity:'ShowMac 用电统计与电费估算界面预览，使用示例功率数据'}[value]:names[value];
+      const names={overview:'ShowMac live metrics UI preview with today’s electricity card and sample readings',thermal:'ShowMac fan presets and editable temperature-to-RPM curve',sensors:'ShowMac sensor overview with readable names and recent trends',electricity:'ShowMac electricity history and cost estimate preview with sample power readings'};
+      image.src=new URL('assets/'+language+'/'+files[value]+'.png',siteBase);image.alt=language==='zh'?{overview:'ShowMac 实时监测界面预览，包含今日用电卡片和示例读数',thermal:'ShowMac 温度控制档位与风扇曲线',sensors:'ShowMac 传感器名称、读数与近期趋势',electricity:'ShowMac 用电统计与电费估算界面预览，使用示例功率数据'}[value]:names[value];
       const label=document.querySelector('#features .window-label');
-      if(label)label.textContent=value==='electricity'?(language==='zh'?'界面预览 · 示例功率数据':'UI preview · sample power data'):(language==='zh'?'真实应用界面':'Actual app interface');
+      if(label)label.textContent=['electricity','overview'].includes(value)?(language==='zh'?'界面预览 · 示例功率数据':'UI preview · sample power data'):(language==='zh'?'真实应用界面':'Actual app interface');
       document.querySelectorAll('[data-screen]').forEach(button=>{const active=button.dataset.screen===value;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
     }
   }
