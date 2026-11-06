@@ -7001,5 +7001,65 @@
   },
   "尚未设置电价": {
     "en": "Electricity rate not set"
+  },
+  "选择该 Agent 的数据目录，可包含 JSON、JSONL 或 SQLite 数据库。": {
+    "en": "Choose the agent data directory containing JSON, JSONL or SQLite usage data."
+  },
+  "通过 ccusage 支持 18 类 Agent，自动读取本机 JSON、JSONL 和 SQLite 用量；没有数据的来源不会显示为零。": {
+    "en": "ccusage supports 18 agent sources from local JSON, JSONL and SQLite data. Sources without data are shown as unavailable."
+  },
+  "暂时无法读取 Agent 用量，请重试": {
+    "en": "Agent usage is temporarily unavailable. Try again."
+  },
+  "未细分 Token": {
+    "en": "Unclassified tokens"
+  },
+  "已检测到": {
+    "en": "Detected"
+  },
+  "读取失败": {
+    "en": "Read failed"
+  },
+  "等待扫描": {
+    "en": "Waiting for scan"
+  },
+  "未检测到用量": {
+    "en": "No usage detected"
+  },
+  "通过随包 ccusage 原生引擎在后台自动更新，可手动刷新；没有变化时复用缓存。只保存用量元数据，不保存对话内容或读取登录密钥。": {
+    "en": "The bundled native ccusage engine refreshes in the background or on demand, reusing unchanged data. Only usage metadata is cached, never conversation text or login keys."
+  },
+  "总量 = 输入 + 输出 + 未细分 Token（若有）；缓存与推理已包含在对应分类内，不重复相加。未提供分类的数据会单独标明。": {
+    "en": "Total = input + output + unclassified tokens, when provided. Cache and reasoning are included in their respective categories. Missing breakdowns stay unclassified."
+  },
+  "解析和去重直接复用 ccusage 上游适配器；删除本机日志会改变覆盖范围。统计不代表账户额度或实际账单。": {
+    "en": "Parsing and deduplication use upstream ccusage adapters directly. Deleting local logs changes coverage. These totals are not account quotas or actual bills."
+  },
+  "通过 Tokscale 支持 60 类工具的本机用量；部分来源需要导出文件或已有同步缓存。没有数据时会明确提示。": {
+    "en": "Tokscale supports local usage from 60 tools. Some sources require exports or previously synced caches. Missing data is clearly marked."
+  },
+  "用量记录": {
+    "en": "Usage records"
+  },
+  "搜索 Agent…": {
+    "en": "Search agents…"
+  },
+  "显示全部支持的工具": {
+    "en": "Show all supported tools"
+  },
+  "Cursor 读取本机 Tokscale 已同步的用量缓存；ShowMac 不会登录或自动同步账户。部分工具由上游根据文本估算 Token，并非精确账单。": {
+    "en": "Cursor reads usage already synced to a local Tokscale cache. ShowMac does not sign in or sync accounts. Some upstream parsers estimate tokens from text; these are not exact bills."
+  },
+  "随包原生引擎每分钟检查日志变化，后台更新并复用缓存；只保存用量元数据，不保存对话内容或读取登录密钥。": {
+    "en": "The bundled native engine checks for log changes every minute and refreshes in the background, reusing cached metadata. It never stores conversation text or reads login keys."
+  },
+  "解析和去重直接复用 Tokscale。部分来源包含上游估算值；删除本机日志会改变覆盖范围。统计不代表账户额度或实际账单。": {
+    "en": "Parsing and deduplication use Tokscale directly. Some sources contain upstream estimates. Deleting local logs changes coverage. These totals are not account quotas or actual bills."
+  },
+  "本机记录与上游估算，非账户额度或实际账单": {
+    "en": "Local records and upstream estimates, not account quotas or actual bills"
+  },
+  "未检测到该工具的本机用量": {
+    "en": "No local usage detected for this tool"
   }
 }

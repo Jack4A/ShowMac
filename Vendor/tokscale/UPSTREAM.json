@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/junhoyeo/tokscale",
+  "commit": "82613d2f5e96654ce3729892afbb0025979f1c75",
+  "license": "MIT",
+  "modifications": [
+    "Root workspace manifest omits the unbundled CLI member.",
+    "Cargo.lock regenerated for the core-only test workspace; core source is unmodified."
+  ]
+}

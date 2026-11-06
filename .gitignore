@@ -37,3 +37,7 @@ website/dist/
 # Generated from the shared-source App Store XcodeGen specification.
 AppStore/*.xcodeproj/
 AppStore/Generated/
+
+# Native upstream agent statistics engine
+UsageEngine/target/
+Vendor/tokscale/target/

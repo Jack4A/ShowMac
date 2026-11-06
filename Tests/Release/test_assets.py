@@ -22,7 +22,7 @@ class ReleaseAssetsTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.folder = Path(self.temporary.name)
-        self.version = "1.17.1"
+        self.version = "1.18.15"
         self.commit = "a" * 40
         for arch, suffix in [("arm64", "-arm64"), ("x86_64", "")]:
             name = f"ThermalScope-{self.version}-macOS-{arch}.zip"
@@ -162,7 +162,7 @@ class ReleaseAssetsTests(unittest.TestCase):
             assets.verify(self.folder, self.version, self.commit)
 
     def test_bundle_version_mismatch(self):
-        path = self.folder / "ThermalScope-1.17.1-macOS-arm64.zip"
+        path = self.folder / f"ThermalScope-{self.version}-macOS-arm64.zip"
         with zipfile.ZipFile(path, "w") as zipped:
             zipped.writestr("ThermalScope.app/Contents/Info.plist", plistlib.dumps({"CFBundleShortVersionString": "1.16.0", "CFBundleVersion": "260"}))
         manifest_path = self.folder / "release-manifest-arm64.json"

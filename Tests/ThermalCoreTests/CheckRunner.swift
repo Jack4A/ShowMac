@@ -26,12 +26,12 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
     static func main() {
         let core=CoreTests(),cooling=CoolingTests(),history=HistoryTests(),curve=CurveTests()
         let checks:[(String,() throws ->Void)]=[
-            ("Token counters and request records reconcile without double counting",TokenUsageTests().testCodexCountersAndRequests),
-            ("Claude stream revisions normalize cache tokens without retaining chat",TokenUsageTests().testClaudeStreamRevisionsAndCaches),
-            ("Forked token histories exclude inherited and unresolved counter prefixes",TokenUsageTests().testForkReplayAndMissingParent),
-            ("Token parsing rejects invalid numbers and respects period boundaries",TokenUsageTests().testInvalidCountsAndReportBoundaries),
-            ("Token scans skip large transcript lines and count counter resets",TokenUsageTests().testLargeNonUsageLinesAndCounterReset),
-            ("Token scanning resumes partial lines and handles truncation and cache recovery",TokenUsageTests().testIncrementalPartialLinesTruncationAndCache),
+            ("All upstream agent sources are exposed",TokenUsageTests().testAllUpstreamSourcesAreExposed),
+            ("Open-source engine counters preserve metadata and unknown categories",TokenUsageTests().testBridgeCountersAndPrivacy),
+            ("Agent engine rejects invalid protocol and counts",TokenUsageTests().testInvalidProtocolAndCounts),
+            ("Agent reports preserve period and provider boundaries",TokenUsageTests().testPeriodBoundariesAndUnclassified),
+            ("Agent cache survives restart and preserves data on engine failure",TokenUsageTests().testCacheAndRuntimeFailure),
+            ("Old counters decode and agent root overrides stay scoped",TokenUsageTests().testLegacyCountsDecodeAndSourceLocations),
             ("Power history retains original timestamps and measured peaks after compaction",ElectricityPowerTests().testRealSamplesSurviveCompaction),
             ("Power curves and inspection preserve outages and restart gaps",ElectricityPowerTests().testGapsAndRestartStaySeparate),
             ("Power history rejects invalid data and never derives legacy watts",ElectricityPowerTests().testRejectsInvalidAndDoesNotInventLegacyPower),

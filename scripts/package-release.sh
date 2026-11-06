@@ -18,7 +18,7 @@ APP="$OUT/staging/showmac.app"
 THERMALSCOPE_ARCH="$ARCH" THERMALSCOPE_SIGN_IDENTITY=- THERMALSCOPE_APP_GROUP= bash "$ROOT/scripts/build.sh" "$APP"
 codesign --verify --deep --strict "$APP"
 python3 "$ROOT/scripts/macos_compatibility.py" "$APP" --arch "$ARCH"
-for executable in "$APP/Contents/MacOS/ThermalScope" "$APP/Contents/Helpers/ThermalScopeHelper" "$APP/Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget"; do
+for executable in "$APP/Contents/MacOS/ThermalScope" "$APP/Contents/Helpers/ThermalScopeHelper" "$APP/Contents/Helpers/ShowMacUsageEngine" "$APP/Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget"; do
     test -x "$executable"
     lipo "$executable" -verify_arch "$ARCH"
 done
@@ -42,7 +42,7 @@ with tempfile.TemporaryDirectory(prefix='thermalscope-release-verify-') as tempo
     installed=plistlib.loads((restored/'Contents/Info.plist').read_bytes())
     assert installed['CFBundleShortVersionString']==source['CFBundleShortVersionString']
     assert installed['CFBundleVersion']==source['CFBundleVersion']
-    for path in ['Contents/MacOS/ThermalScope','Contents/Helpers/ThermalScopeHelper','Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget']:
+    for path in ['Contents/MacOS/ThermalScope','Contents/Helpers/ThermalScopeHelper','Contents/Helpers/ShowMacUsageEngine','Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget']:
         executable=restored/path
         assert os.access(executable,os.X_OK),path
         assert subprocess.check_output(['lipo',str(executable),'-archs'],text=True).strip()==arch,path
@@ -67,7 +67,7 @@ manifest={'schema':3,'product':'showmac','version':source['CFBundleShortVersionS
           'apple_silicon_hardware_validation':False,'hardware_control_available':True,'fan_control_requires_capability_probe':True,'turbo_control_available':arch=='x86_64','power_control_available':arch=='x86_64',
           'experimental':arch=='arm64',
           'archive':archive.name,'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),
-          'bundled_components':['showmac.app','ThermalScopeHelper','ThermalScopeWidget.appex'],'checks':checks}
+          'bundled_components':['showmac.app','ThermalScopeHelper','ShowMacUsageEngine','ThermalScopeWidget.appex'],'checks':checks}
 manifest_path=out/('release-manifest'+suffix+'.json')
 manifest_path.write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+'\n')
 files=[archive,out/('INSTALL'+suffix+'.txt'),manifest_path]

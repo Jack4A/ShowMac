@@ -36,9 +36,9 @@ import ThermalCore
             model.electricity.selectSource(.system);model.electricity.rate=0.6;model.electricity.currency="CNY"
             var tokenPreview:[TokenUsageEvent]=[]
             for index in 0..<40 {
-                let provider:TokenProvider=index%3==0 ? .claude:.codex
+                let provider:TokenProvider=[.claude,.codex,.gemini,.cursor][index%4]
                 let counts=TokenCounts(input:Int64(12000+index*300),output:Int64(600+index*25),cacheRead:Int64(8000+index*100))
-                let event=TokenUsageEvent(id:"preview-\(index)",provider:provider,date:energyEnd.addingTimeInterval(Double(index-40)*900),model:provider == .claude ? "claude-example":"codex-example",counts:counts)
+                let event=TokenUsageEvent(id:"preview-\(index)",provider:provider,date:energyEnd.addingTimeInterval(Double(index-40)*900),model:provider.rawValue+"-example",counts:counts)
                 tokenPreview.append(event)
             }
             model.tokens.setPreview(tokenPreview)

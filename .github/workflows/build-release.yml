@@ -26,6 +26,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Prepare pinned Rust toolchain
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal
+          rustup target add --toolchain 1.97.1 aarch64-apple-darwin x86_64-apple-darwin
+      - name: Check upstream agent adapters and bridge
+        run: bash scripts/check-usage-engine.sh
       - name: Verify Xcode SDK and release tag
         shell: bash
         run: |
@@ -139,6 +145,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Prepare pinned Rust toolchain
+        run: |
+          rustup toolchain install 1.97.1 --profile minimal
+          rustup target add --toolchain 1.97.1 aarch64-apple-darwin x86_64-apple-darwin
       - name: Build and verify release package
         env:
           THERMALSCOPE_ARCH: ${{ matrix.arch }}

@@ -10,11 +10,11 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.14](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.15](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.14 · build 281** adds a dedicated Usage statistics page for electricity and local AI token history. Live metrics keeps a compact summary card. Codex and Claude Code logs provide daily, weekly, monthly and yearly token totals, time buckets and model breakdowns, with background incremental scans. See the [release notes](docs/releases/v1.18.14.md).
+**1.18.15 · build 282** expands local token statistics to 60 agent sources using the bundled MIT-licensed Tokscale core. Electricity and tokens share Usage statistics; Live metrics keeps a compact summary card. See the [release notes](docs/releases/v1.18.15.md).
 
-<img src="docs/screenshots/v1.18.14/en/overview-dark.png" width="1000" alt="ShowMac 1.18.14 Live metrics UI preview with the compact electricity and token card and sample readings">
+<img src="docs/screenshots/v1.18.15/en/overview-dark.png" width="1000" alt="ShowMac 1.18.15 Live metrics UI preview with the compact electricity and token card and sample readings">
 
 ## Download and launch
 
@@ -22,10 +22,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.14 archive | Control support |
+| Mac | v1.18.15 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.14-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.14-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.15-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.15-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -96,13 +96,13 @@ Open **Usage statistics** in the sidebar, click the small electricity/token card
 
 Device power, DC input power and battery discharge are recorded separately where available. Choose a source to inspect it; they are never added together. These are internal readings, not a wall-outlet meter or a utility bill. Coverage is shown explicitly. Recording starts with this version while ShowMac runs, including when its window is hidden. Sleep, app exit and unreadable intervals are excluded. Local history is saved periodically and on normal sleep/quit, and survives relaunch. Power detail retains the original first, minimum, maximum and last sample per minute for seven days, then per hour; each point keeps its measured timestamp and wattage. Sampling gaps stay disconnected. Old energy-only history cannot reconstruct past power readings.
 
-<img src="docs/screenshots/v1.18.14/en/electricity-light.png" width="1000" alt="Electricity details UI preview: recorded energy, estimated cost and measured power curve, using sample data and an example rate">
+<img src="docs/screenshots/v1.18.15/en/electricity-light.png" width="1000" alt="Electricity details UI preview: recorded energy, estimated cost and measured power curve, using sample data and an example rate">
 
-The **Token usage** chart reads local **Codex** and **Claude Code** JSONL logs without API keys. View time buckets, filter a tool and expand **By model**. Total tokens are input plus output; cached input and reasoning output are subsets, not added twice. Claude cache reads/writes are included in input. These are local recorded counts, not account quota or a bill. Unsupported tools, web chats, other devices and missing logs are not included.
+The **Token usage** chart supports the full **60-source Tokscale catalog**, including Codex, Claude Code, Cursor, Gemini, OpenCode, Cline, Roo Code, Kiro, Zed and GitHub Copilot. View time buckets, filter tools, search detected sources and expand **By model**. Cache and reasoning categories are included in input/output once. Some upstream sources estimate tokens when exact counters are absent. These totals are not account quota or actual bills.
 
-Scans run on a utility queue every minute and reuse unchanged files and committed offsets. Expand **Sources and counting method** to pause scanning or choose a custom log folder. A local cache stores usage metadata and deduplication identities, never transcript text or login credentials. Duplicate requests, streaming revisions and identifiable fork replay are deduplicated; ambiguous fork counters are excluded and incomplete coverage is flagged. The original logs remain untouched. [Source formats and implementation notes](docs/TOKEN_USAGE.md).
+The native engine reads local logs/databases/exports in offline mode, checks changes every minute and reuses cached metadata. Cursor requires a previously synced local Tokscale cache; ShowMac does not log in or sync accounts. Missing logs, web chats and other devices are outside coverage. Source settings allow pausing scans and adding folders where supported. No transcript text or credentials are cached or uploaded. [All sources and implementation](docs/TOKEN_USAGE.md).
 
-<img src="docs/screenshots/v1.18.14/en/token-usage-light.png" width="740" alt="Local token usage UI preview with hourly totals, tool filtering and collapsed model/source details; sample data">
+<img src="docs/screenshots/v1.18.15/en/token-usage-light.png" width="740" alt="Local token usage UI preview with hourly totals, tool filtering and collapsed model/source details; sample data">
 
 ### Appearance, language and widgets
 

@@ -10,11 +10,11 @@
 
 原生 macOS 温度、风扇与性能诊断工具。在菜单栏查看读数，进入主窗口观察近期趋势，或直接选择风扇档位、调整温度—转速曲线。
 
-**公开下载：[v1.18.14](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
+**公开下载：[v1.18.15](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
 
-**1.18.14 · build 281** 新增独立的「用量统计」页面，同页查看用电与本机 AI Token；首页保留紧凑的小卡片。支持 Codex、Claude Code 的日、周、月、年统计、分时趋势和模型明细，后台增量扫描。详见[更新说明](docs/releases/v1.18.14.md)。
+**1.18.15 · build 282** 直接集成 MIT 开源项目 Tokscale，将 Token 统计扩展至 60 类来源。用电与 Token 同处「用量统计」，首页保留紧凑小卡片。详见[更新说明](docs/releases/v1.18.15.md)。
 
-<img src="docs/screenshots/v1.18.14/zh/overview-dark.png" width="1000" alt="ShowMac 1.18.14 深色实时监测界面预览，展示紧凑的用电与 Token 卡片，使用示例读数">
+<img src="docs/screenshots/v1.18.15/zh/overview-dark.png" width="1000" alt="ShowMac 1.18.15 深色实时监测界面预览，展示紧凑的用电与 Token 卡片，使用示例读数">
 
 本文截图使用中文界面，具体拍摄版本见图片说明；应用内可在“设置 → 界面语言”切换语言。仓库默认首页使用英文。
 
@@ -24,10 +24,10 @@
 2. 下载适合本机芯片的 ZIP，解压后将 **showmac.app** 拖到“应用程序”。
 3. 打开应用，点击顶部菜单栏项目。启动后先在菜单栏监测，不自动弹出主窗口。
 
-| Mac 类型 | v1.18.14 安装包 | 控制能力 |
+| Mac 类型 | v1.18.15 安装包 | 控制能力 |
 | --- | --- | --- |
-| Intel | `showmac-1.18.14-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
-| Apple Silicon | `showmac-1.18.14-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
+| Intel | `showmac-1.18.15-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
+| Apple Silicon | `showmac-1.18.15-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
 
 预编译应用不需要 Xcode、Swift 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
 
@@ -98,13 +98,13 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 设备总功耗、直流输入功耗和电池放电量在可读时分别记录，选择来源查看，不相加。这是设备内部读数，不能替代插座电表或实际电费账单。页面明确显示已记录时长。从新版开始运行后累计，隐藏主窗口仍记录；睡眠、退出软件及读数中断不补算。历史定期保存到本机，正常睡眠或退出时也会保存，重启后保留。实测功率明细保留每分钟的首值、最低、最高和末值，七天后按小时保留上述真实采样点；时间戳与瓦数不改写，读取中断保持断线。旧的电量汇总不能补出当时未保存的功率明细。
 
-<img src="docs/screenshots/v1.18.14/zh/electricity-light.png" width="1000" alt="用电详情界面预览：电量、电费与实测功率曲线，使用示例读数与示例电价">
+<img src="docs/screenshots/v1.18.15/zh/electricity-light.png" width="1000" alt="用电详情界面预览：电量、电费与实测功率曲线，使用示例读数与示例电价">
 
-**Token 用量**读取本机 **Codex**、**Claude Code** JSONL 会话日志，无需 API 密钥。可查看分时用量、筛选工具，展开「按模型查看」。总量 = 输入 + 输出；缓存包含在输入内，推理包含在输出内，不重复相加。Claude 的缓存读取／写入也计入输入。这是本机已记录数量，不是账户剩余额度或实际账单；其他工具、网页聊天、其他设备和缺失日志不会自动计入。
+**Token 用量**覆盖 **Tokscale 全部 60 类来源**，包括 Codex、Claude Code、Cursor、Gemini、OpenCode、Cline、Roo Code、Kiro、Zed 和 GitHub Copilot。支持分时用量、工具筛选、来源搜索和「按模型查看」。缓存与推理已包含在输入／输出内，不重复相加。部分上游来源缺少精确计数时使用估算值；这不是账户额度或实际账单。
 
-每分钟在后台增量扫描，复用未变化的文件与已读位置。展开「数据来源与统计口径」可以暂停扫描或选择自定义日志目录。本机缓存只保存用量元数据与去重标识，不保存对话内容或登录凭据。重复请求、流式修订和可识别的分叉回放会去重；无法确认的分叉计数排除，覆盖不完整时会提示。原始日志不做修改。[格式与实现说明](docs/TOKEN_USAGE.md)。
+随包原生引擎离线读取本机日志、数据库和导出文件，每分钟检查变化并复用缓存。Cursor 需要 Tokscale 已同步到本机的用量缓存；ShowMac 不会登录或同步账户。缺失日志、网页聊天与其他设备不会自动计入。来源设置中可暂停扫描，并为上游支持的来源添加数据目录。只缓存用量元数据，不缓存或上传对话内容、登录凭据。[完整来源与实现说明](docs/TOKEN_USAGE.md)。
 
-<img src="docs/screenshots/v1.18.14/zh/token-usage-light.png" width="740" alt="本机 Token 用量界面预览：分时统计、工具筛选和可展开的模型／来源，使用示例数据">
+<img src="docs/screenshots/v1.18.15/zh/token-usage-light.png" width="740" alt="本机 Token 用量界面预览：分时统计、工具筛选和可展开的模型／来源，使用示例数据">
 
 ### 主题、语言与小组件
 

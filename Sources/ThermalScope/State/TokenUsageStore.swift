@@ -18,10 +18,13 @@ import ThermalCore
     private struct Query:Hashable {let start:Date;let end:Date;let provider:TokenProvider?;let period:ElectricityPeriod}
     private var reports:[Query:TokenUsageReport]=[:]
     private final class Worker:@unchecked Sendable {
-        var scanner:TokenLogScanner?
-        func scan(roots:[TokenLogRoot],cache:URL?)->TokenScanSnapshot {
-            if scanner==nil {scanner=TokenLogScanner(cacheURL:cache)}
-            return scanner!.scan(roots:roots)
+        var engine:AgentUsageEngine?
+        func scan(custom:[String:String],cache:URL?)->TokenScanSnapshot {
+            if engine==nil {
+                let executable=Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/ShowMacUsageEngine")
+                engine=AgentUsageEngine(executable:executable,cacheURL:cache)
+            }
+            return engine!.scan(custom:custom)
         }
     }
     init(persistent:Bool=true,defaults:UserDefaults = .standard) {
@@ -43,20 +46,17 @@ import ThermalCore
         if reports.count>=8 {reports.removeAll(keepingCapacity:true)};reports[query]=result;return result
     }
     var firstDate:Date? {snapshot.events.first?.date}
-    var roots:[TokenLogRoot] {
-        TokenProvider.allCases.flatMap{provider->[TokenLogRoot] in
-            if let path=custom[provider.rawValue] {return [TokenLogRoot(provider:provider,url:URL(fileURLWithPath:path,isDirectory:true))]}
-            return TokenLogScanner.defaultRoots().filter{$0.provider==provider}
-        }
-    }
     func location(for provider:TokenProvider)->String {
-        if let value=custom[provider.rawValue] {return value.replacingOccurrences(of:FileManager.default.homeDirectoryForCurrentUser.path,with:"~")}
-        return provider == .codex ? "~/.codex/sessions + archived_sessions":"~/.claude/projects + ~/.config/claude/projects"
+        let home=FileManager.default.homeDirectoryForCurrentUser.path
+        return (custom[provider.rawValue].map{[$0]} ?? provider.roots().map(\.path)).map{$0.replacingOccurrences(of:home,with:"~")}.joined(separator:" + ")
+    }
+    func state(for provider:TokenProvider)->String {
+        snapshot.sourceStates[provider.rawValue] ?? (hasScanned ? "missing":"pending")
     }
     func chooseDirectory(for provider:TokenProvider) {
         let panel=NSOpenPanel();panel.canChooseFiles=false;panel.canChooseDirectories=true;panel.allowsMultipleSelection=false
-        panel.message=L("选择保存该工具 JSONL 会话日志的文件夹。")
-        panel.directoryURL=roots.first{$0.provider==provider}?.url
+        panel.message=L("选择该 Agent 的数据目录，可包含 JSON、JSONL 或 SQLite 数据库。")
+        panel.directoryURL=custom[provider.rawValue].map{URL(fileURLWithPath:$0)} ?? provider.roots().first
         guard panel.runModal() == .OK,let url=panel.url else{return}
         custom[provider.rawValue]=url.path;saveLocations()
     }
@@ -65,10 +65,10 @@ import ThermalCore
     func refresh() {
         guard persistent,enabled,!stopped,!isScanning else{return}
         isScanning=true
-        let current=generation,roots=self.roots
-        let cache=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first?.appendingPathComponent("ShowMac/token-usage-cache.json")
+        let current=generation,custom=self.custom
+        let cache=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first?.appendingPathComponent("ShowMac/agent-usage-cache.json")
         queue.async{[weak self,worker] in
-            let result=worker.scan(roots:roots,cache:cache)
+            let result=worker.scan(custom:custom,cache:cache)
             DispatchQueue.main.async {
                 guard let self,!self.stopped else{return}
                 self.isScanning=false
@@ -77,6 +77,6 @@ import ThermalCore
             }
         }
     }
-    func setPreview(_ events:[TokenUsageEvent]){guard !persistent else{return};reports.removeAll();snapshot.events=events;snapshot.fileCount=2;hasScanned=true}
+    func setPreview(_ events:[TokenUsageEvent]){guard !persistent else{return};reports.removeAll();snapshot.events=events;snapshot.fileCount=2;snapshot.sourceStates=Dictionary(uniqueKeysWithValues:TokenProvider.allCases.map{provider in (provider.rawValue,events.contains{$0.provider==provider} ? "ready":"missing")});hasScanned=true}
     func shutdown(){stopped=true;timer?.cancel();timer=nil}
 }

@@ -6,6 +6,7 @@ from pathlib import Path
 EXECUTABLES = [
     "Contents/MacOS/ThermalScope",
     "Contents/Helpers/ThermalScopeHelper",
+    "Contents/Helpers/ShowMacUsageEngine",
     "Contents/PlugIns/ThermalScopeWidget.appex/Contents/MacOS/ThermalScopeWidget",
 ]
 MINIMUM_MACOS = "11.0"
@@ -61,8 +62,16 @@ def verify_app(read, architecture):
         metadata = plistlib.loads(read(relative))
         if version_tuple(metadata.get("LSMinimumSystemVersion", "0")) != version_tuple(MINIMUM_MACOS):
             raise ValueError(f"Bundle minimum macOS mismatch: {relative}")
+    host = plistlib.loads(read("Contents/Info.plist"))
+    engine_required = version_tuple(host.get("CFBundleShortVersionString", "0")) >= (1,18,15)
     for relative in EXECUTABLES:
-        metadata = macho_metadata(read(relative))
+        try:
+            data = read(relative)
+        except (FileNotFoundError, KeyError):
+            if relative.endswith("/ShowMacUsageEngine") and not engine_required:
+                continue
+            raise ValueError("Missing required bundled executable: " + relative)
+        metadata = macho_metadata(data)
         if metadata["cpu"] != expected_cpu or metadata["minimum"] != version_tuple(MINIMUM_MACOS):
             raise ValueError(f"Binary minimum macOS/architecture mismatch: {relative}")
         if any(not path.startswith(("@executable_path", "@loader_path", "/usr/lib/swift")) for path in metadata["rpaths"]):

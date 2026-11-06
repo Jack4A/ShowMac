@@ -1,0 +1,30 @@
+ShowMac 1.18.15 / 282 — complete local agent registry
+
+Directly vendors Tokscale core, MIT, commit 82613d2f5e96654ce3729892afbb0025979f1c75.
+All 182 upstream core files matched the pinned source archive byte-for-byte.
+Only the root core-only workspace manifest and its test lockfile differ.
+
+Validation:
+- Bridge tests: 2 passed.
+- Upstream local session tests: 1,458 passed, 2 ignored by upstream.
+- Upstream scanner tests: 218 passed.
+- Upstream local parse integration tests: 32 passed.
+- Native core checks: 132 passed; no hardware writes.
+- Release verifier tests: 22 passed. Performance tests: 18 passed.
+- English localization and Chinese conversion passed.
+- Existing status-card, warning curve, sensor, menu composition, customization,
+  update, fan-scene and electricity fixture checks passed.
+- 22 light/dark layouts rendered per language; token panels inspected in Chinese/light
+  and English/dark. Public previews use sample data only.
+- System sandbox denied all network access while the bundled engine successfully
+  scanned all 60 registered sources. Nine sources had records on this Mac.
+- Installed local 1.18.15/282; source search, detected sources, 60-item tool picker,
+  missing Cursor-cache status and restoring All tools verified through native UI.
+- Existing electricity history and rate settings preserved.
+
+Local SDK 27 development build targets macOS 12 because SDK 27 rejects 11.
+Production source remains macOS 11. Release CI verifies both architectures with
+SDK 26.5 and compares appearance on macOS 26/27. Physical macOS 11/12 testing pending.
+
+Coverage: local files only. Some tools require exports/already-synced caches;
+some upstream adapters estimate tokens. Missing data is unavailable, not zero.
