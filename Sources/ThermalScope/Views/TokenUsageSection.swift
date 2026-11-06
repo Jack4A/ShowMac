@@ -90,7 +90,10 @@ struct TokenUsageSection:View {
                                     Text(model.provider.title).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
                                 }
                                 Spacer(minLength:8)
-                                Text(TokenFormat.number(model.counts.total)).font(AppTypography.number(13,weight:.medium)).appMonospacedDigit()
+                                Text(TokenFormat.compact(model.counts.total)).font(AppTypography.number(13,weight:.medium)).appMonospacedDigit()
+                                    .help(TokenFormat.number(model.counts.total)+" tokens")
+                                    .accessibilityLabel(TokenFormat.number(model.counts.total)+" tokens")
+                                    .accessibilityIdentifier("tokenModelTotal-"+model.id)
                             }
                         }
                         if report.counts.cacheWrite>0 {tokenLabel("其中缓存写入",report.counts.cacheWrite)}
@@ -257,8 +260,9 @@ enum TokenFormat {
     }
     static func compact(_ value:Int64,language:String?=nil)->String {
         let language=language ?? AppLocalization.shared.resolvedLanguage
-        let formatter=NumberFormatter();formatter.locale=Locale(identifier:language);formatter.numberStyle = .decimal;formatter.usesGroupingSeparator=value<10000;formatter.maximumFractionDigits=2
-        guard value>=10000 else{return formatter.string(from:NSNumber(value:value)) ?? String(value)}
+        let threshold:Int64=language.hasPrefix("zh") ? 10000:1000
+        let formatter=NumberFormatter();formatter.locale=Locale(identifier:language);formatter.numberStyle = .decimal;formatter.usesGroupingSeparator=value<threshold;formatter.maximumFractionDigits=2
+        guard value>=threshold else{return formatter.string(from:NSNumber(value:value)) ?? String(value)}
         let divisor:Double,unit:String
         if language.hasPrefix("zh") {
             let traditional=language.hasPrefix("zh-Hant") || language.hasPrefix("zh-TW") || language.hasPrefix("zh-HK") || language.hasPrefix("zh-MO")

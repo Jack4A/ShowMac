@@ -49,3 +49,7 @@ The summary card shows recorded cache-read tokens / input tokens for the selecte
 ## Agent statistics
 
 Use the Agent selector to filter agents with locally recorded usage, or click an Agent statistics row. Click the selected row again to show all agents. Cards, trends, models and agent rows share the selected date range and agent filter. Sort the list by total tokens, input, output, cache hit rate or name, then use the arrow button to reverse the direction. Missing cache hit rates remain last; all model records for one agent are combined before the rate is calculated. The list scrolls to expose every recorded agent, without a top-six cutoff. All 60 supported source adapters remain available in data sources.
+
+## Model total display
+
+By model uses the shared localized compact formatter, matching summary cards and agent rows: English K/M/B from 1,000; Chinese 万 / 百万 / 千万 / 亿 / 万亿 from 10,000, with Traditional Chinese equivalents where selected. Hover a model total to inspect its exact localized count; accessibility also retains the exact count. Raw records and exports are unchanged.

@@ -1,0 +1,18 @@
+ShowMac 1.18.22 / 289 — model token magnitude units
+
+By model now uses the shared compact token formatter. Its tooltip and accessibility
+label preserve the exact localized token count. Shared English formatting now uses
+K from 1,000; Chinese retains its 10,000 threshold and localized magnitude units.
+No counters, history, filters, rates, aggregation or sort behavior changed.
+
+Local SDK 27 development build passed (minimum macOS 12); production source/CI
+still targets macOS 11. Existing formatting diagnostics passed with new English
+0/999/1,000/1,500/9,500/M/B boundary examples, Chinese small-value retention,
+Chinese/Traditional/large-value examples and cache-hit percentage boundaries.
+1227 localization keys and locale conversion passed. Website route/statistics and
+SQLite schema checks passed; README local links passed.
+
+The UI remains collapsed by default, so its overview captures are unchanged from
+1.18.21 and retained. No new personal data access or account integration is added.
+Local installation and expanded-row visual confirmation were awaiting desktop
+unlock at this checkpoint; no live UI verification is implied by fixture checks.

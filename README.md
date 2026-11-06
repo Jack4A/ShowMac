@@ -10,9 +10,9 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.21](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.22](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.21 · build 288** adds **Agent filtering and sortable statistics**, with **Cache hit rate** calculated from the selected agent and time range. Provider icons, grouped allowance windows, native card dragging, separate **Electricity / Token** tabs and menu bar usage/allowance are retained. Chinese totals use 万 / 百万 / 千万 / 亿 / 万亿; English keeps K/M/B. The bundled MIT-licensed Tokscale core retains all 60 local history sources. See the [release notes](docs/releases/v1.18.21.md).
+**1.18.22 · build 289** abbreviates **By model** token totals using K/M/B in English and Chinese magnitude units in Chinese; hover for exact counts. Agent filtering, sortable statistics and weighted cache hit rate remain available. Provider icons, grouped allowance windows, native card dragging, separate **Electricity / Token** tabs and menu bar usage/allowance are retained. Chinese totals use 万 / 百万 / 千万 / 亿 / 万亿; English keeps K/M/B. The bundled MIT-licensed Tokscale core retains all 60 local history sources. See the [release notes](docs/releases/v1.18.22.md).
 
 <img src="docs/screenshots/v1.18.19/en/overview-dark.png" width="1000" alt="ShowMac 1.18.19 Live metrics UI preview with the compact electricity and token card and sample readings">
 
@@ -22,10 +22,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.21 archive | Control support |
+| Mac | v1.18.22 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.21-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.21-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.22-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.22-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -105,6 +105,8 @@ Device power, DC input power and battery discharge are recorded separately where
 The **Token usage** chart supports the full **60-source Tokscale catalog**, including Codex, Claude Code, Cursor, Gemini, OpenCode, Cline, Roo Code, Kiro, Zed and GitHub Copilot. View time buckets, filter tools, search detected sources and expand **By model**. Cache and reasoning categories are included in input/output once. Some upstream sources estimate tokens when exact counters are absent. These totals are not account quota or actual bills.
 
 Agent statistics can be filtered by tool, and sorted by total tokens, input, output, cache hit rate or name in either direction. Click an agent row to filter it, and click again to show all. Cards, trends and model details follow the same filter and time range.
+
+**By model** uses the same readable units as the summary: English K/M/B; Chinese 万 / 百万 / 千万 / 亿 / 万亿. English abbreviations start at 1,000, Chinese at 10,000. Hover a model total for its exact token count.
 
 The **Cache hit rate** card is recorded cache-read tokens ÷ input tokens. Input already includes cache reads and writes; output is excluded. Counts are summed before dividing, so larger requests carry the proper weight. No input shows **—**. Hover for the exact numerator/denominator. Unreported cache details cannot describe a tool’s actual caching performance.
 

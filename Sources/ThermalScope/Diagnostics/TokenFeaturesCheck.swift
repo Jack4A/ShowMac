@@ -13,6 +13,9 @@ import ThermalCore
             guard AgentProviderArtwork.image(.codex)?.isValid==true,AgentProviderArtwork.image(.claude)?.isValid==true else{throw ScopeError.message("Provider artwork not bundled")}
             let localized:[(Int64,String)]=[(9999,"9,999"),(10_000,"1万"),(75_750,"7.58万"),(1_500_000,"1.5百万"),(25_000_000,"2.5千万"),(559_710_000,"5.6亿"),(1_200_000_000_000,"1.2万亿")]
             for (value,expected) in localized {guard TokenFormat.compact(value,language:"zh-Hans")==expected else{throw ScopeError.message("Chinese token magnitude: "+String(value))}}
+            let english:[(Int64,String)]=[(0,"0"),(999,"999"),(1000,"1K"),(1500,"1.5K"),(9500,"9.5K"),(1_000_000,"1M"),(1_000_000_000,"1B")]
+            for (value,expected) in english {guard TokenFormat.compact(value,language:"en")==expected else{throw ScopeError.message("English token magnitude: "+String(value))}}
+            guard TokenFormat.compact(1500,language:"zh-Hans")=="1,500" else{throw ScopeError.message("Chinese counts must retain the ten-thousand abbreviation threshold")}
             guard TokenFormat.compact(1_500_000,language:"en")=="1.5M",TokenFormat.compact(75_750,language:"en")=="75.75K",TokenFormat.compact(559_710_000,language:"zh-Hant")=="5.6億",!TokenFormat.compact(Int64.max,language:"zh-Hans").isEmpty else{throw ScopeError.message("Token magnitude locale or overflow")}
             guard TokenFormat.percent(nil,language:"zh-Hans")=="—",TokenFormat.percent(0,language:"zh-Hans")=="0%",TokenFormat.percent(0.4,language:"zh-Hans")=="40%",TokenFormat.percent(0.3984,language:"en")=="39.8%",TokenFormat.percent(1,language:"en")=="100%",TokenFormat.percent(0.0001,language:"en")=="<0.1%",TokenFormat.percent(.nan,language:"en")=="—",TokenFormat.percent(1.1,language:"en")=="—" else{throw ScopeError.message("Cache hit percent formatting or missing values")}
             let now=Date(),range=ElectricityPeriod.day.interval(containing:now)
