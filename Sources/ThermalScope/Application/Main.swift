@@ -214,7 +214,7 @@ import WidgetUI
         if model.snapshot?.limited==true { info(L("系统正在限制性能")) }
         menu.addItem(.separator())
         action(L("打开ShowMac"),#selector(showWindow))
-        info(L("用电统计"),"electricity")
+        info(L("用量统计"),"electricity")
         action(L("偏好设置…"),#selector(showPreferences))
         action(L("GitHub 项目"),#selector(openProject))
         action(model.updates.availableVersion == nil ? L("检查更新…"):model.updates.statusText+"…",#selector(checkForUpdates))
@@ -307,6 +307,7 @@ import WidgetUI
         if args.contains("--menu-customization-check") {MenuCustomizationCheck.run();return}
         if args.contains("--app-update-check") {AppUpdateCheck.run();return}
         if args.contains("--fan-scenes-check") {FanScenesCheck.run();return}
+        if args.contains("--token-usage-diagnostic") {TokenUsageDiagnostic.run();return}
         if args.contains("--electricity-check") {ElectricityHistoryCheck.run();return}
         if args.contains("--stress-check") {StressBenchmark.run();return}
         if args.count==2 && args[1]=="--hidden-view-update-check" {HiddenViewUpdateCheck.run();return}

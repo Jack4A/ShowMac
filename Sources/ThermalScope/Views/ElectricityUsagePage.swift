@@ -3,6 +3,7 @@ import ThermalCore
 
 struct ElectricityUsagePage:View {
     @ObservedObject var store:ElectricityHistoryStore
+    @ObservedObject var tokens:TokenUsageStore
     @State private var period:ElectricityPeriod = .day
     @State private var date=Date()
     @State private var followsCurrent=true
@@ -26,9 +27,10 @@ struct ElectricityUsagePage:View {
             dateNavigation
             HStack(alignment:.top,spacing:14) {
                 consumptionCard.frame(maxWidth:.infinity,alignment:.leading)
-                costCard.frame(maxWidth:.infinity,alignment:.leading)
+                tokenCard.frame(maxWidth:.infinity,alignment:.leading)
             }
             chart
+            TokenUsageSection(store:tokens,range:range,period:period)
             if let issue=store.storageIssue {Label(L(issue),systemImage:"exclamationmark.triangle").font(AppTypography.caption).foregroundColor(.orange)}
             AppDisclosureGroup(L("统计说明"),isExpanded:$showMethod,inset:18) {
                 VStack(alignment:.leading,spacing:9) {
@@ -49,7 +51,7 @@ struct ElectricityUsagePage:View {
         HStack(spacing:12) {
             Button {move(-1)} label:{Image(systemName:"chevron.left")}
                 .buttonStyle(AppChoiceButtonStyle()).help(L("上一周期")).accessibilityLabel(L("上一周期"))
-                .disabled(store.firstDate(for:store.source).map{range.start<=$0} ?? true)
+                .disabled([store.firstDate(for:store.source),tokens.firstDate].compactMap{$0}.min().map{range.start<=$0} ?? true)
             Text(ElectricityFormat.period(range,period:period)).font(.system(size:13,weight:.medium)).appMonospacedDigit()
             Button {move(1)} label:{Image(systemName:"chevron.right")}
                 .buttonStyle(AppChoiceButtonStyle()).help(L("下一周期")).accessibilityLabel(L("下一周期")).disabled(range.end>Date())
@@ -62,26 +64,22 @@ struct ElectricityUsagePage:View {
             Text(L("已记录用电")).font(AppTypography.body).foregroundColor(Palette.secondaryText)
             MetricValue(value:total.observedSeconds>0 ? ElectricityFormat.number(total.kilowattHours,maximum:total.kilowattHours<0.001 ? 6:3):"—",unit:L("度"),size:28,unitSize:12)
             Text(L("已记录")+" · "+ElectricityFormat.duration(total.observedSeconds)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-            HStack(spacing:5) {
-                Text(L("当前功率"))
-                Text(store.watts[store.source].map{ElectricityFormat.number($0,maximum:1)+" W"} ?? L("暂无读数")).appMonospacedDigit()
-            }.font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-        }.frame(maxWidth:.infinity,minHeight:118,alignment:.leading).subtlePanel(padding:18)
-    }
-    private var costCard:some View {
-        VStack(alignment:.leading,spacing:12) {
-            HStack {
-                Text(L("估算电费")).font(AppTypography.body).foregroundColor(Palette.secondaryText)
-                Spacer(minLength:4)
+            HStack(spacing:8) {
+                Text(total.cost(rate:store.rate).map{L("估算电费")+" "+ElectricityFormat.money($0,currency:store.currency)} ?? L("尚未设置电价")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+                Spacer(minLength:0)
                 Button(L(store.rate==nil ? "设置电价":"修改电价")){showRate=true}.buttonStyle(.borderless).font(AppTypography.caption)
                     .accessibilityIdentifier("electricityRateButton")
                     .popover(isPresented:$showRate) {ElectricityRateEditor(store:store,onClose:{showRate=false})}
             }
-            Text(total.cost(rate:store.rate).map{ElectricityFormat.money($0,currency:store.currency)} ?? "—")
-                .font(AppTypography.number(28,weight:.medium)).appMonospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
-            Text(store.rate.map{ElectricityFormat.money($0,currency:store.currency)+L(" / 度")} ?? L("填写每度电价格后显示估算费用。"))
-                .font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-            Text(L("采样估算，非实际账单")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+        }.frame(maxWidth:.infinity,minHeight:118,alignment:.leading).subtlePanel(padding:18)
+    }
+    private var tokenCard:some View {
+        let report=tokens.report(in:range,period:period)
+        return VStack(alignment:.leading,spacing:12) {
+            Text(L("Token 用量")+" · "+L("全部工具")).font(AppTypography.body).foregroundColor(Palette.secondaryText)
+            Text(tokens.hasScanned && !tokens.snapshot.events.isEmpty ? TokenFormat.compact(report.counts.total):"—").font(AppTypography.number(28,weight:.semibold)).appMonospacedDigit()
+            Text(L("输入")+" "+TokenFormat.compact(report.counts.input)+" · "+L("输出")+" "+TokenFormat.compact(report.counts.output)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+            Text(L("其中缓存读取")+" "+TokenFormat.compact(report.counts.cacheRead)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
         }.frame(maxWidth:.infinity,minHeight:118,alignment:.leading).subtlePanel(padding:18)
     }
     private var chart:some View {

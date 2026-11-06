@@ -3,34 +3,29 @@ import ThermalCore
 
 struct ElectricityOverviewCard:View {
     @ObservedObject var store:ElectricityHistoryStore
+    @ObservedObject var tokens:TokenUsageStore
     let onOpen:()->Void
-    private var today:ElectricityTotals {store.history.totals(source:store.source,in:ElectricityPeriod.day.interval(containing:Date()))}
-    private var range:DateInterval {DateInterval(start:(store.sampledAt ?? Date()).addingTimeInterval(-120),duration:120)}
+    private var range:DateInterval {ElectricityPeriod.day.interval(containing:Date())}
+    private var today:ElectricityTotals {store.history.totals(source:store.source,in:range)}
     var body:some View {
         Button(action:onOpen) {
-            VStack(alignment:.leading,spacing:10) {
-                HStack {
-                    Label(L("今日用电"),systemImage:"bolt.fill").font(.system(size:13,weight:.medium)).foregroundColor(Palette.secondaryText)
-                    Spacer()
-                    Image(systemName:"chevron.right").font(.system(size:12,weight:.medium)).foregroundColor(Palette.secondaryText)
-                }
-                HStack(alignment:.center,spacing:22) {
-                    VStack(alignment:.leading,spacing:7) {
-                        MetricValue(value:today.observedSeconds>0 ? ElectricityFormat.number(today.kilowattHours,maximum:today.kilowattHours<0.001 ? 6:3):"—",unit:L("度"),size:26,unitSize:12)
-                        Text(today.cost(rate:store.rate).map{L("估算电费")+" · "+ElectricityFormat.money($0,currency:store.currency)} ?? L(store.rate==nil ? "设置电价，查看费用估算":"等待用电采样"))
-                            .font(AppTypography.caption).foregroundColor(Palette.secondaryText).lineLimit(1)
-                    }.frame(maxWidth:.infinity,alignment:.leading)
-                    VStack(alignment:.trailing,spacing:5) {
-                        Text(store.watts[store.source].map{ElectricityFormat.number($0,maximum:1)+" W"} ?? "— W")
-                            .font(AppTypography.number(16,weight:.medium)).appMonospacedDigit()
-                        ElectricityPowerCurve(records:store.powerRecords(in:range),range:range,compact:true).frame(height:38)
-                        Text(L("近 2 分钟实测功率")).font(.system(size:10)).foregroundColor(Palette.secondaryText)
-                    }.frame(maxWidth:250)
-                }
-            }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel(padding:18).contentShape(Rectangle())
-        }.buttonStyle(.plain).help(L("查看用电量、电费和历史功率"))
-            .accessibilityLabel(L("今日用电")+" · "+ElectricityFormat.number(today.kilowattHours,maximum:6)+" kWh")
-            .accessibilityIdentifier("electricityOverviewCard")
+            HStack(spacing:18) {
+                Image(systemName:"chart.bar.fill").foregroundColor(Palette.violet).font(.system(size:17))
+                VStack(alignment:.leading,spacing:5) {
+                    Text(L("今日用电")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+                    HStack(spacing:8) {
+                        Text(today.observedSeconds>0 ? ElectricityFormat.number(today.kilowattHours,maximum:3)+" "+L("度"):"—").font(AppTypography.number(17,weight:.semibold))
+                        if let cost=today.cost(rate:store.rate) {Text(ElectricityFormat.money(cost,currency:store.currency)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)}
+                    }
+                }.frame(maxWidth:.infinity,alignment:.leading)
+                Divider().frame(height:30)
+                VStack(alignment:.leading,spacing:5) {
+                    Text(L("今日 Token")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+                    Text(tokens.hasScanned && !tokens.snapshot.events.isEmpty ? TokenFormat.compact(tokens.report(in:range).counts.total):"—").font(AppTypography.number(17,weight:.semibold)).appMonospacedDigit()
+                }.frame(maxWidth:.infinity,alignment:.leading)
+                Image(systemName:"chevron.right").font(.system(size:12,weight:.medium)).foregroundColor(Palette.secondaryText)
+            }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel(padding:16).contentShape(Rectangle())
+        }.buttonStyle(.plain).help(L("查看用电与 Token 统计")).accessibilityLabel(L("用量统计")+" · "+ElectricityFormat.number(today.kilowattHours,maximum:3)+" kWh · "+TokenFormat.number(tokens.report(in:range).counts.total)+" tokens").accessibilityIdentifier("electricityOverviewCard")
     }
 }
 

@@ -6902,5 +6902,104 @@
   },
   "功率曲线保留带时间戳的实测峰谷点，较长周期会抽稀；采样断点不连接。": {
     "en": "Power curves retain timestamped measured peaks and lows. Longer periods are thinned; sampling gaps are not connected."
+  },
+  "用量统计": {
+    "en": "Usage statistics"
+  },
+  "查看用电、实测功率与 AI Token 用量。": {
+    "en": "View electricity, measured power and AI token usage."
+  },
+  "今日 Token": {
+    "en": "Today’s tokens"
+  },
+  "查看用电与 Token 统计": {
+    "en": "View electricity and token statistics"
+  },
+  "Token 用量": {
+    "en": "Token usage"
+  },
+  "全部工具": {
+    "en": "All tools"
+  },
+  "AI 工具": {
+    "en": "AI tool"
+  },
+  "刷新 Token 统计": {
+    "en": "Refresh token statistics"
+  },
+  "正在读取本机用量日志…": {
+    "en": "Reading local usage logs…"
+  },
+  "未找到可统计的 Token 日志": {
+    "en": "No supported token usage logs found"
+  },
+  "Token 统计已暂停": {
+    "en": "Token scanning is paused"
+  },
+  "支持 Codex 与 Claude Code 的本机 JSONL 会话日志；没有日志的工具无法统计。": {
+    "en": "Supports local Codex and Claude Code JSONL session logs. Tools without usage logs cannot be counted."
+  },
+  "已记录请求": {
+    "en": "Recorded requests"
+  },
+  "输入": {
+    "en": "Input"
+  },
+  "输出": {
+    "en": "Output"
+  },
+  "其中缓存读取": {
+    "en": "Cached input"
+  },
+  "其中缓存写入": {
+    "en": "Cache writes"
+  },
+  "其中推理输出": {
+    "en": "Reasoning output"
+  },
+  "悬停或点击查看分时 Token 用量": {
+    "en": "Hover or click to inspect token usage by time"
+  },
+  "按模型查看": {
+    "en": "By model"
+  },
+  "未记录模型": {
+    "en": "Model not recorded"
+  },
+  "部分日志无法读取或不完整，当前结果可能不完整。": {
+    "en": "Some logs are unreadable or incomplete. These totals may be partial."
+  },
+  "本机日志统计，非账户额度或实际账单": {
+    "en": "Local log totals, not account quota or an actual bill"
+  },
+  "数据来源与统计口径": {
+    "en": "Sources and counting method"
+  },
+  "本机 Token 统计": {
+    "en": "Local token statistics"
+  },
+  "选择文件夹…": {
+    "en": "Choose folder…"
+  },
+  "恢复默认日志位置": {
+    "en": "Restore default log locations"
+  },
+  "选择保存该工具 JSONL 会话日志的文件夹。": {
+    "en": "Choose the folder containing this tool’s JSONL session logs."
+  },
+  "每分钟在后台增量扫描一次，可手动刷新。只保存用量、时间、模型和去重标识，不保存对话内容或读取登录密钥。": {
+    "en": "Scans incrementally in the background every minute; manual refresh is available. Only counts, timestamps, models and deduplication identities are cached. Conversation text and login keys are not retained or read for authentication."
+  },
+  "总量 = 输入 + 输出；缓存包含在输入内，推理包含在输出内，不重复相加。Claude 缓存写入与读取也计入输入。": {
+    "en": "Total = input + output. Cached input and reasoning output are included in their respective totals, never added twice. Claude cache reads and writes count as input."
+  },
+  "重复请求、流式修订及可识别的分叉历史会去重；无法确认的分叉计数会排除。删除本机日志会改变统计范围。": {
+    "en": "Duplicate requests, streaming revisions and identifiable fork history are deduplicated. Unresolved fork counters are excluded. Deleting local logs changes the coverage."
+  },
+  "仅支持日志中实际记录的用量；其他设备、网页聊天和未记录的请求不会自动计入。": {
+    "en": "Only usage recorded in these logs is counted. Other devices, web chats and unrecorded requests are not automatically included."
+  },
+  "尚未设置电价": {
+    "en": "Electricity rate not set"
   }
 }

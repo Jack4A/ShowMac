@@ -15,13 +15,13 @@ struct ConsoleSidebar:View {
     }
     private var items:[SidebarNavigationTable.Item] {
         let symbols:[ConsolePage:String]=[.metrics:"waveform.path.ecg.rectangle.fill",.sensors:"sensor.fill",.thermal:"thermometer.sun.fill",.optimization:"stethoscope",.processes:"square.stack.3d.up.fill",.history:"clock.arrow.circlepath"]
-        let pages:[ConsolePage]=[.metrics,.sensors,.thermal,.optimization,.processes,.history]
+        let pages:[ConsolePage]=[.metrics,.sensors,.thermal,.optimization,.processes,.electricity,.history]
         return pages.map {page in
             SidebarNavigationTable.Item(id:page.rawValue,title:L(page.title),symbol:symbols[page] ?? page.symbol,help:L(page.subtitle))
         }+[SidebarNavigationTable.Item(id:"preferences",title:L("设置"),symbol:"gearshape.fill",help:L("设置"))]
     }
     private var selection:Binding<String?> {
-        Binding(get:{model.tab==1 ? "preferences":(navigation.page == .electricity ? ConsolePage.metrics.rawValue:navigation.page.rawValue)},set:{value in
+        Binding(get:{model.tab==1 ? "preferences":navigation.page.rawValue},set:{value in
             guard let value else{return}
             if navigation.metric != nil {navigation.metric=nil}
             if navigation.section != nil {navigation.section=nil}

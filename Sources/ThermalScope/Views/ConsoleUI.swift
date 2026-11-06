@@ -33,7 +33,7 @@ struct ConsoleShell:View {
                 ScrollView(showsIndicators:false) {
                     VStack(alignment:.leading,spacing:monitorSample ? 24:16) {
                         if model.tab==1 { PreferencesPage(model:model) }
-                        else if navigation.page == .electricity {ElectricityUsagePage(store:model.electricity)}
+                        else if navigation.page == .electricity {ElectricityUsagePage(store:model.electricity,tokens:model.tokens)}
                         else if model.snapshot != nil {
                             switch navigation.page {
                             case .metrics:
@@ -41,7 +41,7 @@ struct ConsoleShell:View {
                                     MetricDetailView(model:model,kind:metric).id(metric)
                                 } else {
                                     MetricsDashboard(readings:model.readings,history:model.metricHistory,mode:model.coolingStatus,onTemperature:{sensor in showMetric(sensor == .gpu ? .gpuTemperature:(sensor == .storage ? .storageTemperature:.cpuTemperature))},onControl:{showMetric(.fan)},onMode:{navigation.metric=nil;navigation.page = .thermal},onCPU:{showMetric(.cpuUsage)})
-                                    ElectricityOverviewCard(store:model.electricity,onOpen:{navigation.metric=nil;navigation.page = .electricity})
+                                    ElectricityOverviewCard(store:model.electricity,tokens:model.tokens,onOpen:{navigation.metric=nil;navigation.page = .electricity})
                                     TemperaturePanel(timeline:model.timeline,expanded:false,initialArea:true).equatable().id(ConsoleSection.temperature)
                                     SupplementaryMetrics(readings:model.readings,onTemperature:{showMetric($0)},onMemory:{showMetric(.memory)})
                                     OverviewRecommendations(store:model.diagnostics,onAction:model.follow,onReview:{navigation.go(.findings)})
@@ -82,7 +82,7 @@ struct ConsoleShell:View {
                 .environment(\.neutralPanels,monitorSample)
                 .toolbar {
                     ToolbarItem(placement:.navigation) {
-                        if model.tab==0,(navigation.metric != nil || navigation.page == .electricity) {
+                        if model.tab==0,navigation.metric != nil {
                             Button {navigation.metric=nil;navigation.page = .metrics} label:{Label(L("返回实时监测"),systemImage:AppSymbols.resolve("chevron.left"))}
                                 .accessibilityIdentifier("backToOverview")
                         }

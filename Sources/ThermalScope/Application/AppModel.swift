@@ -29,6 +29,7 @@ struct TimelineEvent: Identifiable {
     let metricHistory=MetricHistoryStore()
     let sensorHistory=SensorHistoryStore()
     let electricity=ElectricityHistoryStore()
+    let tokens=TokenUsageStore()
     let widgetPublisher=WidgetPublisher()
     private let controller=NativeControlClient()
     private let fanPreview=CommandLine.arguments.contains("--ui-check") ? FanControlPreview():nil
@@ -487,5 +488,5 @@ struct TimelineEvent: Identifiable {
         do { try Export.csv(history).write(to:url,atomically:true,encoding:.utf8); report(String(format:L("已导出 %d 条采样。"),history.count),error:false) }
         catch { report(error.localizedDescription,error:true) }
     }
-    func shutdown() { fanSuspending=true;fanRestorePending=false;fanStopWork?.cancel();fanAutomationWork?.cancel();electricity.shutdown();updates.shutdown();widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
+    func shutdown() { fanSuspending=true;fanRestorePending=false;fanStopWork?.cancel();fanAutomationWork?.cancel();electricity.shutdown();tokens.shutdown();updates.shutdown();widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
 }

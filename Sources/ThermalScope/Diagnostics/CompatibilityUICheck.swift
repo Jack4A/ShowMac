@@ -34,6 +34,14 @@ import ThermalCore
                 model.electricity.recordPower(25+Double(index%80),source:.system,at:energyEnd.addingTimeInterval(Double(index-360)*10),publish:false)
             }
             model.electricity.selectSource(.system);model.electricity.rate=0.6;model.electricity.currency="CNY"
+            var tokenPreview:[TokenUsageEvent]=[]
+            for index in 0..<40 {
+                let provider:TokenProvider=index%3==0 ? .claude:.codex
+                let counts=TokenCounts(input:Int64(12000+index*300),output:Int64(600+index*25),cacheRead:Int64(8000+index*100))
+                let event=TokenUsageEvent(id:"preview-\(index)",provider:provider,date:energyEnd.addingTimeInterval(Double(index-40)*900),model:provider == .claude ? "claude-example":"codex-example",counts:counts)
+                tokenPreview.append(event)
+            }
+            model.tokens.setPreview(tokenPreview)
             var count=0
             for theme in ["light","dark"] {
                 model.theme=theme
@@ -42,6 +50,7 @@ import ThermalCore
                     evidence[theme+"-"+page.rawValue]=try render(ConsoleShell(model:model),name:theme+"-"+page.rawValue,size:CGSize(width:1000,height:760))
                     count+=1
                 }
+                _=try render(TokenUsageSection(store:model.tokens,range:ElectricityPeriod.day.interval(containing:energyEnd),period:.day).padding(20).frame(maxWidth:.infinity,maxHeight:.infinity,alignment:.topLeading).background(Color(Palette.windowBackground)).preferredColorScheme(model.colorScheme),name:theme+"-token-usage-popover",size:CGSize(width:740,height:520));count+=1
                 model.navigation.metric = .cpuUsage
                 model.navigation.page = .metrics
                 evidence[theme+"-metric"]=try render(ConsoleShell(model:model),name:theme+"-metric",size:CGSize(width:1000,height:760));count+=1
@@ -58,7 +67,7 @@ import ThermalCore
                 let encoder=JSONEncoder();encoder.outputFormatting=[.prettyPrinted,.sortedKeys]
                 try encoder.encode(evidence).write(to:URL(fileURLWithPath:folder).appendingPathComponent("appearance-metrics.json"))
             }
-            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, electricity, metric detail, settings, popover, scene manager and stop timer). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
+            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, electricity, tokens, metric detail, settings, popover, scene manager and stop timer). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
         } catch {print("FAIL: "+error.localizedDescription);exit(1)}
     }
     private struct RenderEvidence:Codable {

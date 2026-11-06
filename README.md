@@ -10,11 +10,11 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.12](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.13](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.12 · build 279** brings today’s electricity usage to a card in Live metrics. Open it for recorded kWh, estimated cost and measured power curves by day, week, month or year, with an hourly view and timestamped wattage readings. History stays on this Mac across restarts; missing intervals are not extrapolated. See the [release notes](docs/releases/v1.18.12.md).
+**1.18.13 · build 280** adds a dedicated Usage statistics page for electricity and local AI token history. Live metrics keeps a compact summary card. Codex and Claude Code logs provide daily, weekly, monthly and yearly token totals, time buckets and model breakdowns, with background incremental scans. See the [release notes](docs/releases/v1.18.13.md).
 
-<img src="docs/screenshots/v1.18.12/en/overview-dark.png" width="1000" alt="ShowMac 1.18.12 Live metrics UI preview with the new electricity card and sample readings">
+<img src="docs/screenshots/v1.18.13/en/overview-dark.png" width="1000" alt="ShowMac 1.18.13 Live metrics UI preview with the compact electricity and token card and sample readings">
 
 ## Download and launch
 
@@ -22,10 +22,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.12 archive | Control support |
+| Mac | v1.18.13 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.12-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.12-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.13-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.13-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -90,13 +90,19 @@ Menu bar components and popover cards are configured separately. The UI preview 
 
 <img src="docs/screenshots/v1.18.1/en/settings.png" width="1000" alt="Settings with a draggable menu bar composition and controls to add, reorder or remove popover cards">
 
-### Electricity history and estimated cost
+### Electricity and token usage
 
-Open the **Today’s electricity** card in **Live metrics**, or choose **Electricity usage** in the menu bar’s More menu. The card shows today’s recorded kWh, estimated cost and a two-minute measured-power trend. In its details, switch between **Day / Week / Month / Year**; choose **Full day** or an hour within a day. Hover or click the power curve to see a retained sample’s original time and wattage. Use **Set electricity rate** to enter your own price per kWh and currency. No price is assumed. One kWh is one unit of electricity; estimates use the current flat rate, including when viewing history.
+Open **Usage statistics** in the sidebar, click the small electricity/token card in **Live metrics**, or use the menu bar’s More menu. The page combines electricity and AI token history under one date range. Switch between **Day / Week / Month / Year**; choose **Full day** or an hour within a day. Hover or click the power curve to see a retained sample’s original time and wattage. Use **Set electricity rate** to enter your own price per kWh and currency. No price is assumed. One kWh is one unit of electricity; estimates use the current flat rate, including when viewing history.
 
 Device power, DC input power and battery discharge are recorded separately where available. Choose a source to inspect it; they are never added together. These are internal readings, not a wall-outlet meter or a utility bill. Coverage is shown explicitly. Recording starts with this version while ShowMac runs, including when its window is hidden. Sleep, app exit and unreadable intervals are excluded. Local history is saved periodically and on normal sleep/quit, and survives relaunch. Power detail retains the original first, minimum, maximum and last sample per minute for seven days, then per hour; each point keeps its measured timestamp and wattage. Sampling gaps stay disconnected. Old energy-only history cannot reconstruct past power readings.
 
-<img src="docs/screenshots/v1.18.12/en/electricity-light.png" width="1000" alt="Electricity details UI preview: recorded energy, estimated cost and measured power curve, using sample data and an example rate">
+<img src="docs/screenshots/v1.18.13/en/electricity-light.png" width="1000" alt="Electricity details UI preview: recorded energy, estimated cost and measured power curve, using sample data and an example rate">
+
+The **Token usage** chart reads local **Codex** and **Claude Code** JSONL logs without API keys. View time buckets, filter a tool and expand **By model**. Total tokens are input plus output; cached input and reasoning output are subsets, not added twice. Claude cache reads/writes are included in input. These are local recorded counts, not account quota or a bill. Unsupported tools, web chats, other devices and missing logs are not included.
+
+Scans run on a utility queue every minute and reuse unchanged files and committed offsets. Expand **Sources and counting method** to pause scanning or choose a custom log folder. A local cache stores usage metadata and deduplication identities, never transcript text or login credentials. Duplicate requests, streaming revisions and identifiable fork replay are deduplicated; ambiguous fork counters are excluded and incomplete coverage is flagged. The original logs remain untouched. [Source formats and implementation notes](docs/TOKEN_USAGE.md).
+
+<img src="docs/screenshots/v1.18.13/en/token-usage-light.png" width="740" alt="Local token usage UI preview with hourly totals, tool filtering and collapsed model/source details; sample data">
 
 ### Appearance, language and widgets
 
