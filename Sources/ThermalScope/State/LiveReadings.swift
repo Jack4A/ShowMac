@@ -49,6 +49,7 @@ struct MenuLivePreview:View {
         case .gpu:return valueText(readings.snapshot?.temperature(.gpu))+"°"
         case .battery:return valueText(readings.telemetry?.batteryPercent)+"%"
         case .fan:return valueText(readings.snapshot?.fans.compactMap(\.rpm).max())+" rpm"
+        case .tokens,.tokenQuota:return "—"
         }
     }
 }

@@ -5,6 +5,7 @@ struct TokenUsageSection:View {
     @ObservedObject var store:TokenUsageStore
     let range:DateInterval
     let period:ElectricityPeriod
+    var model:AppModel?=nil
     @State private var provider="all"
     @State private var selected:Date?
     @State private var sources=false
@@ -35,6 +36,9 @@ struct TokenUsageSection:View {
                 Spacer()
                 AppChoicePicker(title:L("AI 工具"),selection:$provider,choices:[AppChoice("all",L("全部工具"))]+TokenProvider.allCases.map{AppChoice($0.rawValue,$0.title)},listWidth:230,maximumListHeight:280)
                     .accessibilityIdentifier("tokenProvider")
+                if let model {
+                    TokenPinButton(model:model,provider:provider,period:period)
+                }
                 Button{store.refresh()}label:{Image(systemName:"arrow.clockwise")}.buttonStyle(AppChoiceButtonStyle()).disabled(store.isScanning || !store.enabled).help(L("刷新 Token 统计"))
             }
             if !store.hasScanned || store.snapshot.events.isEmpty || selectedSourceUnavailable {
@@ -50,13 +54,13 @@ struct TokenUsageSection:View {
                     Spacer()
                     Text(L("用量记录")+" · "+TokenFormat.number(Int64(report.events.count))).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
                 }.accessibilityElement(children:.combine)
-                HStack(spacing:24) {
-                    tokenLabel("输入",report.counts.input)
-                    tokenLabel("输出",report.counts.output)
-                    tokenLabel("其中缓存读取",report.counts.cacheRead)
-                    if report.counts.unclassified>0 {tokenLabel("未细分 Token",report.counts.unclassified)}
+                HStack(spacing:12) {
+                    tokenStat("输入",report.counts.input,symbol:"arrow.down.left",tint:Palette.violet)
+                    tokenStat("输出",report.counts.output,symbol:"arrow.up.right",tint:Color(red:0.39,green:0.43,blue:0.76))
+                    tokenStat("其中缓存读取",report.counts.cacheRead,symbol:"arrow.triangle.2.circlepath",tint:Color(red:0.20,green:0.57,blue:0.58))
                 }
                 chart
+                if provider=="all",toolDistribution.count>1 {distribution}
                 if let bucket=report.buckets.first(where:{$0.id==selected}) {
                     HStack(spacing:10) {
                         Text(ElectricityFormat.powerDate(bucket.id)).foregroundColor(Palette.secondaryText)
@@ -134,6 +138,32 @@ struct TokenUsageSection:View {
             Spacer(minLength:4)
             if provider.supportsCustom {Button(L("选择文件夹…")){store.chooseDirectory(for:provider)}.buttonStyle(.borderless)}
         }.foregroundColor(Palette.secondaryText)
+    }
+    private var toolDistribution:[(TokenProvider,Int64)] {
+        var values:[TokenProvider:Int64]=[:]
+        for event in report.events {values[event.provider,default:0]+=event.counts.total}
+        return values.sorted{$0.value>$1.value}.map{($0.key,$0.value)}
+    }
+    private var distribution:some View {
+        VStack(alignment:.leading,spacing:12) {
+            Text(L("工具分布")).font(AppTypography.body)
+            LazyVGrid(columns:[GridItem(.flexible()),GridItem(.flexible())],alignment:.leading,spacing:12) {
+                ForEach(Array(toolDistribution.prefix(6).enumerated()),id:\.element.0.rawValue) {index,item in
+                    VStack(alignment:.leading,spacing:6) {
+                        HStack {Text(item.0.title).lineLimit(1);Spacer();Text(TokenFormat.compact(item.1)).appMonospacedDigit().foregroundColor(Palette.secondaryText)}
+                        GeometryReader {proxy in
+                            ZStack(alignment:.leading) {Capsule().fill(Palette.violet.opacity(0.06));Capsule().fill(Palette.violet.opacity(index==0 ? 0.9:0.45)).frame(width:max(1,proxy.size.width*Double(item.1)/Double(max(1,report.counts.total))))}
+                        }.frame(height:4)
+                    }.font(AppTypography.caption)
+                }
+            }
+        }.padding(.vertical,6)
+    }
+    private func tokenStat(_ title:String,_ count:Int64,symbol:String,tint:Color)->some View {
+        VStack(alignment:.leading,spacing:9) {
+            Label(L(title),systemImage:symbol).foregroundColor(Palette.secondaryText).font(AppTypography.caption)
+            Text(TokenFormat.compact(count)).font(AppTypography.number(19,weight:.semibold)).appMonospacedDigit().foregroundColor(tint)
+        }.frame(maxWidth:.infinity,alignment:.leading).padding(13).appBackground(tint.opacity(0.045),in:RoundedRectangle(cornerRadius:11,style:.continuous))
     }
     private func tokenLabel(_ title:String,_ count:Int64)->some View {
         VStack(alignment:.leading,spacing:4) {Text(L(title)).foregroundColor(Palette.secondaryText);Text(TokenFormat.compact(count)).appMonospacedDigit()}.font(AppTypography.caption)

@@ -6,6 +6,7 @@ struct MenuCompositionCanvas:View {
     @ObservedObject var model:AppModel
     @ObservedObject var readings:LiveReadings
     @ObservedObject var history:MetricHistoryStore
+    @ObservedObject var tokens:TokenUsageStore
     @Environment(\.colorScheme) private var scheme
     @State private var source:MenuComponentSource = .metric(.cpu)
     @State private var targetedID:String?
@@ -13,7 +14,7 @@ struct MenuCompositionCanvas:View {
     @State private var targetedRemoval=false
     let onEdit:(MenuBarComponent)->Void
     init(model:AppModel,onEdit:@escaping(MenuBarComponent)->Void) {
-        self.model=model;self.readings=model.readings;self.history=model.metricHistory;self.onEdit=onEdit
+        self.model=model;self.readings=model.readings;self.history=model.metricHistory;self.tokens=model.tokens;self.onEdit=onEdit
     }
     private static let dragType="public.utf8-plain-text"
     private var components:[MenuBarComponent] {model.effectiveMenuComponents}
@@ -39,7 +40,7 @@ struct MenuCompositionCanvas:View {
                 .appBackground(Palette.inset,in:RoundedRectangle(cornerRadius:8))
             HStack(spacing:8) {
                 MenuSensorPicker(model:model,source:$source)
-                ForEach([MenuTileStyle.icon,.value,.history]) {style in template(style)}
+                ForEach(source.metric == .tokenQuota ? [MenuTileStyle.icon,.value,.ring]:[MenuTileStyle.icon,.value,.history]) {style in template(style)}
                 Spacer(minLength:0)
                 Image(systemName:AppSymbols.resolve("trash")).foregroundColor(targetedRemoval ? Color.red:Color.secondary)
                     .frame(width:32,height:32).contentShape(Rectangle())
@@ -95,7 +96,7 @@ struct MenuCompositionCanvas:View {
     private func template(_ style:MenuTileStyle)->some View {
         return Button {_ = model.insertMenuComponent(source:source,style:style)} label:{
             HStack(spacing:5) {
-                Image(systemName:AppSymbols.resolve(style == .icon ? source.symbol:style == .value ? "textformat.123":"waveform.path"))
+                Image(systemName:AppSymbols.resolve(style == .icon ? source.symbol:style == .value ? "textformat.123":(style == .ring ? "chart.pie":"waveform.path")))
                 Text(L(style == .icon ? "图标":style == .value ? "数值":"趋势")).font(AppTypography.caption)
             }.frame(height:22).padding(6)
                 .modifier(MenuActionSurface(fallbackOpacity:0.035))

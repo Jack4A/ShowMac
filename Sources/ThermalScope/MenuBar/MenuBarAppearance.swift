@@ -17,13 +17,13 @@ enum MenuBarPreset:Int,CaseIterable,Identifiable {
     var background:Bool {self == .graphs}
 }
 extension MenuMetric {
-    var historyKind:MetricKind {switch self {case .cpu:return .cpuUsage;case .temperature:return .cpuTemperature;case .gpu:return .gpuTemperature;case .fan:return .fan;case .battery:return .battery}}
-    var barLabel:String {switch self {case .cpu:return "CPU";case .temperature:return ["zh","ja","ko"].contains(where:{AppLocalization.shared.resolvedLanguage.hasPrefix($0)}) ? L("温度"):"TEMP";case .gpu:return "GPU";case .fan:return "RPM";case .battery:return L("电池")}}
-    var reservedValue:String {switch self {case .cpu,.battery:return "100%";case .temperature,.gpu:return "130°";case .fan:return "30000"}}
+    var historyKind:MetricKind {switch self {case .cpu:return .cpuUsage;case .temperature:return .cpuTemperature;case .gpu:return .gpuTemperature;case .fan:return .fan;case .battery:return .battery;case .tokens,.tokenQuota:return .cpuUsage}}
+    var barLabel:String {switch self {case .cpu:return "CPU";case .temperature:return ["zh","ja","ko"].contains(where:{AppLocalization.shared.resolvedLanguage.hasPrefix($0)}) ? L("温度"):"TEMP";case .gpu:return "GPU";case .fan:return "RPM";case .battery:return L("电池");case .tokens:return "Token";case .tokenQuota:return L("余量")}}
+    var reservedValue:String {switch self {case .cpu,.battery:return "100%";case .temperature,.gpu:return "130°";case .fan:return "30000";case .tokens:return "999.9M";case .tokenQuota:return "100%"}}
     var defaultTileStyle:MenuTileStyle {self == .cpu ? .historyValue:.iconValue}
     @MainActor func barNumber(_ readings:LiveReadings)->Double? {
         let n:Double?
-        switch self {case .cpu:n=readings.snapshot?.cpuUsage;case .temperature:n=readings.snapshot?.cpuTemperature;case .gpu:n=readings.snapshot?.temperature(.gpu);case .fan:n=readings.snapshot?.fans.compactMap(\.rpm).max();case .battery:n=readings.telemetry?.batteryPercent}
+        switch self {case .cpu:n=readings.snapshot?.cpuUsage;case .temperature:n=readings.snapshot?.cpuTemperature;case .gpu:n=readings.snapshot?.temperature(.gpu);case .fan:n=readings.snapshot?.fans.compactMap(\.rpm).max();case .battery:n=readings.telemetry?.batteryPercent;case .tokens,.tokenQuota:n=nil}
         return n.flatMap{$0.isFinite && $0>=0 && (!(self == .cpu || self == .battery) || $0<=100) ? $0:nil}
     }
 }
@@ -40,9 +40,10 @@ struct MenuBarTile {
     var sensor:MenuSensorReference?
     var displayTitle:String?
     var lower:Double=0
+    var historyRange:DateInterval?
     var warningKind:MetricKind? {
         if let sensor {return MetricWarningBands.kind(sensor:sensor)}
-        return metric.historyKind
+        return metric.isToken ? nil:metric.historyKind
     }
 }
 enum MenuBarLayout {
@@ -83,6 +84,10 @@ enum MenuBarAppearanceRenderer {
             let values=points.compactMap(\.value)+(n.map{[$0]} ?? [])
             let title=option.map{$0.title+(sensor.isCommon ? "":" · "+sensor.key)} ?? sensor.fallbackTitle
             return MenuBarTile(metric:component.metric,style:component.style,label:"",value:sensorValueText(n,kind:sensor.kind),number:n,points:points,upper:max(sensor.upper,values.max() ?? 0),color:color(hex:component.colorHex),icon:MenuIconStore.icon(component.icon,metric:component.metric,preview:model.isFanControlPreview,options:MenuIconOption.options(component)),sensor:sensor,displayTitle:title,lower:min(0,values.min() ?? 0))
+        }
+        if component.metric.isToken {
+            let value=model.tokenMenuReading(metric:component.metric,configuration:component.token ?? TokenMenuConfiguration())
+            return MenuBarTile(metric:component.metric,style:component.style,label:MenuIconStore.label(component.label,fallback:component.metric.barLabel),value:value.text,number:value.number,points:value.points,upper:value.upper,color:color(hex:component.colorHex),icon:MenuIconStore.icon(component.icon,metric:component.metric,preview:model.isFanControlPreview),displayTitle:value.title,historyRange:value.range)
         }
         let metric=component.metric,n=metric.barNumber(model.readings)
         let points=model.metricHistory.points(metric.historyKind,minutes:2)
@@ -155,6 +160,8 @@ enum MenuBarAppearanceRenderer {
                     let accent=level.nativeColor(normal:baseColor)
                     let valueColor=tile.color != nil ? accent:foreground
                     let start=x+inner+prefixWidths[index]
+                    let plotEnd=tile.historyRange?.end ?? ending
+                    let plotDuration=tile.historyRange?.duration ?? 120
                     if let icon=icons[index] {
                         symbol(icon,x+inner,tile.style == .icon ? 15:([.history,.bars].contains(tile.style) ? 11:14),accent)
                     }
@@ -163,12 +170,12 @@ enum MenuBarAppearanceRenderer {
                     case .value,.iconValue:text(tile.value,large,start,textWidths[index],(22-large.capHeight)/2,valueColor)
                     case .icon:break
                     case .history,.bars:
-                        drawHistory(tile.points,ending:ending,rect:NSRect(x:start,y:3,width:plotWidth,height:16),upper:tile.upper,color:baseColor,bars:tile.style == .bars,background:false,fillArea:background,lower:tile.lower,warningKind:warningKind)
-                        if !tile.points.contains(where:{$0.value != nil && $0.date<=ending && $0.date>=ending.addingTimeInterval(-120)}) {
+                        drawHistory(tile.points,ending:plotEnd,rect:NSRect(x:start,y:3,width:plotWidth,height:16),upper:tile.upper,color:baseColor,bars:tile.style == .bars,background:false,fillArea:background,lower:tile.lower,warningKind:warningKind,duration:plotDuration)
+                        if !tile.points.contains(where:{$0.value != nil && $0.date<=plotEnd && $0.date>=plotEnd.addingTimeInterval(-plotDuration)}) {
                             text("—",small,start,plotWidth,7,foreground)
                         }
                     case .historyValue:
-                        drawHistory(tile.points,ending:ending,rect:NSRect(x:start,y:3,width:plotWidth,height:16),upper:tile.upper,color:baseColor,bars:false,background:false,fillArea:background,lower:tile.lower,warningKind:warningKind)
+                        drawHistory(tile.points,ending:plotEnd,rect:NSRect(x:start,y:3,width:plotWidth,height:16),upper:tile.upper,color:baseColor,bars:false,background:false,fillArea:background,lower:tile.lower,warningKind:warningKind,duration:plotDuration)
                         alignedValue(tile,start+plotWidth+iconGap,textWidths[index],valueColor)
                     case .ring:
                         let center=NSPoint(x:start+9,y:11),radius:CGFloat=7.5
@@ -201,17 +208,17 @@ enum MenuBarAppearanceRenderer {
         }.joined(separator:", ")
         return image
     }
-    static func drawHistory(_ points:[MetricPoint],ending:Date,rect:NSRect,upper:Double,color:NSColor,bars:Bool,background:Bool,fillArea:Bool=true,lower:Double=0,warningKind:MetricKind?=nil) {
+    static func drawHistory(_ points:[MetricPoint],ending:Date,rect:NSRect,upper:Double,color:NSColor,bars:Bool,background:Bool,fillArea:Bool=true,lower:Double=0,warningKind:MetricKind?=nil,duration:Double=120) {
         func fraction(_ value:Double)->CGFloat {min(1,max(0,(value-lower)/max(1,upper-lower)))}
         let baseline=rect.minY+fraction(0)*rect.height
         if background {color.withAlphaComponent(0.10).setFill();NSBezierPath(roundedRect:rect,xRadius:2,yRadius:2).fill()}
-        let valid=points.filter{$0.date<=ending && $0.date>=ending.addingTimeInterval(-120)}
+        let valid=points.filter{$0.date<=ending && $0.date>=ending.addingTimeInterval(-duration)}
         if bars {
             let samples=MetricWarningBands.samples(valid,kind:warningKind)
             var buckets:[Int:(value:Double,level:CPULoadLevel)]=[:]
             for sample in samples {
                 guard sample.level != .unknown,let n=sample.point.value,n.isFinite,n>=lower else{continue}
-                let bin=Int((sample.point.date.timeIntervalSince(ending.addingTimeInterval(-120))/120)*Double(max(1,Int(rect.width/3)-1)))
+                let bin=Int((sample.point.date.timeIntervalSince(ending.addingTimeInterval(-duration))/max(1,duration))*Double(max(1,Int(rect.width/3)-1)))
                 let previous=buckets[bin]
                 buckets[bin]=(previous.map{abs($0.value)>abs(n) ? $0.value:n} ?? n,max(previous?.level ?? .normal,sample.level))
             }
@@ -244,7 +251,7 @@ enum MenuBarAppearanceRenderer {
             for p in run.points {
                 guard let n=p.value,n.isFinite,n>=lower else{finish();previous=nil;continue}
                 if let previous,previous != p.segment {finish()}
-                segment.append(NSPoint(x:rect.minX+min(1,max(0,p.date.timeIntervalSince(ending.addingTimeInterval(-120))/120))*rect.width,y:rect.minY+fraction(n)*(rect.height-1)))
+                segment.append(NSPoint(x:rect.minX+min(1,max(0,p.date.timeIntervalSince(ending.addingTimeInterval(-duration))/max(1,duration)))*rect.width,y:rect.minY+fraction(n)*(rect.height-1)))
                 previous=p.segment
             }
             finish()

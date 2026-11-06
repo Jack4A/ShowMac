@@ -5,11 +5,12 @@ import ThermalCore
 struct MenuSensorPicker:View {
     @ObservedObject var model:AppModel
     @ObservedObject var readings:LiveReadings
+    @ObservedObject var tokens:TokenUsageStore
     @Binding var source:MenuComponentSource
     @State private var showing=false
     @State private var search=""
     init(model:AppModel,source:Binding<MenuComponentSource>) {
-        self.model=model;self.readings=model.readings;self._source=source
+        self.model=model;self.readings=model.readings;self.tokens=model.tokens;self._source=source
     }
     private var query:String {search.trimmingCharacters(in:.whitespacesAndNewlines)}
     private func matches(_ option:MenuSensorOption)->Bool {
@@ -31,13 +32,13 @@ struct MenuSensorPicker:View {
                     List(selection:Binding<MenuComponentSource?>(get:{source},set:{item in
                         if let item {source=item;showing=false}
                     })) {
-                        let metrics=[MenuMetric.cpu,.battery].filter{query.isEmpty || $0.title.localizedCaseInsensitiveContains(query)}
+                        let metrics=[MenuMetric.cpu,.battery,.tokens,.tokenQuota].filter{query.isEmpty || $0.title.localizedCaseInsensitiveContains(query)}
                         let common=model.menuCommonSensorOptions.filter(matches)
                         let hardware=model.menuHardwareSensorOptions.filter(matches)
                         if !metrics.isEmpty || !common.isEmpty {
                             Section(header:Text(L("常用读数"))) {
                                 ForEach(metrics) {metric in
-                                    choice(.metric(metric),title:metric.title,detail:nil,value:metric.value(readings))
+                                    choice(.metric(metric),title:metric.title,detail:nil,value:metric.value(model))
                                 }
                                 ForEach(common) {option in optionRow(option)}
                             }

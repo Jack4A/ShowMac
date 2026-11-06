@@ -18,7 +18,12 @@ enum ConsolePage:String,CaseIterable,Identifiable {
 extension ConsoleSection {
     var page:ConsolePage {switch self {case .findings,.optimization:return .optimization;case .temperature:return .metrics;case .processes:return .processes}}
 }
+enum UsageTab:String,CaseIterable {
+    case electricity,tokens
+    var title:String {self == .electricity ? "用电":"Token"}
+}
 @MainActor final class DiagnosticNavigation:ObservableObject {
+    @Published var usageTab:UsageTab = .electricity
     @Published var preferencesSection:PreferencesSection = .general
     @Published var page:ConsolePage = .metrics {didSet {if page != .metrics {metric=nil}}}
     @Published var metric:MetricKind?

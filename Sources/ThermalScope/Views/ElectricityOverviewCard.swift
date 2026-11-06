@@ -5,6 +5,7 @@ struct ElectricityOverviewCard:View {
     @ObservedObject var store:ElectricityHistoryStore
     @ObservedObject var tokens:TokenUsageStore
     let onOpen:()->Void
+    var onTokens:(()->Void)?=nil
     private var range:DateInterval {ElectricityPeriod.day.interval(containing:Date())}
     private var today:ElectricityTotals {store.history.totals(source:store.source,in:range)}
     private var energyValue:String {
@@ -18,18 +19,25 @@ struct ElectricityOverviewCard:View {
         return L("用量统计")+" · "+energy+" kWh · "+count+" tokens"
     }
     var body:some View {
-        Button(action:onOpen) {content}
-            .buttonStyle(.plain).help(L("查看用电与 Token 统计"))
-            .accessibilityLabel(accessibilitySummary).accessibilityIdentifier("electricityOverviewCard")
-    }
-    private var content:some View {
-        HStack(spacing:18) {
-            Image(systemName:"chart.bar.fill").foregroundColor(Palette.violet).font(.system(size:17))
-            energySummary.frame(maxWidth:.infinity,alignment:.leading)
-            Divider().frame(height:30)
-            tokenSummary.frame(maxWidth:.infinity,alignment:.leading)
-            Image(systemName:"chevron.right").font(.system(size:12,weight:.medium)).foregroundColor(Palette.secondaryText)
-        }.frame(maxWidth:.infinity,alignment:.leading).subtlePanel(padding:16).contentShape(Rectangle())
+        HStack(spacing:16) {
+            Button(action:onOpen) {
+                HStack(spacing:14) {
+                    Image(systemName:"bolt.fill").foregroundColor(Palette.violet).font(.system(size:16))
+                    energySummary
+                    Spacer(minLength:0)
+                    Image(systemName:"chevron.right").font(.system(size:10)).foregroundColor(Palette.secondaryText)
+                }.frame(maxWidth:.infinity,alignment:.leading).contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityLabel(L("今日用电")+" · "+energyValue)
+            Divider().frame(height:32)
+            Button(action:onTokens ?? onOpen) {
+                HStack(spacing:14) {
+                    Image(systemName:"number.circle").foregroundColor(Palette.violet).font(.system(size:17))
+                    tokenSummary
+                    Spacer(minLength:0)
+                    Image(systemName:"chevron.right").font(.system(size:10)).foregroundColor(Palette.secondaryText)
+                }.frame(maxWidth:.infinity,alignment:.leading).contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityLabel(L("今日 Token")+" · "+tokenValue)
+        }.subtlePanel(padding:16).accessibilityElement(children:.contain).accessibilityIdentifier("electricityOverviewCard")
     }
     private var energySummary:some View {
         VStack(alignment:.leading,spacing:5) {

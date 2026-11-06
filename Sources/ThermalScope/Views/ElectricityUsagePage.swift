@@ -2,36 +2,50 @@ import SwiftUI
 import ThermalCore
 
 struct ElectricityUsagePage:View {
+    @ObservedObject var model:AppModel
+    @ObservedObject var navigation:DiagnosticNavigation
     @ObservedObject var store:ElectricityHistoryStore
     @ObservedObject var tokens:TokenUsageStore
-    @State private var period:ElectricityPeriod = .day
-    @State private var date=Date()
-    @State private var followsCurrent=true
+    private struct HistorySelection {
+        var period:ElectricityPeriod = .day
+        var date=Date()
+        var followsCurrent=true
+    }
+    @State private var electricitySelection=HistorySelection()
+    @State private var tokenSelection=HistorySelection()
+    private var selection:HistorySelection {
+        get {navigation.usageTab == .tokens ? tokenSelection:electricitySelection}
+        nonmutating set {if navigation.usageTab == .tokens {tokenSelection=newValue}else{electricitySelection=newValue}}
+    }
+    private var period:ElectricityPeriod {get{selection.period} nonmutating set{selection.period=newValue}}
+    private var date:Date {get{selection.date} nonmutating set{selection.date=newValue}}
+    private var followsCurrent:Bool {get{selection.followsCurrent} nonmutating set{selection.followsCurrent=newValue}}
     @State private var powerHour = -1
     @State private var showRate=false
     @State private var showMethod=false
+    init(model:AppModel) {self.model=model;self.navigation=model.navigation;self.store=model.electricity;self.tokens=model.tokens}
     private var range:DateInterval {period.interval(containing:followsCurrent ? Date():date)}
     private var total:ElectricityTotals {store.history.totals(source:store.source,in:range)}
     private var hours:[DateInterval] {ElectricityPeriod.day.chartIntervals(containing:range.start)}
     private var powerRange:DateInterval {period == .day && hours.indices.contains(powerHour) ? hours[powerHour]:range}
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
-            HStack(spacing:12) {
-                AppSegmentedPicker(title:L("统计周期"),selection:period,choices:ElectricityPeriod.allCases.map{AppChoice($0,L($0.title))},onSelect:{period=$0;powerHour = -1})
-                    .accessibilityIdentifier("electricityPeriod")
-                Spacer(minLength:8)
-                AppChoicePicker(title:L("统计来源"),selection:Binding(get:{store.source},set:{store.selectSource($0)}),
-                                choices:(store.sources.isEmpty ? [.system]:store.sources).map{AppChoice($0,L($0.title))})
-                    .accessibilityIdentifier("electricitySource")
+            HStack {
+                AppSegmentedPicker(title:L("用量类型"),selection:navigation.usageTab,choices:UsageTab.allCases.map{AppChoice($0,L($0.title))},onSelect:{navigation.usageTab=$0})
+                    .accessibilityIdentifier("usageTabs")
+                Spacer()
             }
-            dateNavigation
-            HStack(alignment:.top,spacing:14) {
-                consumptionCard.frame(maxWidth:.infinity,alignment:.leading)
-                tokenCard.frame(maxWidth:.infinity,alignment:.leading)
+            if navigation.usageTab == .tokens {
+                AgentQuotaPanel(model:model)
+                historyToolbar
+                TokenUsageSection(store:tokens,range:range,period:period,model:model)
+            } else {
+                historyToolbar
+                energySummary
+                chart
             }
-            chart
-            TokenUsageSection(store:tokens,range:range,period:period)
             if let issue=store.storageIssue {Label(L(issue),systemImage:"exclamationmark.triangle").font(AppTypography.caption).foregroundColor(.orange)}
+            if navigation.usageTab == .electricity {
             AppDisclosureGroup(L("统计说明"),isExpanded:$showMethod,inset:18) {
                 VStack(alignment:.leading,spacing:9) {
                     Text(L(store.source.detail))
@@ -43,6 +57,7 @@ struct ElectricityUsagePage:View {
                     Text(L("开始记录")+" · "+ElectricityFormat.date(store.firstDate(for:store.source) ?? store.history.createdAt))
                 }.font(AppTypography.caption).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true).padding(.top,8)
             }.subtlePanel(padding:0)
+            }
         }.onChange(of:store.source){_ in powerHour = -1}
             .accessibilityElement(children:.contain)
             .accessibilityIdentifier("electricityUsagePage")
@@ -51,7 +66,7 @@ struct ElectricityUsagePage:View {
         HStack(spacing:12) {
             Button {move(-1)} label:{Image(systemName:"chevron.left")}
                 .buttonStyle(AppChoiceButtonStyle()).help(L("上一周期")).accessibilityLabel(L("上一周期"))
-                .disabled([store.firstDate(for:store.source),tokens.firstDate].compactMap{$0}.min().map{range.start<=$0} ?? true)
+                .disabled((navigation.usageTab == .tokens ? tokens.firstDate:store.firstDate(for:store.source)).map{range.start<=$0} ?? true)
             Text(ElectricityFormat.period(range,period:period)).font(.system(size:13,weight:.medium)).appMonospacedDigit()
             Button {move(1)} label:{Image(systemName:"chevron.right")}
                 .buttonStyle(AppChoiceButtonStyle()).help(L("下一周期")).accessibilityLabel(L("下一周期")).disabled(range.end>Date())
@@ -59,28 +74,37 @@ struct ElectricityUsagePage:View {
             Button(L(period.currentTitle)){followsCurrent=true;date=Date();powerHour = -1}.buttonStyle(AppChoiceButtonStyle())
         }
     }
-    private var consumptionCard:some View {
-        VStack(alignment:.leading,spacing:12) {
-            Text(L("已记录用电")).font(AppTypography.body).foregroundColor(Palette.secondaryText)
-            MetricValue(value:total.observedSeconds>0 ? ElectricityFormat.number(total.kilowattHours,maximum:total.kilowattHours<0.001 ? 6:3):"—",unit:L("度"),size:28,unitSize:12)
-            Text(L("已记录")+" · "+ElectricityFormat.duration(total.observedSeconds)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-            HStack(spacing:8) {
-                Text(total.cost(rate:store.rate).map{L("估算电费")+" "+ElectricityFormat.money($0,currency:store.currency)} ?? L("尚未设置电价")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-                Spacer(minLength:0)
-                Button(L(store.rate==nil ? "设置电价":"修改电价")){showRate=true}.buttonStyle(.borderless).font(AppTypography.caption)
-                    .accessibilityIdentifier("electricityRateButton")
-                    .popover(isPresented:$showRate) {ElectricityRateEditor(store:store,onClose:{showRate=false})}
+    private var historyToolbar:some View {
+        VStack(alignment:.leading,spacing:14) {
+            HStack(spacing:12) {
+                AppSegmentedPicker(title:L("统计周期"),selection:period,choices:ElectricityPeriod.allCases.map{AppChoice($0,L($0.title))},onSelect:{period=$0;powerHour = -1})
+                    .accessibilityIdentifier("electricityPeriod")
+                Spacer(minLength:8)
+                if navigation.usageTab == .electricity {
+                    AppChoicePicker(title:L("统计来源"),selection:Binding(get:{store.source},set:{store.selectSource($0)}),choices:(store.sources.isEmpty ? [.system]:store.sources).map{AppChoice($0,L($0.title))}).accessibilityIdentifier("electricitySource")
+                } else {dateNavigation}
             }
-        }.frame(maxWidth:.infinity,minHeight:118,alignment:.leading).subtlePanel(padding:18)
+            if navigation.usageTab == .electricity {dateNavigation}
+        }
     }
-    private var tokenCard:some View {
-        let report=tokens.report(in:range,period:period)
-        return VStack(alignment:.leading,spacing:12) {
-            Text(L("Token 用量")+" · "+L("全部工具")).font(AppTypography.body).foregroundColor(Palette.secondaryText)
-            Text(tokens.hasScanned && !tokens.snapshot.events.isEmpty ? TokenFormat.compact(report.counts.total):"—").font(AppTypography.number(28,weight:.semibold)).appMonospacedDigit()
-            Text(L("输入")+" "+TokenFormat.compact(report.counts.input)+" · "+L("输出")+" "+TokenFormat.compact(report.counts.output)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-            Text(L("其中缓存读取")+" "+TokenFormat.compact(report.counts.cacheRead)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-        }.frame(maxWidth:.infinity,minHeight:118,alignment:.leading).subtlePanel(padding:18)
+    private var energySummary:some View {
+        HStack(alignment:.top,spacing:14) {
+            energyStat("已记录用电",value:total.observedSeconds>0 ? ElectricityFormat.number(total.kilowattHours,maximum:total.kilowattHours<0.001 ? 6:3):"—",unit:L("度"),symbol:"bolt.fill",detail:L("已记录")+" · "+ElectricityFormat.duration(total.observedSeconds))
+            VStack(alignment:.leading,spacing:12) {
+                Label(L("估算电费"),systemImage:"creditcard").font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+                Text(total.cost(rate:store.rate).map{ElectricityFormat.money($0,currency:store.currency)} ?? "—").font(AppTypography.number(25,weight:.semibold)).appMonospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
+                Button(L(store.rate==nil ? "设置电价":"修改电价")){showRate=true}.buttonStyle(.borderless).font(AppTypography.caption).accessibilityIdentifier("electricityRateButton")
+                    .popover(isPresented:$showRate) {ElectricityRateEditor(store:store,onClose:{showRate=false})}
+            }.frame(maxWidth:.infinity,minHeight:110,alignment:.leading).subtlePanel(padding:18)
+            energyStat("平均功率",value:total.observedSeconds>0 ? ElectricityFormat.number(total.kilowattHours*3_600_000/total.observedSeconds,maximum:1):"—",unit:"W",symbol:"waveform.path",detail:L("仅计算已记录时段"))
+        }
+    }
+    private func energyStat(_ title:String,value:String,unit:String,symbol:String,detail:String)->some View {
+        VStack(alignment:.leading,spacing:12) {
+            Label(L(title),systemImage:symbol).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+            MetricValue(value:value,unit:unit,size:28,unitSize:12)
+            Text(detail).font(AppTypography.caption).foregroundColor(Palette.secondaryText).lineLimit(2)
+        }.frame(maxWidth:.infinity,minHeight:110,alignment:.leading).subtlePanel(padding:18)
     }
     private var chart:some View {
         VStack(alignment:.leading,spacing:14) {
@@ -96,7 +120,7 @@ struct ElectricityUsagePage:View {
                 }
             }
             ElectricityPowerCurve(records:store.powerRecords(in:powerRange),range:powerRange)
-                .frame(height:235).id("\(store.source.rawValue):\(powerRange.start.timeIntervalSince1970):\(powerRange.end.timeIntervalSince1970)")
+                .frame(height:270).id("\(store.source.rawValue):\(powerRange.start.timeIntervalSince1970):\(powerRange.end.timeIntervalSince1970)")
             if store.powerRecords(in:powerRange).isEmpty,total.observedSeconds>0 {
                 Text(L("此时段只有电量汇总，尚无实测功率明细。"))
                     .font(AppTypography.caption).foregroundColor(Palette.secondaryText)

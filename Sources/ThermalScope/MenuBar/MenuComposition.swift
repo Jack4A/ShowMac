@@ -8,12 +8,13 @@ struct MenuBarComponent:Codable,Equatable,Identifiable {
     var metric:MenuMetric
     var style:MenuTileStyle
     var sensor:MenuSensorReference?
+    var token:TokenMenuConfiguration?
     var label:String?
     var colorHex:String?
     var icon:String?
 
     var source:MenuComponentSource {sensor.map(MenuComponentSource.sensor) ?? .metric(metric)}
-    @MainActor func title(in model:AppModel)->String {source.title(in:model)}
+    @MainActor func title(in model:AppModel)->String {metric.isToken && sensor==nil ? model.tokenMenuReading(metric:metric,configuration:token ?? TokenMenuConfiguration()).title:source.title(in:model)}
 
     static func template(source:MenuComponentSource,style:MenuTileStyle)->Self {
         var value=template(metric:source.metric,style:style)
@@ -22,12 +23,15 @@ struct MenuBarComponent:Codable,Equatable,Identifiable {
     }
 
     static func template(metric:MenuMetric,style:MenuTileStyle)->Self {
-        Self(metric:metric,style:style,icon:style == .history || style == .bars ? "none":nil)
+        Self(metric:metric,style:style,icon:style == .history || style == .bars ? "none":nil).normalized()
     }
 
     func normalized()->Self {
         var result=self
         if style == .stacked {result.style = .iconValue}
+        result.token=token?.normalized()
+        if metric == .tokens,result.style == .ring {result.style = .historyValue}
+        if metric == .tokenQuota,![.icon,.value,.iconValue,.ring].contains(result.style) {result.style = .ring}
         result.label=label.map{String($0.prefix(8))}
         if icon=="none",result.style == .icon {result.style = .value}
         if let colorHex,colorHex.count != 6 || UInt32(colorHex,radix:16)==nil {result.colorHex=nil}

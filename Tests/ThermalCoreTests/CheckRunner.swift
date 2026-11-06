@@ -26,6 +26,10 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
     static func main() {
         let core=CoreTests(),cooling=CoolingTests(),history=HistoryTests(),curve=CurveTests()
         let checks:[(String,() throws ->Void)]=[
+            ("Reported quota periods expire without fabricated resets",AgentQuotaTests().testProviderWindowsAndExpiration),
+            ("Invalid percentages and context windows are not account quota",AgentQuotaTests().testInvalidAndContextValuesAreNotQuota),
+            ("Claude quota capture retains numeric metadata only",AgentQuotaTests().testClaudeStatusLineMetadataOnly),
+            ("Quota rollout cache handles sparse, mirrored and partial records",AgentQuotaTests().testRecentRolloutsDedupAndSparseResponses),
             ("All upstream agent sources are exposed",TokenUsageTests().testAllUpstreamSourcesAreExposed),
             ("Open-source engine counters preserve metadata and unknown categories",TokenUsageTests().testBridgeCountersAndPrivacy),
             ("Agent engine rejects invalid protocol and counts",TokenUsageTests().testInvalidProtocolAndCounts),

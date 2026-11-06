@@ -46,17 +46,26 @@ import ThermalCore
             for theme in ["light","dark"] {
                 model.theme=theme
                 for page in [ConsolePage.metrics,.thermal,.sensors,.optimization,.electricity] {
-                    model.tab=0;model.navigation.metric=nil;model.navigation.page=page
+                    model.tab=0;model.navigation.metric=nil;model.navigation.usageTab = .electricity;model.navigation.page=page
                     evidence[theme+"-"+page.rawValue]=try render(ConsoleShell(model:model),name:theme+"-"+page.rawValue,size:CGSize(width:1000,height:760))
                     count+=1
                 }
+                model.navigation.page = .electricity;model.navigation.usageTab = .tokens
+                _=try render(ConsoleShell(model:model),name:theme+"-tokens",size:CGSize(width:1000,height:900));count+=1
                 _=try render(TokenUsageSection(store:model.tokens,range:ElectricityPeriod.day.interval(containing:energyEnd),period:.day).padding(20).frame(maxWidth:.infinity,maxHeight:.infinity,alignment:.topLeading).background(Color(Palette.windowBackground)).preferredColorScheme(model.colorScheme),name:theme+"-token-usage-popover",size:CGSize(width:740,height:520));count+=1
                 model.navigation.metric = .cpuUsage
                 model.navigation.page = .metrics
                 evidence[theme+"-metric"]=try render(ConsoleShell(model:model),name:theme+"-metric",size:CGSize(width:1000,height:760));count+=1
                 model.tab=1
                 evidence[theme+"-settings"]=try render(ConsoleShell(model:model),name:theme+"-settings",size:CGSize(width:1000,height:760));count+=1
-                evidence[theme+"-popover"]=try render(StatusOverview(model:model,height:640,onNavigate:{_ in},onSettings:{},onActions:{},onResize:{_ in}),name:theme+"-popover",size:CGSize(width:390,height:640));count+=1
+                let previousComponents=model.menuComposition
+                model.pinTokenMetric(.tokens)
+                model.pinTokenMetric(.tokenQuota,provider:"codex")
+                let previousProcesses=model.statusPanel.showProcesses
+                model.statusPanel.showProcesses=false
+                let previewHeight:CGFloat=122+78+StatusCardLayout.height(count:model.statusPanel.cards.count)+122
+                evidence[theme+"-popover"]=try render(StatusOverview(model:model,height:previewHeight,onNavigate:{_ in},onSettings:{},onActions:{},onResize:{_ in}),name:theme+"-popover",size:CGSize(width:390,height:previewHeight));count+=1
+                model.menuComposition=previousComponents;model.statusPanel.showProcesses=previousProcesses
                 _=try render(FanSceneManager(model:model,curve:.balanced,onClose:{}),name:theme+"-scene-manager-popover",size:CGSize(width:520,height:580));count+=1
                 model.fanStopTimer=try FanStopTimer(minutes:30)
                 _=try render(FanStopTimerButton(model:model).timerOptions,name:theme+"-stop-timer-popover",size:CGSize(width:260,height:250));count+=1
@@ -67,7 +76,7 @@ import ThermalCore
                 let encoder=JSONEncoder();encoder.outputFormatting=[.prettyPrinted,.sortedKeys]
                 try encoder.encode(evidence).write(to:URL(fileURLWithPath:folder).appendingPathComponent("appearance-metrics.json"))
             }
-            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, electricity, tokens, metric detail, settings, popover, scene manager and stop timer). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
+            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, electricity, token tabs, quota, tokens, metric detail, settings, popover, scene manager and stop timer). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
         } catch {print("FAIL: "+error.localizedDescription);exit(1)}
     }
     private struct RenderEvidence:Codable {

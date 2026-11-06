@@ -35,6 +35,8 @@ struct MenuIconOption:Identifiable {
     var id:String {symbol}
     static func options(_ metric:MenuMetric)->[Self] {
         switch metric {
+        case .tokens:return [.init(symbol:"number.circle",title:"Token"),.init(symbol:"sparkles",title:"AI"),.init(symbol:"chart.bar",title:"柱状图")]
+        case .tokenQuota:return [.init(symbol:"chart.pie",title:"额度"),.init(symbol:"gauge",title:"余量"),.init(symbol:"hourglass",title:"重置时间")]
         case .cpu:return [.init(symbol:"cpu",title:"处理器"),.init(symbol:"chart.bar",title:"柱状图"),.init(symbol:"waveform.path",title:"波形")]
         case .temperature:return [.init(symbol:"thermometer.medium",title:"温度计"),.init(symbol:"thermometer.sun",title:"温度与太阳"),.init(symbol:"flame",title:"火焰")]
         case .gpu:return [.init(symbol:"display",title:"显示器"),.init(symbol:"cpu",title:"芯片"),.init(symbol:"square.stack.3d.up",title:"图层")]

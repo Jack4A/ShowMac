@@ -60,7 +60,7 @@ import WidgetUI
             let graphUpper=max(self.model.menuGraphKind.fixedUpper,graphPoints.compactMap(\.value).max() ?? 0)
             let graph=self.model.menuGraph ? MenuCPUGraph.image(points:graphPoints,ending:self.model.metricHistory.end,width:self.model.menuGraphWidth,upper:graphUpper,style:self.model.menuGraphStyle,warningsEnabled:self.model.menuCPUWarnings,appearance:self.statusItem.button?.effectiveAppearance,kind:self.model.menuGraphKind):nil
             if self.model.menuStyle == "stacked" {
-                let values=MenuStackedValues.image(self.model.menuItems.map{($0.shortTitle,$0.value(self.model.readings))},appearance:self.statusItem.button?.effectiveAppearance)
+                let values=MenuStackedValues.image(self.model.menuItems.map{($0.shortTitle,$0.value(self.model))},appearance:self.statusItem.button?.effectiveAppearance)
                 if let graph {
                     let combined=NSImage(size:NSSize(width:graph.size.width+7+values.size.width,height:22),flipped:false) {_ in
                         graph.draw(in:NSRect(x:0,y:3,width:graph.size.width,height:16))
@@ -227,7 +227,9 @@ import WidgetUI
     }
     func navigateStatusDestination(_ value:String) {
         model.tab=0
-        if let kind=MetricKind(rawValue:value) {
+        if value=="tokens" {
+            model.navigation.metric=nil;model.navigation.page = .electricity;model.navigation.usageTab = .tokens
+        } else if let kind=MetricKind(rawValue:value) {
             model.navigation.showMetric(kind)
             if let sensor=kind.sensor {model.timeline.sensor=sensor}
         } else {
@@ -298,8 +300,10 @@ import WidgetUI
 @main struct Entry {
     @MainActor static func main() {
         let args=CommandLine.arguments
+        if args.contains("--claude-quota-statusline") {exit(ClaudeQuotaIntegration.capture())}
         if args.contains("--appearance-ui-check") {CompatibilityUICheck.run(classic:false);return}
         if args.contains("--compatibility-ui-check") {CompatibilityUICheck.run();return}
+        if args.contains("--token-features-check") {TokenFeaturesCheck.run();return}
         if args.contains("--status-cards-check") {StatusCardsCheck.run();return}
         if args.contains("--curve-warning-check") {CurveWarningCheck.run();return}
         if args.contains("--menu-sensor-check") {MenuSensorCheck.run();return}

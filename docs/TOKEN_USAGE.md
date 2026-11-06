@@ -1,6 +1,6 @@
 # Local agent usage
 
-Usage statistics combines electricity and AI token history. Day/week/month/year ranges use the system time zone. The homepage keeps a compact summary card.
+Usage statistics has separate Electricity and Token tabs. Day/week/month/year ranges use the system time zone. The homepage keeps a compact summary card.
 
 ## Engine and coverage
 
@@ -25,3 +25,15 @@ The app checks source metadata every minute on a utility queue, reuses unchanged
 `~/Library/Application Support/ShowMac/agent-usage-cache.json` stores numeric counts, timestamps, model/source names and hashed event identifiers. It is user-private (0600), written atomically, and contains no conversation text or login credentials. Parsing can read transcript files in memory to extract metadata or upstream estimates, but no transcript text leaves the parser. The old Swift-parser cache is left untouched. Existing electricity history is unchanged. A failed engine run preserves the last successful snapshot and shows a coverage warning.
 
 Source code and upstream license are vendored under `Vendor/tokscale`; app resources include `AgentEngineNotices.txt` with upstream MIT, nested Apache-2.0 decoder and dependency notices. Source changes are recorded in `Vendor/tokscale/UPSTREAM.json`. Build/test toolchain is Rust 1.97.1, pinned lockfiles; release targets are Intel/Apple Silicon, macOS 11+. Test fixtures do not read private sessions. UI previews use synthetic sample data.
+
+## Menu bar and account allowance (1.18.17)
+
+Use the pin button beside Token usage, or a quota card's pin, to add a menu bar component. Its editor selects a tool, Day/Week/Month/Year history range, quota window, display style, icon and independent color. Monochrome stays the default. Token sparklines use their actual reporting interval; percentages do not borrow a CPU warning scale. The popover includes a compact Token summary when such a component is configured.
+
+Account allowance is provider-reported percentage, separate from local token totals and the historical date filter. It is not an absolute remaining-token balance. The standard Codex pool is preferred over independent model pools unless a specific window is chosen. Readings older than 15 minutes, more than a minute in the future, or past their reported reset time are not shown as current. A reset never creates a fabricated 100% value.
+
+Codex reads bounded tails (up to 1 MiB each) from at most 32 recently modified local JSONL rollouts. Discovery is capped at 20,000 files. It uses token_count rate_limits metadata and the actual window_minutes, percentage and reset fields. It does not open auth.json, use the Keychain, contact account APIs or infer a signed-in account identity. The UI describes the tool's last local report; switching accounts without a new report cannot identify a new account.
+
+Claude Code sync is off until explicitly enabled from the connection sheet. The sheet explains its change to ~/.claude/settings.json. The command forwards existing status-line output and captures the documented rate_limits.five_hour / seven_day metadata. Its numeric cache is ~/Library/Application Support/ShowMac/ClaudeQuota/quota.json (0600). The original statusLine configuration, including its command, is separately saved as original-statusline.json (0600) for restoration. No other settings are copied into that restoration record. Conversation input is processed in memory and never written to the allowance cache. The inherited original command retains its previous behavior. Unknown settings formats and configurations changed by other tools are preserved instead of overwritten.
+
+Without a readable local quota source, a tool's token history still works but account allowance is unavailable. Codex and opt-in Claude Code quota are supported in this version; 60-source history support does not imply all 60 services expose a local account allowance.

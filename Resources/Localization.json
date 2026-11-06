@@ -7061,5 +7061,170 @@
   },
   "未检测到该工具的本机用量": {
     "en": "No local usage detected for this tool"
+  },
+  "%d 分钟额度": {
+    "en": "%d-minute allowance"
+  },
+  "%d 天后重置": {
+    "en": "Resets in %d days"
+  },
+  "%d 天额度": {
+    "en": "%d-day allowance"
+  },
+  "%d 小时额度": {
+    "en": "%d-hour allowance"
+  },
+  "Claude Code 同步": {
+    "en": "Sync Claude Code"
+  },
+  "Claude Code 本机额度同步": {
+    "en": "Local Claude Code allowance sync"
+  },
+  "Claude Code 每次更新状态行时，将官方提供的额度百分比与重置时间写入 ShowMac 的本机缓存。无需 API 密钥，也不会读取钥匙串。": {
+    "en": "When Claude Code updates its status line, it writes provider-reported allowance percentages and reset times to a local ShowMac cache. No API key or Keychain access is needed."
+  },
+  "Codex 自动读取最近的额度记录；Claude Code 可启用本机同步。": {
+    "en": "Codex reads recent local allowance records automatically. Claude Code can sync locally after you enable it."
+  },
+  "Codex（默认）": {
+    "en": "Codex (default)"
+  },
+  "Token 用量加入状态栏": {
+    "en": "Add token usage to the menu bar"
+  },
+  "仅计算已记录时段": {
+    "en": "Recorded intervals only"
+  },
+  "余量": {
+    "en": "Remaining"
+  },
+  "余量来自工具报告的百分比，未提供或已过期时显示 —。": {
+    "en": "Remaining allowance uses provider-reported percentages. Missing or expired data shows —."
+  },
+  "余量来自工具报告，与本机 Token 累计独立；超过 15 分钟未更新或已重置的读数不作为当前余量。": {
+    "en": "Allowance is reported separately from local token totals. Readings older than 15 minutes or past their reset time are not shown as current."
+  },
+  "后重置": {
+    "en": "until reset"
+  },
+  "启用会修改 ~/.claude/settings.json 的 statusLine，并串联保留原命令的输出。原状态行会私密保存，可在这里恢复；其余设置保持原值。": {
+    "en": "Enabling updates statusLine in ~/.claude/settings.json and preserves the original command output. Its original configuration is saved privately for restoration here. Other settings keep their values."
+  },
+  "周期已结束，等待新读数": {
+    "en": "Period ended; waiting for an update"
+  },
+  "工具分布": {
+    "en": "Usage by tool"
+  },
+  "工具最近报告": {
+    "en": "Last reported by the tool"
+  },
+  "当前": {
+    "en": "Current"
+  },
+  "当前额度": {
+    "en": "Current allowance"
+  },
+  "显示在状态栏": {
+    "en": "Show in menu bar"
+  },
+  "最紧张的额度": {
+    "en": "Most constrained allowance"
+  },
+  "未提供": {
+    "en": "Not provided"
+  },
+  "未提供重置时间": {
+    "en": "Reset time not provided"
+  },
+  "查看官方状态行说明": {
+    "en": "Official status-line documentation"
+  },
+  "用量类型": {
+    "en": "Usage type"
+  },
+  "等待工具报告额度": {
+    "en": "Waiting for allowance data"
+  },
+  "统计内容": {
+    "en": "Usage source"
+  },
+  "账户余量": {
+    "en": "Account remaining"
+  },
+  "账户额度": {
+    "en": "Account allowance"
+  },
+  "长周期额度": {
+    "en": "Long-period allowance"
+  },
+  "额度余量": {
+    "en": "Allowance remaining"
+  },
+  "额度周期": {
+    "en": "Allowance period"
+  },
+  "额度": {
+    "en": "Allowance"
+  },
+  "重置时间": {
+    "en": "Reset time"
+  },
+  "用电": {
+    "en": "Electricity"
+  },
+  "平均功率": {
+    "en": "Average power"
+  },
+  "启用同步": {
+    "en": "Enable sync"
+  },
+  "恢复原状态行": {
+    "en": "Restore status line"
+  },
+  "等待更新": {
+    "en": "Waiting for update"
+  },
+  "剩余": {
+    "en": "remaining"
+  },
+  "Claude Code 设置无法读取，未做修改。": {
+    "en": "Could not read Claude Code settings. No changes were made."
+  },
+  "Claude Code 状态行格式不受支持，未做修改。": {
+    "en": "This Claude Code status-line format is unsupported. No changes were made."
+  },
+  "已有状态行恢复记录，请先恢复原配置。": {
+    "en": "A status-line restoration record already exists. Restore the original configuration first."
+  },
+  "状态行已被其他工具修改，未覆盖当前配置。": {
+    "en": "Another tool changed the status line. The current configuration was preserved."
+  },
+  "原状态行记录无法读取。": {
+    "en": "The original status-line configuration could not be read."
+  },
+  "Claude Code 设置是符号链接，请手动配置同步。": {
+    "en": "Claude Code settings is a symbolic link. Configure this integration manually."
+  },
+  "Claude Code 设置刚被修改，请重试。": {
+    "en": "Claude Code settings changed during this operation. Please try again."
+  },
+  "删除": {
+    "en": "Delete"
+  },
+  "好": {
+    "en": "OK"
+  },
+  "状态未知": {
+    "en": "Unknown status"
+  },
+  "%d 分钟前": {
+    "en": "%d min ago"
+  },
+  "刚刚": {
+    "en": "Just now"
+  },
+  "最近报告": {
+    "en": "Last reported"
   }
 }

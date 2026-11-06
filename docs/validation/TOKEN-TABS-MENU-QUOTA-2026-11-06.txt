@@ -1,0 +1,28 @@
+ShowMac 1.18.17 / 284 — Usage tabs, menu components and account allowance
+
+Local checks on macOS 27:
+- 136 ThermalCore checks passed, including real-window parsing, quota freshness,
+  reset/overage, latest-pool selection, incomplete tails and metadata reuse.
+- Token feature checks passed: menu pin/dedup/config persistence, provider/period
+  totals and real chart range, shared vs independent pools, explicit missing quota,
+  expiry as unavailable, monochrome rendering, isolated Claude opt-in/restore and
+  metadata-only capture. Actual Claude settings were not changed.
+- Existing hidden-view, card, warning, sensor, composition/customization, update,
+  fan-scene and electricity fixture checks passed.
+- English localization, format arguments and Chinese conversion passed (1209 keys).
+- 24 light/dark native layouts per language; Chinese/light and English/dark
+  Token and electricity pages inspected. Public screenshots contain fixtures only.
+- Release verifier tests: 22 passed. Performance tests: 18 passed.
+- Website routing/statistics: 7 Node tests and SQLite schema test passed.
+- Local app installed: homepage-to-Token navigation, pinning totals/remaining quota,
+  popover summary navigation and opt-in explanation verified with native UI.
+- Existing energy history, menu spacing, colors and prior menu components retained.
+
+Current quota sources: Codex local reports and optional Claude Code status-line
+metadata. No account API, auth.json, Keychain, cookies or inferred token balance.
+Missing/old/reset reports are not treated as a refill. Sixty history adapters do
+not imply account allowance support for all sixty tools.
+
+Local SDK 27 build targets macOS 12; production source targets 11. CI gates both
+architectures with SDK 26.5 and compares rendering on macOS 26/27. Physical older
+OS validation remains pending. No hardware control changed by feature fixtures.

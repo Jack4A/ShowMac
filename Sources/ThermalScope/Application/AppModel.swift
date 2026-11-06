@@ -220,6 +220,7 @@ struct TimelineEvent: Identifiable {
     private var observers:[NSObjectProtocol]=[]
 
     init() {
+        tokens.onChange={ [weak self] in self?.updateMenu() }
         optimization.perform={ [weak self] request,completion in
             self?.control(request,completion:completion)
         }

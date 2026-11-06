@@ -77,7 +77,7 @@ struct MenuTileEditor:View {
     let onClose:()->Void
     private var component:MenuBarComponent {model.effectiveMenuComponents.first{$0.id==componentID} ?? MenuBarComponent(id:componentID,metric:metric,style:metric.defaultTileStyle)}
     private var styles:[MenuTileStyle] {
-        let values:[MenuTileStyle]=[.icon,.value,.history,.iconValue]
+        let values:[MenuTileStyle]=metric == .tokenQuota ? [.icon,.value,.ring,.iconValue]:[.icon,.value,.history,.historyValue,.bars,.iconValue]
         return values.contains(component.style) ? values:values+[component.style]
     }
     var style:Binding<MenuTileStyle> {Binding(get:{component.style},set:{newValue in model.updateMenuComponent(id:componentID){$0.style=newValue}})}
@@ -99,6 +99,7 @@ struct MenuTileEditor:View {
             }.padding(20)
             Divider()
             Form {
+                if metric.isToken {TokenMenuControls(model:model,id:componentID,metric:metric)}
                 Section(header:Text(L("显示方式"))) {
                     HStack {
                         Text(L("项目样式"));Spacer()
@@ -119,7 +120,7 @@ struct MenuTileEditor:View {
                 Text(L("更改会立即保存。")).font(AppTypography.caption).foregroundColor(.secondary)
             }
                 .padding(.horizontal,20).padding(.bottom,16)
-        }.font(AppTypography.body).frame(width:420,height:330).appBackground{Palette.canvas}
+        }.font(AppTypography.body).frame(width:420,height:metric.isToken ? 470:330).appBackground{Palette.canvas}
             .onDisappear{customColorPanel.close()}
     }
     private var colorMenu:some View {

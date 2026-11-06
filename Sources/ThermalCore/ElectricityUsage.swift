@@ -11,7 +11,7 @@ public enum ElectricitySource:String,Codable,CaseIterable,Identifiable,Sendable 
     }}
 }
 
-public enum ElectricityPeriod:String,CaseIterable,Identifiable {
+public enum ElectricityPeriod:String,CaseIterable,Identifiable,Codable {
     case day,week,month,year
     public var id:String {rawValue}
     public var title:String {switch self {case .day:return "日";case .week:return "周";case .month:return "月";case .year:return "年"}}

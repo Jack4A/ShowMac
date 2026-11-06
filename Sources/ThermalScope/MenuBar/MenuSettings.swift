@@ -3,11 +3,11 @@ import AppKit
 import ThermalCore
 
 enum MenuMetric:String,CaseIterable,Identifiable,Codable {
-    case cpu,temperature,gpu,battery,fan
+    case cpu,temperature,gpu,battery,fan,tokens,tokenQuota
     var id:String { rawValue }
-    var title:String {switch self {case .cpu:return L("CPU 使用率");case .temperature:return L("CPU 温度");case .gpu:return L("GPU 温度");case .battery:return L("电池电量");case .fan:return L("风扇转速")}}
-    var symbol:String {switch self {case .cpu:return "cpu";case .temperature:return "thermometer.medium";case .gpu:return "display";case .battery:return "battery.75percent";case .fan:return "fanblades"}}
-    var shortTitle:String {switch self {case .cpu:return "CPU";case .temperature:return L("温度");case .gpu:return "GPU";case .battery:return L("电池");case .fan:return L("风扇")}}
+    var title:String {switch self {case .cpu:return L("CPU 使用率");case .temperature:return L("CPU 温度");case .gpu:return L("GPU 温度");case .battery:return L("电池电量");case .fan:return L("风扇转速");case .tokens:return L("Token 用量");case .tokenQuota:return L("额度余量")}}
+    var symbol:String {switch self {case .cpu:return "cpu";case .temperature:return "thermometer.medium";case .gpu:return "display";case .battery:return "battery.75percent";case .fan:return "fanblades";case .tokens:return "number.circle";case .tokenQuota:return "chart.pie"}}
+    var shortTitle:String {switch self {case .cpu:return "CPU";case .temperature:return L("温度");case .gpu:return "GPU";case .battery:return L("电池");case .fan:return L("风扇");case .tokens:return "Token";case .tokenQuota:return L("余量")}}
     @MainActor func value(_ readings:LiveReadings)->String {
         switch self {
         case .cpu:return valueText(readings.snapshot?.cpuUsage)+"%"
@@ -15,9 +15,10 @@ enum MenuMetric:String,CaseIterable,Identifiable,Codable {
         case .gpu:return valueText(readings.snapshot?.temperature(.gpu))+"°"
         case .battery:return valueText(readings.telemetry?.batteryPercent)+"%"
         case .fan:return valueText(readings.snapshot?.fans.compactMap(\.rpm).max())
+        case .tokens,.tokenQuota:return "—"
         }
     }
-    @MainActor func value(_ model:AppModel)->String {value(model.readings)+(self == .fan ? " rpm":"")}
+    @MainActor func value(_ model:AppModel)->String {isToken ? model.tokenMenuReading(metric:self).text:value(model.readings)+(self == .fan ? " rpm":"")}
 }
 
 struct MenuSettings:View {

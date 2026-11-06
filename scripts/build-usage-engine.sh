@@ -11,9 +11,18 @@ rustup target add --toolchain "$TOOLCHAIN" "$TARGET" >/dev/null
 export MACOSX_DEPLOYMENT_TARGET="$MINIMUM_OS"
 export SDKROOT="${THERMALSCOPE_SDK:-$(xcrun --sdk macosx --show-sdk-path)}"
 export CARGO_TARGET_DIR="${SHOWMAC_ENGINE_BUILD_DIR:-$ROOT/UsageEngine/target}/macos-$MINIMUM_OS"
-cargo +"$TOOLCHAIN" build --manifest-path "$ROOT/UsageEngine/Cargo.toml" --locked --release --target "$TARGET" --jobs 2
 mkdir -p "$(dirname "$1")"
-cp "$CARGO_TARGET_DIR/$TARGET/release/showmac-usage-engine" "$1"
+# CI may restore the final binary from a cache keyed by all engine sources,
+# lockfiles, architecture, deployment floor, SDK and Rust version. Local builds
+# keep compiling from source unless an explicit cache path is supplied.
+ENGINE_CACHE="${SHOWMAC_ENGINE_CACHE:-}"
+if [[ -n "$ENGINE_CACHE" && -x "$ENGINE_CACHE" ]]; then
+    cp "$ENGINE_CACHE" "$1"
+else
+    cargo +"$TOOLCHAIN" build --manifest-path "$ROOT/UsageEngine/Cargo.toml" --locked --release --target "$TARGET" --jobs 2
+    cp "$CARGO_TARGET_DIR/$TARGET/release/showmac-usage-engine" "$1"
+    if [[ -n "$ENGINE_CACHE" ]]; then mkdir -p "$(dirname "$ENGINE_CACHE")"; cp "$1" "$ENGINE_CACHE"; fi
+fi
 
 python3 - "$1" "$ROOT/Sources/ThermalCore/TokenUsage.swift" "$ROOT/Sources/ThermalCore/AgentUsageEngine.swift" <<'PYCODE'
 import json,re,subprocess,sys

@@ -33,7 +33,7 @@ struct ConsoleShell:View {
                 ScrollView(showsIndicators:false) {
                     VStack(alignment:.leading,spacing:monitorSample ? 24:16) {
                         if model.tab==1 { PreferencesPage(model:model) }
-                        else if navigation.page == .electricity {ElectricityUsagePage(store:model.electricity,tokens:model.tokens)}
+                        else if navigation.page == .electricity {ElectricityUsagePage(model:model)}
                         else if model.snapshot != nil {
                             switch navigation.page {
                             case .metrics:
@@ -41,7 +41,7 @@ struct ConsoleShell:View {
                                     MetricDetailView(model:model,kind:metric).id(metric)
                                 } else {
                                     MetricsDashboard(readings:model.readings,history:model.metricHistory,mode:model.coolingStatus,onTemperature:{sensor in showMetric(sensor == .gpu ? .gpuTemperature:(sensor == .storage ? .storageTemperature:.cpuTemperature))},onControl:{showMetric(.fan)},onMode:{navigation.metric=nil;navigation.page = .thermal},onCPU:{showMetric(.cpuUsage)})
-                                    ElectricityOverviewCard(store:model.electricity,tokens:model.tokens,onOpen:{navigation.metric=nil;navigation.page = .electricity})
+                                    ElectricityOverviewCard(store:model.electricity,tokens:model.tokens,onOpen:{navigation.metric=nil;navigation.usageTab = .electricity;navigation.page = .electricity},onTokens:{navigation.metric=nil;navigation.usageTab = .tokens;navigation.page = .electricity})
                                     TemperaturePanel(timeline:model.timeline,expanded:false,initialArea:true).equatable().id(ConsoleSection.temperature)
                                     SupplementaryMetrics(readings:model.readings,onTemperature:{showMetric($0)},onMemory:{showMetric(.memory)})
                                     OverviewRecommendations(store:model.diagnostics,onAction:model.follow,onReview:{navigation.go(.findings)})

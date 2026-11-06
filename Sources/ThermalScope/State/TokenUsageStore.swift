@@ -4,6 +4,8 @@ import ThermalCore
 
 @MainActor final class TokenUsageStore:ObservableObject {
     @Published private(set) var snapshot=TokenScanSnapshot()
+    @Published private(set) var quotas:[AgentQuotaWindow]=[]
+    var onChange:(()->Void)?
     @Published private(set) var hasScanned=false
     @Published private(set) var isScanning=false
     @Published var enabled:Bool {didSet{guard persistent else{return};defaults.set(enabled,forKey:"tokenUsageEnabled");generation+=1;if enabled {refresh()}}}
@@ -19,6 +21,12 @@ import ThermalCore
     private var reports:[Query:TokenUsageReport]=[:]
     private final class Worker:@unchecked Sendable {
         var engine:AgentUsageEngine?
+        let quotaReader=AgentQuotaReader()
+        func quota(custom:[String:String])->[AgentQuotaWindow] {
+            var environment=ProcessInfo.processInfo.environment
+            if let path=custom["codex"] {environment[TokenProvider.codex.environmentKey]=path}
+            return quotaReader.readCodex(roots:TokenProvider.codex.roots(environment:environment))+ClaudeQuotaIntegration.read()
+        }
         func scan(custom:[String:String],cache:URL?)->TokenScanSnapshot {
             if engine==nil {
                 let executable=Bundle.main.bundleURL.appendingPathComponent("Contents/Helpers/ShowMacUsageEngine")
@@ -68,15 +76,19 @@ import ThermalCore
         let current=generation,custom=self.custom
         let cache=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first?.appendingPathComponent("ShowMac/agent-usage-cache.json")
         queue.async{[weak self,worker] in
+            let quotas=worker.quota(custom:custom)
             let result=worker.scan(custom:custom,cache:cache)
             DispatchQueue.main.async {
                 guard let self,!self.stopped else{return}
                 self.isScanning=false
                 guard self.enabled,self.generation==current else{self.refresh();return}
-                self.reports.removeAll(keepingCapacity:true);self.snapshot=result;self.hasScanned=true
+                self.reports.removeAll(keepingCapacity:true);self.snapshot=result;self.quotas=quotas;self.hasScanned=true;self.onChange?()
             }
         }
     }
-    func setPreview(_ events:[TokenUsageEvent]){guard !persistent else{return};reports.removeAll();snapshot.events=events;snapshot.fileCount=2;snapshot.sourceStates=Dictionary(uniqueKeysWithValues:TokenProvider.allCases.map{provider in (provider.rawValue,events.contains{$0.provider==provider} ? "ready":"missing")});hasScanned=true}
+    func setPreview(_ events:[TokenUsageEvent]){guard !persistent else{return};enabled=true;reports.removeAll();snapshot.events=events;snapshot.fileCount=2;snapshot.sourceStates=Dictionary(uniqueKeysWithValues:TokenProvider.allCases.map{provider in (provider.rawValue,events.contains{$0.provider==provider} ? "ready":"missing")});hasScanned=true
+        quotas=[AgentQuotaWindow(provider:.codex,pool:"codex",window:"primary",minutes:300,usedPercent:32,resetsAt:Date().addingTimeInterval(7200),observedAt:Date()),AgentQuotaWindow(provider:.codex,pool:"codex",window:"secondary",minutes:10080,usedPercent:58,resetsAt:Date().addingTimeInterval(172800),observedAt:Date())]
+    }
+    func setPreviewQuotas(_ rows:[AgentQuotaWindow]) {guard !persistent else{return};quotas=rows}
     func shutdown(){stopped=true;timer?.cancel();timer=nil}
 }
