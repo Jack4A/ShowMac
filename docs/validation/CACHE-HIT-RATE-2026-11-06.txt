@@ -1,0 +1,16 @@
+ShowMac 1.18.20 / 287 — cache hit rate
+
+Replaces the cache-read count card with cacheRead / input, using selected range/tool
+aggregate counters. Input includes reads and writes; output is excluded. No schema,
+cache history, original counters, account allowance or provider parsing changes.
+
+137 native core checks passed. New checks cover zero/no input, invalid read counts,
+full cache hits, output/writes excluded from the numerator, large aggregate input,
+weighted totals and provider/time boundaries. Percentage formatting tests cover
+missing/invalid values, zero, full, fractional and tiny nonzero percentages.
+English localization and Chinese conversion passed. 26 light/dark layouts rendered
+per language; Chinese/light and English/dark token cards visually inspected.
+The tooltip discloses the original counts and limits of unreported cache details.
+
+Local SDK 27 build targets 12; public source and CI target macOS 11. Physical older
+OS validation remains pending. Checks use fixtures and perform no hardware writes.

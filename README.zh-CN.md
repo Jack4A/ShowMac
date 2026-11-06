@@ -10,9 +10,9 @@
 
 原生 macOS 温度、风扇与性能诊断工具。在菜单栏查看读数，进入主窗口观察近期趋势，或直接选择风扇档位、调整温度—转速曲线。
 
-**公开下载：[v1.18.19](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
+**公开下载：[v1.18.20](https://show-mac.cc/zh/#download)** · **macOS 11+** · **Intel 与 Apple Silicon**
 
-**1.18.19 · build 286** 新增工具来源图标、按工具归组的额度窗口，以及弹窗卡片的原生拖动排序／移除；保留**用电 / Token** 两个页签和可定制的状态栏用量、余量。中文数量统一使用万／百万／千万／亿／万亿，英文保留 K/M/B。随包 MIT 开源 Tokscale 核心继续支持全部 60 类本机历史来源。详见[更新说明](docs/releases/v1.18.19.md)。
+**1.18.20 · build 287** 将缓存读取卡片改为**缓存命中率**，按当前工具与日期范围计算百分比；保留工具图标、额度归组、原生卡片拖动、**用电 / Token** 两个页签和状态栏用量、余量。中文数量统一使用万／百万／千万／亿／万亿，英文保留 K/M/B。随包 MIT 开源 Tokscale 核心继续支持全部 60 类本机历史来源。详见[更新说明](docs/releases/v1.18.20.md)。
 
 <img src="docs/screenshots/v1.18.19/zh/overview-dark.png" width="1000" alt="ShowMac 1.18.19 深色实时监测界面预览，展示紧凑的用电与 Token 卡片，使用示例读数">
 
@@ -24,10 +24,10 @@
 2. 下载适合本机芯片的 ZIP，解压后将 **showmac.app** 拖到“应用程序”。
 3. 打开应用，点击顶部菜单栏项目。启动后先在菜单栏监测，不自动弹出主窗口。
 
-| Mac 类型 | v1.18.19 安装包 | 控制能力 |
+| Mac 类型 | v1.18.20 安装包 | 控制能力 |
 | --- | --- | --- |
-| Intel | `showmac-1.18.19-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
-| Apple Silicon | `showmac-1.18.19-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
+| Intel | `showmac-1.18.20-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
+| Apple Silicon | `showmac-1.18.20-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
 
 预编译应用不需要 Xcode、Swift、Rust、Node 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
 
@@ -106,9 +106,11 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 **Token 用量**覆盖 **Tokscale 全部 60 类来源**，包括 Codex、Claude Code、Cursor、Gemini、OpenCode、Cline、Roo Code、Kiro、Zed 和 GitHub Copilot。支持分时用量、工具筛选、来源搜索和「按模型查看」。缓存与推理已包含在输入／输出内，不重复相加。部分上游来源缺少精确计数时使用估算值；这不是账户额度或实际账单。
 
+**缓存命中率** = 日志中缓存读取 Token ÷ 输入 Token。输入已包含缓存读取与写入，不加输出；先汇总再相除，不平均每条记录的百分比。没有输入时显示 **—**；悬停查看原始分子／分母。未上报缓存细分的来源无法反映实际命中情况。
+
 随包原生引擎离线读取本机日志、数据库和导出文件，每分钟检查变化并复用缓存。Cursor 需要 Tokscale 已同步到本机的用量缓存；ShowMac 不会登录或同步账户。缺失日志、网页聊天与其他设备不会自动计入。来源设置中可暂停扫描，并为上游支持的来源添加数据目录。只缓存用量元数据，不缓存或上传对话内容、登录凭据。[完整来源与实现说明](docs/TOKEN_USAGE.md)。
 
-<img src="docs/screenshots/v1.18.19/zh/token-usage-light.png" width="1000" alt="本机 Token 用量界面预览：分时统计、工具筛选和可展开的模型／来源，使用示例数据">
+<img src="docs/screenshots/v1.18.20/zh/token-usage-light.png" width="1000" alt="本机 Token 用量界面预览：分时统计、工具筛选和可展开的模型／来源，使用示例数据">
 
 点击 Token 用量旁或额度卡片上的**固定图标**，即可显示在状态栏。进入**设置 → 状态栏**，点击该组件选择工具、日／周／月／年周期、额度窗口、样式、图标和颜色，默认黑白。添加 Token 组件后，点击状态栏的弹窗也会显示紧凑的用量／余量摘要。
 

@@ -7241,5 +7241,14 @@
   },
   "工具报告的额度，与 Token 累计分开统计。": {
     "en": "Reported allowance is separate from token totals."
+  },
+  "缓存命中率": {
+    "en": "Cache hit rate"
+  },
+  "缓存命中率 = 缓存读取 Token ÷ 输入 Token；输入已包含缓存读取与写入。": {
+    "en": "Cache hit rate = cache-read tokens ÷ input tokens. Input already includes cache reads and writes."
+  },
+  "按当前工具和时间范围的日志合计计算；无输入时显示 —。未上报的缓存细分无法反映实际命中情况。": {
+    "en": "Calculated from recorded totals for the selected tool and time range; no input shows —. Unreported cache details cannot describe actual cache performance."
   }
 }

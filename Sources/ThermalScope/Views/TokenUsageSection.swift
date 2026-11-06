@@ -57,7 +57,10 @@ struct TokenUsageSection:View {
                 HStack(spacing:12) {
                     tokenStat("输入",report.counts.input,symbol:"arrow.down.left",tint:Palette.violet)
                     tokenStat("输出",report.counts.output,symbol:"arrow.up.right",tint:Color(red:0.39,green:0.43,blue:0.76))
-                    tokenStat("其中缓存读取",report.counts.cacheRead,symbol:"arrow.triangle.2.circlepath",tint:Color(red:0.20,green:0.57,blue:0.58))
+                    tokenStat("缓存命中率",value:TokenFormat.percent(report.counts.cacheHitRate),symbol:"arrow.triangle.2.circlepath",tint:Color(red:0.20,green:0.57,blue:0.58))
+                        .help(cacheHitHelp)
+                        .accessibilityElement(children:.ignore).accessibilityLabel(L("缓存命中率")).accessibilityValue(TokenFormat.percent(report.counts.cacheHitRate))
+                        .accessibilityIdentifier("tokenCacheHitRate")
                 }
                 chart
                 if provider=="all",toolDistribution.count>1 {distribution}
@@ -159,10 +162,18 @@ struct TokenUsageSection:View {
             }
         }.padding(.vertical,6)
     }
+    private var cacheHitHelp:String {
+        [L("缓存命中率 = 缓存读取 Token ÷ 输入 Token；输入已包含缓存读取与写入。"),
+         TokenFormat.number(report.counts.cacheRead)+" / "+TokenFormat.number(report.counts.input),
+         L("按当前工具和时间范围的日志合计计算；无输入时显示 —。未上报的缓存细分无法反映实际命中情况。")].joined(separator:"\n")
+    }
     private func tokenStat(_ title:String,_ count:Int64,symbol:String,tint:Color)->some View {
+        tokenStat(title,value:TokenFormat.compact(count),symbol:symbol,tint:tint)
+    }
+    private func tokenStat(_ title:String,value:String,symbol:String,tint:Color)->some View {
         VStack(alignment:.leading,spacing:9) {
             Label(L(title),systemImage:symbol).foregroundColor(Palette.secondaryText).font(AppTypography.caption)
-            Text(TokenFormat.compact(count)).font(AppTypography.number(19,weight:.semibold)).appMonospacedDigit().foregroundColor(tint)
+            Text(value).font(AppTypography.number(19,weight:.semibold)).appMonospacedDigit().foregroundColor(tint)
         }.frame(maxWidth:.infinity,alignment:.leading).padding(13).appBackground(tint.opacity(0.045),in:RoundedRectangle(cornerRadius:11,style:.continuous))
     }
     private func tokenLabel(_ title:String,_ count:Int64)->some View {
@@ -194,6 +205,12 @@ struct TokenUsageSection:View {
 }
 enum TokenFormat {
     static func number(_ value:Int64)->String {let f=NumberFormatter();f.locale=ElectricityFormat.locale;f.numberStyle = .decimal;return f.string(from:NSNumber(value:value)) ?? String(value)}
+    static func percent(_ fraction:Double?,language:String?=nil)->String {
+        guard let fraction,fraction.isFinite,(0...1).contains(fraction) else{return "—"}
+        let formatter=NumberFormatter();formatter.locale=Locale(identifier:language ?? AppLocalization.shared.resolvedLanguage);formatter.numberStyle = .percent;formatter.maximumFractionDigits=1
+        if fraction>0,fraction<0.001 {return "<"+(formatter.string(from:NSNumber(value:0.001)) ?? "0.1%")}
+        return formatter.string(from:NSNumber(value:fraction)) ?? "—"
+    }
     static func compact(_ value:Int64,language:String?=nil)->String {
         let language=language ?? AppLocalization.shared.resolvedLanguage
         let formatter=NumberFormatter();formatter.locale=Locale(identifier:language);formatter.numberStyle = .decimal;formatter.usesGroupingSeparator=value<10000;formatter.maximumFractionDigits=2

@@ -10,9 +10,9 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.19](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.20](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.19 · build 286** adds recognizable provider icons, grouped allowance windows and native popover card dragging, alongside separate **Electricity / Token** tabs and configurable menu bar usage/allowance. Chinese totals use 万 / 百万 / 千万 / 亿 / 万亿; English keeps K/M/B. The bundled MIT-licensed Tokscale core retains all 60 local history sources. See the [release notes](docs/releases/v1.18.19.md).
+**1.18.20 · build 287** replaces Cached input with **Cache hit rate**, calculated from the selected tool and time range. Provider icons, grouped allowance windows, native card dragging, separate **Electricity / Token** tabs and menu bar usage/allowance are retained. Chinese totals use 万 / 百万 / 千万 / 亿 / 万亿; English keeps K/M/B. The bundled MIT-licensed Tokscale core retains all 60 local history sources. See the [release notes](docs/releases/v1.18.20.md).
 
 <img src="docs/screenshots/v1.18.19/en/overview-dark.png" width="1000" alt="ShowMac 1.18.19 Live metrics UI preview with the compact electricity and token card and sample readings">
 
@@ -22,10 +22,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.19 archive | Control support |
+| Mac | v1.18.20 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.19-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.19-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.20-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.20-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -104,9 +104,11 @@ Device power, DC input power and battery discharge are recorded separately where
 
 The **Token usage** chart supports the full **60-source Tokscale catalog**, including Codex, Claude Code, Cursor, Gemini, OpenCode, Cline, Roo Code, Kiro, Zed and GitHub Copilot. View time buckets, filter tools, search detected sources and expand **By model**. Cache and reasoning categories are included in input/output once. Some upstream sources estimate tokens when exact counters are absent. These totals are not account quota or actual bills.
 
+The **Cache hit rate** card is recorded cache-read tokens ÷ input tokens. Input already includes cache reads and writes; output is excluded. Counts are summed before dividing, so larger requests carry the proper weight. No input shows **—**. Hover for the exact numerator/denominator. Unreported cache details cannot describe a tool’s actual caching performance.
+
 The native engine reads local logs/databases/exports in offline mode, checks changes every minute and reuses cached metadata. Cursor requires a previously synced local Tokscale cache; ShowMac does not log in or sync accounts. Missing logs, web chats and other devices are outside coverage. Source settings allow pausing scans and adding folders where supported. No transcript text or credentials are cached or uploaded. [All sources and implementation](docs/TOKEN_USAGE.md).
 
-<img src="docs/screenshots/v1.18.19/en/token-usage-light.png" width="1000" alt="Local token usage UI preview with hourly totals, tool filtering and collapsed model/source details; sample data">
+<img src="docs/screenshots/v1.18.20/en/token-usage-light.png" width="1000" alt="Local token usage UI preview with hourly totals, tool filtering and collapsed model/source details; sample data">
 
 Use the **pin** beside Token usage or an allowance card to show it in the menu bar. Open **Settings → Menu bar**, then click that component to choose the tool, Day/Week/Month/Year period, allowance window, style, icon and color. Components default to monochrome. With a Token component added, the menu bar popover also shows a compact usage/allowance summary.
 

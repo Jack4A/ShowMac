@@ -188,6 +188,12 @@ public struct TokenCounts:Codable,Equatable,Sendable {
     public var reasoning:Int64
     public var unclassified:Int64
     public var total:Int64 {input+output+unclassified}
+    /// Token-weighted cache hits: cached reads / input (which already includes cache reads/writes).
+    /// No input, or inconsistent counters, has no meaningful rate.
+    public var cacheHitRate:Double? {
+        guard input>0,cacheRead>=0,cacheRead<=input else{return nil}
+        return Double(cacheRead)/Double(input)
+    }
     public init(input:Int64=0,output:Int64=0,cacheRead:Int64=0,cacheWrite:Int64=0,reasoning:Int64=0,unclassified:Int64=0) {
         self.input=input;self.output=output;self.cacheRead=cacheRead;self.cacheWrite=cacheWrite;self.reasoning=reasoning;self.unclassified=unclassified
     }

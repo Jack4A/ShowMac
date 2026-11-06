@@ -41,3 +41,7 @@ Without a readable local quota source, a tool's token history still works but ac
 ## Display units (1.18.18)
 
 Chinese compact totals use 万 / 百万 / 千万 / 亿 / 万亿 (Traditional Chinese equivalents when selected), consistently in cards, menu bar components, the popover and tool totals. English keeps K/M/B. Precise sampled and model counts remain unabridged; only presentation changes, never accounting.
+
+## Cache hit rate (1.18.20)
+
+The summary card shows recorded cache-read tokens / input tokens for the selected tool and time range. Input already includes cache reads and cache writes; output is excluded. Aggregate counts first, then divide, rather than averaging per-event percentages. No input or inconsistent counters show unavailable. Hover to inspect the exact numerator and denominator. Counts remain stored unchanged; sources that omit cache details cannot describe their actual caching performance.

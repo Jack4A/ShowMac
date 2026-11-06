@@ -40,6 +40,21 @@ struct TokenUsageTests {
         expectTrue(TokenUsageReport(events:snapshot.events,in:DateInterval(start:start.addingTimeInterval(3600),duration:3600),intervals:[]).events.isEmpty)
         expectTrue(TokenUsageReport(events:snapshot.events,in:range,provider:.codex,intervals:[range]).events.isEmpty)
     }
+    func testCacheHitRateUsesRecordedInputAndWeightedTotals()throws {
+        expectEqual(TokenCounts(input:100,output:900,cacheRead:40,cacheWrite:20).cacheHitRate,0.4)
+        expectEqual(TokenCounts(input:100,cacheRead:0).cacheHitRate,0)
+        expectEqual(TokenCounts(input:100,cacheRead:100).cacheHitRate,1)
+        expectEqual(TokenCounts().cacheHitRate,nil)
+        expectEqual(TokenCounts(input:0,cacheRead:1).cacheHitRate,nil)
+        expectEqual(TokenCounts(input:10,cacheRead:11).cacheHitRate,nil)
+        expectEqual(TokenCounts(input:10,cacheRead:-1).cacheHitRate,nil)
+        expectEqual(TokenCounts(input:2_000_000_000_000,cacheRead:1_000_000_000_000).cacheHitRate,0.5)
+        let date=Date(timeIntervalSince1970:1793923200),range=DateInterval(start:Date(timeIntervalSince1970:1793923200),duration:3600)
+        let events=[TokenUsageEvent(id:"a",provider:.codex,date:date,model:"sample",counts:TokenCounts(input:100,cacheRead:90)),TokenUsageEvent(id:"b",provider:.codex,date:date,model:"sample",counts:TokenCounts(input:900,cacheRead:90)),TokenUsageEvent(id:"other",provider:.claude,date:date,model:"sample",counts:TokenCounts(input:1000,cacheRead:1000)),TokenUsageEvent(id:"outside",provider:.codex,date:range.end,model:"sample",counts:TokenCounts(input:1000,cacheRead:1000))]
+        let report=TokenUsageReport(events:events,in:range,provider:.codex,intervals:[range])
+        expectEqual(report.counts.cacheHitRate,0.18)
+        expectEqual(report.counts.input,1000);expectEqual(report.counts.cacheRead,180)
+    }
     func testCacheAndRuntimeFailure()throws {
         let root=FileManager.default.temporaryDirectory.appendingPathComponent("showmac-engine-"+UUID().uuidString)
         try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true);defer{try? FileManager.default.removeItem(at:root)}
