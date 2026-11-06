@@ -231,3 +231,11 @@ ConsoleSidebar改用原生NSTableView，52pt行距、220pt默认宽度，设置�
 2026-11-03: v1.17.4/build265 completes the reference correction by extending the content background/corners/boundary behind the titlebar, retaining normal content insets. Titled-window fixtures assert the actual content-top color and compare it across macOS26/27 so a shared erroneous offset cannot pass. Sidebar reference styling from v1.17.3 remains.
 
 2026-11-03: README documentation refresh only. English is now README.md; Chinese is README.zh-CN.md, with README.en.md retained as a compatibility link. Added seven raw screenshots from the installed v1.17.4/build265 English UI and current live readings, including dark/light overview, fan curve, sensors, CPU details, settings and the compact popover. Usage now covers separate menu components/popover cards, per-component colors/icons, spacing, fan presets/curve edits, history and background operation. Capture records retain old image provenance; original app language/theme/menu/card/curve preferences were restored or preserved. No application source or release version changed.
+
+Agent 用量引擎（1.18.16）
+源码构建新增 rustup / Rust 1.97.1；用户下载的安装包不需要安装 Rust。
+安装工具链：rustup toolchain install 1.97.1 --profile minimal
+构建脚本自动选择该工具链和目标架构；首次 Cargo 构建需要下载锁定的依赖。
+上游本地解析测试：bash scripts/check-usage-engine.sh
+引擎与嵌套许可：UsageEngine/、Vendor/tokscale/、AgentEngineNotices.txt。
+来源与隐私边界：docs/TOKEN_USAGE.md；全部来源：docs/AGENT-USAGE.md。

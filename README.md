@@ -143,20 +143,22 @@ Captured from the installed **v1.18.1 / build 267** app on macOS 27, using its E
 
 ## Build and check
 
-Source builds require Git, Python 3 and full **Xcode 26.5/26.6 with the macOS 26.5 SDK**. Xcode 27 raises the deployment floor to macOS 12 and is not used for the macOS 11 release build. There are no third-party Swift package dependencies. Adjust `DEVELOPER_DIR` below to your Xcode installation.
+Source builds require Git, Python 3, [rustup](https://rustup.rs/) with **Rust 1.97.1**, and full **Xcode 26.5/26.6 with the macOS 26.5 SDK**. Xcode 27 raises the deployment floor to macOS 12 and is not used for the macOS 11 release build. There are no third-party Swift package dependencies; the native agent engine vendors Tokscale and uses pinned Cargo lockfiles. The first build compiles its Rust dependencies. Adjust `DEVELOPER_DIR` below to your Xcode installation.
 
 ```sh
 export DEVELOPER_DIR=/Applications/Xcode_26.6.app/Contents/Developer
 git clone https://github.com/Jack4A/ShowMac.git
 cd ShowMac
+rustup toolchain install 1.97.1 --profile minimal
 make build
 open build/showmac.app
 ```
 
-`make build` packages the app, privileged helper and WidgetKit extension and verifies signatures. To choose a destination, use `make build APP="$PWD/build/showmac.app"`.
+`make build` packages the app, privileged helper, native agent engine with license notices, and WidgetKit extension and verifies signatures. To choose a destination, use `make build APP="$PWD/build/showmac.app"`.
 
 ```sh
 make check
+bash scripts/check-usage-engine.sh
 make perf-smoke
 ```
 

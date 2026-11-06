@@ -29,7 +29,7 @@
 | Intel | `showmac-1.18.16-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
 | Apple Silicon | `showmac-1.18.16-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
 
-预编译应用不需要 Xcode、Swift 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
+预编译应用不需要 Xcode、Swift、Rust、Node 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
 
 两个包最低均为 macOS 11。同一份应用已在 macOS 26、27 上执行检查，旧系统尚未逐版真机验证；传感器和风扇能力取决于具体机型。详见 [Apple Silicon 验证范围](docs/APPLE_SILICON_FANS.txt)。
 
@@ -145,20 +145,22 @@ showmac处于当前应用时，**⌘P** 打开菜单栏面板，**⌘0** 打开�
 
 ## 源码构建与检查
 
-源码构建需要 Git、Python 3，以及包含 macOS 26.5 SDK 的完整 **Xcode 26.5/26.6**。Xcode 27 会将最低部署版本抬高到 macOS 12，不用于此 macOS 11 发布构建。项目没有第三方 Swift 包依赖。请按本机 Xcode 的安装位置修改下方 `DEVELOPER_DIR`。
+源码构建需要 Git、Python 3、通过 [rustup](https://rustup.rs/) 安装的 **Rust 1.97.1**，以及包含 macOS 26.5 SDK 的完整 **Xcode 26.5/26.6**。Xcode 27 会将最低部署版本抬高到 macOS 12，不用于此 macOS 11 发布构建。项目没有第三方 Swift 包依赖；原生 Agent 引擎直接使用随仓库提供的 Tokscale 和固定 Cargo 锁文件，首次构建需要编译 Rust 依赖。请按本机 Xcode 的安装位置修改下方 `DEVELOPER_DIR`。
 
 ```sh
 export DEVELOPER_DIR=/Applications/Xcode_26.6.app/Contents/Developer
 git clone https://github.com/Jack4A/ShowMac.git
 cd ShowMac
+rustup toolchain install 1.97.1 --profile minimal
 make build
 open build/showmac.app
 ```
 
-`make build` 会打包主应用、授权辅助程序和 WidgetKit 扩展，并校验签名。可用 `make build APP="$PWD/build/showmac.app"` 指定输出位置。
+`make build` 会打包主应用、授权辅助程序、含许可说明的原生 Agent 引擎和 WidgetKit 扩展，并校验签名。可用 `make build APP="$PWD/build/showmac.app"` 指定输出位置。
 
 ```sh
 make check
+bash scripts/check-usage-engine.sh
 make perf-smoke
 ```
 
