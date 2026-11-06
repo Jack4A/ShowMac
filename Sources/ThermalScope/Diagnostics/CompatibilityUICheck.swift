@@ -51,8 +51,8 @@ import ThermalCore
                     count+=1
                 }
                 model.navigation.page = .electricity;model.navigation.usageTab = .tokens
-                _=try render(ConsoleShell(model:model),name:theme+"-tokens",size:CGSize(width:1000,height:900));count+=1
-                _=try render(TokenUsageSection(store:model.tokens,range:ElectricityPeriod.day.interval(containing:energyEnd),period:.day).padding(20).frame(maxWidth:.infinity,maxHeight:.infinity,alignment:.topLeading).background(Color(Palette.windowBackground)).preferredColorScheme(model.colorScheme),name:theme+"-token-usage-popover",size:CGSize(width:740,height:520));count+=1
+                _=try render(ConsoleShell(model:model),name:theme+"-tokens",size:CGSize(width:1000,height:1180));count+=1
+                _=try render(TokenUsageSection(store:model.tokens,range:ElectricityPeriod.day.interval(containing:energyEnd),period:.day).padding(20).frame(maxWidth:.infinity,maxHeight:.infinity,alignment:.topLeading).background(Color(Palette.windowBackground)).preferredColorScheme(model.colorScheme),name:theme+"-token-usage-popover",size:CGSize(width:740,height:740));count+=1
                 model.navigation.metric = .cpuUsage
                 model.navigation.page = .metrics
                 evidence[theme+"-metric"]=try render(ConsoleShell(model:model),name:theme+"-metric",size:CGSize(width:1000,height:760));count+=1

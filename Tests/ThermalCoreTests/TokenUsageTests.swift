@@ -55,6 +55,33 @@ struct TokenUsageTests {
         expectEqual(report.counts.cacheHitRate,0.18)
         expectEqual(report.counts.input,1000);expectEqual(report.counts.cacheRead,180)
     }
+    func testAgentStatisticsFilterAggregateAndSort()throws {
+        let date=Date(timeIntervalSince1970:1793923200),range=DateInterval(start:Date(timeIntervalSince1970:1793923200),duration:3600)
+        let events=[
+            TokenUsageEvent(id:"a",provider:.codex,date:date,model:"one",counts:TokenCounts(input:100,output:10,cacheRead:90)),
+            TokenUsageEvent(id:"b",provider:.codex,date:date,model:"two",counts:TokenCounts(input:900,output:10,cacheRead:90)),
+            TokenUsageEvent(id:"c",provider:.claude,date:date,model:"sample",counts:TokenCounts(input:300,output:50,cacheRead:240)),
+            TokenUsageEvent(id:"d",provider:.gemini,date:date,model:"sample",counts:TokenCounts(output:5)),
+            TokenUsageEvent(id:"outside",provider:.claude,date:range.end,model:"sample",counts:TokenCounts(input:9000))]
+        let report=TokenUsageReport(events:events,in:range,intervals:[range])
+        expectEqual(report.agents.count,3)
+        let codex=report.agents.first{$0.provider == .codex}!
+        expectEqual(codex.counts.input,1000);expectEqual(codex.counts.cacheHitRate,0.18);expectEqual(codex.requests,2)
+        expectEqual(report.sortedAgents().map(\.provider),[.codex,.claude,.gemini])
+        expectEqual(report.sortedAgents(by:.input,ascending:true).map(\.provider),[.gemini,.claude,.codex])
+        expectEqual(report.sortedAgents(by:.output).map(\.provider),[.claude,.codex,.gemini])
+        expectEqual(report.sortedAgents(by:.cacheHitRate).map(\.provider),[.claude,.codex,.gemini])
+        expectEqual(report.sortedAgents(by:.cacheHitRate,ascending:true).map(\.provider),[.codex,.claude,.gemini])
+        expectEqual(report.sortedAgents(by:.name,ascending:true).map(\.provider),[.claude,.codex,.gemini])
+        let selected=TokenUsageReport(events:events,in:range,provider:.claude,intervals:[range])
+        expectEqual(selected.agents.map(\.provider),[.claude]);expectEqual(selected.counts.total,350)
+        expectEqual(selected.buckets.first?.counts.total,350);expectEqual(selected.models.count,1)
+        let empty=TokenUsageReport(events:events,in:DateInterval(start:range.end,duration:1),provider:.codex,intervals:[])
+        expectTrue(empty.sortedAgents().isEmpty)
+        let ties=TokenUsageReport(events:[TokenUsageEvent(id:"tie-b",provider:.gemini,date:date,model:"",counts:TokenCounts(output:10)),TokenUsageEvent(id:"tie-a",provider:.claude,date:date,model:"",counts:TokenCounts(output:10))],in:range,intervals:[])
+        expectEqual(ties.sortedAgents(by:.cacheHitRate).map(\.id),["claude","gemini"])
+        expectEqual(ties.sortedAgents(by:.total,ascending:true).map(\.id),["claude","gemini"])
+    }
     func testCacheAndRuntimeFailure()throws {
         let root=FileManager.default.temporaryDirectory.appendingPathComponent("showmac-engine-"+UUID().uuidString)
         try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true);defer{try? FileManager.default.removeItem(at:root)}

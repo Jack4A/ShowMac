@@ -35,6 +35,7 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
             ("Agent engine rejects invalid protocol and counts",TokenUsageTests().testInvalidProtocolAndCounts),
             ("Agent reports preserve period and provider boundaries",TokenUsageTests().testPeriodBoundariesAndUnclassified),
             ("Cache hit rate uses weighted input and respects tool/date filters",TokenUsageTests().testCacheHitRateUsesRecordedInputAndWeightedTotals),
+            ("Agent statistics aggregate models and preserve sorting/filter boundaries",TokenUsageTests().testAgentStatisticsFilterAggregateAndSort),
             ("Agent cache survives restart and preserves data on engine failure",TokenUsageTests().testCacheAndRuntimeFailure),
             ("Old counters decode and agent root overrides stay scoped",TokenUsageTests().testLegacyCountsDecodeAndSourceLocations),
             ("Power history retains original timestamps and measured peaks after compaction",ElectricityPowerTests().testRealSamplesSurviveCompaction),

@@ -7,6 +7,8 @@ struct TokenUsageSection:View {
     let period:ElectricityPeriod
     var model:AppModel?=nil
     @State private var provider="all"
+    @State private var agentSort=TokenAgentSort.total
+    @State private var agentAscending=false
     @State private var selected:Date?
     @State private var sources=false
     @State private var models=false
@@ -29,12 +31,20 @@ struct TokenUsageSection:View {
         return store.enabled ? "未找到可统计的 Token 日志":"Token 统计已暂停"
     }
     private var report:TokenUsageReport {store.report(in:range,provider:TokenProvider(rawValue:provider),period:period)}
+    private var agentChoices:[AppChoice<String>] {
+        var available=Set(store.snapshot.events.map(\.provider))
+        if let selected=TokenProvider(rawValue:provider) {available.insert(selected)}
+        return [AppChoice("all",L("全部 Agent"),symbol:"square.grid.2x2")]+available.sorted{$0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending}.map {
+            AppChoice($0.rawValue,AgentProviderArtwork.title($0),symbol:AgentProviderArtwork.image($0)==nil ? "terminal":nil,image:AgentProviderArtwork.image($0))
+        }
+    }
+    private var agentRows:[TokenAgentUsage] {report.sortedAgents(by:agentSort,ascending:agentAscending)}
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
             HStack {
                 Label(L("Token 用量"),systemImage:"number.circle").font(AppTypography.section)
                 Spacer()
-                AppChoicePicker(title:L("AI 工具"),selection:$provider,choices:[AppChoice("all",L("全部工具"))]+TokenProvider.allCases.map{AppChoice($0.rawValue,$0.title)},listWidth:230,maximumListHeight:280)
+                AppChoicePicker(title:L("按 Agent 筛选"),selection:$provider,choices:agentChoices,listWidth:230,maximumListHeight:280)
                     .accessibilityIdentifier("tokenProvider")
                 if let model {
                     TokenPinButton(model:model,provider:provider,period:period)
@@ -63,7 +73,6 @@ struct TokenUsageSection:View {
                         .accessibilityIdentifier("tokenCacheHitRate")
                 }
                 chart
-                if provider=="all",toolDistribution.count>1 {distribution}
                 if let bucket=report.buckets.first(where:{$0.id==selected}) {
                     HStack(spacing:10) {
                         Text(ElectricityFormat.powerDate(bucket.id)).foregroundColor(Palette.secondaryText)
@@ -71,6 +80,7 @@ struct TokenUsageSection:View {
                         Spacer(minLength:0)
                     }.font(AppTypography.caption).appMonospacedDigit()
                 } else {Text(L("悬停或点击查看分时 Token 用量")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)}
+                agentStatistics
                 AppDisclosureGroup(L("按模型查看"),isExpanded:$models) {
                     VStack(spacing:10) {
                         ForEach(report.models) {model in
@@ -142,25 +152,54 @@ struct TokenUsageSection:View {
             if provider.supportsCustom {Button(L("选择文件夹…")){store.chooseDirectory(for:provider)}.buttonStyle(.borderless)}
         }.foregroundColor(Palette.secondaryText)
     }
-    private var toolDistribution:[(TokenProvider,Int64)] {
-        var values:[TokenProvider:Int64]=[:]
-        for event in report.events {values[event.provider,default:0]+=event.counts.total}
-        return values.sorted{$0.value>$1.value}.map{($0.key,$0.value)}
-    }
-    private var distribution:some View {
-        VStack(alignment:.leading,spacing:12) {
-            Text(L("工具分布")).font(AppTypography.body)
-            LazyVGrid(columns:[GridItem(.flexible()),GridItem(.flexible())],alignment:.leading,spacing:12) {
-                ForEach(Array(toolDistribution.prefix(6).enumerated()),id:\.element.0.rawValue) {index,item in
-                    VStack(alignment:.leading,spacing:6) {
-                        HStack {Text(item.0.title).lineLimit(1);Spacer();Text(TokenFormat.compact(item.1)).appMonospacedDigit().foregroundColor(Palette.secondaryText)}
-                        GeometryReader {proxy in
-                            ZStack(alignment:.leading) {Capsule().fill(Palette.violet.opacity(0.06));Capsule().fill(Palette.violet.opacity(index==0 ? 0.9:0.45)).frame(width:max(1,proxy.size.width*Double(item.1)/Double(max(1,report.counts.total))))}
-                        }.frame(height:4)
-                    }.font(AppTypography.caption)
-                }
+    private var agentStatistics:some View {
+        VStack(alignment:.leading,spacing:10) {
+            HStack(spacing:8) {
+                Text(L("Agent 统计")).font(AppTypography.body)
+                Spacer(minLength:8)
+                AppChoicePicker(title:L("Agent 排序"),selection:$agentSort,choices:TokenAgentSort.allCases.map{AppChoice($0,L($0.title))},listWidth:170)
+                    .accessibilityIdentifier("tokenAgentSort")
+                Button{agentAscending.toggle()}label:{Image(systemName:agentAscending ? "arrow.up":"arrow.down").frame(width:12)}
+                    .buttonStyle(AppChoiceButtonStyle()).help(L(agentAscending ? "升序":"降序"))
+                    .accessibilityLabel(L("切换排序方向")).accessibilityValue(L(agentAscending ? "升序":"降序"))
+                    .accessibilityIdentifier("tokenAgentSortDirection")
             }
-        }.padding(.vertical,6)
+            HStack(spacing:10) {
+                Text("Agent").frame(maxWidth:.infinity,alignment:.leading)
+                agentColumn(L("总 Token"));agentColumn(L("输入"));agentColumn(L("输出"));agentColumn(L("缓存命中率"))
+            }.font(AppTypography.caption).foregroundColor(Palette.secondaryText).padding(.horizontal,8)
+            if agentRows.isEmpty {
+                Text(L("当前时段没有用量记录")).font(AppTypography.caption).foregroundColor(Palette.secondaryText).padding(8)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing:2) {
+                        ForEach(agentRows) {agent in agentRow(agent)}
+                    }
+                }.frame(height:min(250,CGFloat(agentRows.count)*36))
+            }
+        }.padding(.vertical,6).onChange(of:agentSort){agentAscending=$0 == .name}
+    }
+    private func agentRow(_ agent:TokenAgentUsage)->some View {
+        let selected=provider==agent.id
+        let accessibilityValue=L("总 Token")+" "+TokenFormat.number(agent.counts.total)+", "+L("缓存命中率")+" "+TokenFormat.percent(agent.counts.cacheHitRate)
+        return Button {provider = selected ? "all":agent.id} label:{
+            agentRowContent(agent).padding(.horizontal,8).frame(height:34).contentShape(Rectangle())
+                .appBackground(selected ? Palette.controlHover:Color.clear,in:RoundedRectangle(cornerRadius:6))
+        }.buttonStyle(.plain).help(L("点击筛选该 Agent，再次点击显示全部"))
+            .accessibilityElement(children:.ignore).accessibilityLabel(AgentProviderArtwork.title(agent.provider))
+            .accessibilityValue(accessibilityValue).accessibilityIdentifier("tokenAgentRow-"+agent.id)
+    }
+    private func agentRowContent(_ agent:TokenAgentUsage)->some View {
+        HStack(spacing:10) {
+            HStack(spacing:7) {AgentProviderBadge(provider:agent.provider,size:23);Text(AgentProviderArtwork.title(agent.provider)).lineLimit(1)}.frame(maxWidth:.infinity,alignment:.leading)
+            agentColumn(TokenFormat.compact(agent.counts.total),emphasis:true)
+            agentColumn(TokenFormat.compact(agent.counts.input))
+            agentColumn(TokenFormat.compact(agent.counts.output))
+            agentColumn(TokenFormat.percent(agent.counts.cacheHitRate))
+        }.font(AppTypography.caption).appMonospacedDigit().foregroundColor(Palette.primaryText)
+    }
+    private func agentColumn(_ text:String,emphasis:Bool=false)->some View {
+        Text(text).lineLimit(1).minimumScaleFactor(0.8).frame(width:76,alignment:.trailing).foregroundColor(emphasis ? Palette.violet:Palette.secondaryText)
     }
     private var cacheHitHelp:String {
         [L("缓存命中率 = 缓存读取 Token ÷ 输入 Token；输入已包含缓存读取与写入。"),
@@ -201,6 +240,11 @@ struct TokenUsageSection:View {
         if period == .day {return index%4==0 ? String(Calendar.current.component(.hour,from:bucket.id)):""}
         if period == .month {return index==0 || (index+1)%5==0 ? String(index+1):""}
         let formatter=DateFormatter();formatter.locale=ElectricityFormat.locale;formatter.setLocalizedDateFormatFromTemplate(period == .year ? "MMM":"EEE");return formatter.string(from:bucket.id)
+    }
+}
+extension TokenAgentSort {
+    var title:String {
+        switch self {case .total:return "总 Token";case .input:return "输入";case .output:return "输出";case .cacheHitRate:return "缓存命中率";case .name:return "名称"}
     }
 }
 enum TokenFormat {

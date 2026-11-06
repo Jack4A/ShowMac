@@ -7250,5 +7250,35 @@
   },
   "按当前工具和时间范围的日志合计计算；无输入时显示 —。未上报的缓存细分无法反映实际命中情况。": {
     "en": "Calculated from recorded totals for the selected tool and time range; no input shows —. Unreported cache details cannot describe actual cache performance."
+  },
+  "全部 Agent": {
+    "en": "All agents"
+  },
+  "按 Agent 筛选": {
+    "en": "Filter by agent"
+  },
+  "Agent 统计": {
+    "en": "Agent statistics"
+  },
+  "Agent 排序": {
+    "en": "Sort agents"
+  },
+  "总 Token": {
+    "en": "Total tokens"
+  },
+  "升序": {
+    "en": "Ascending"
+  },
+  "降序": {
+    "en": "Descending"
+  },
+  "切换排序方向": {
+    "en": "Reverse sort order"
+  },
+  "当前时段没有用量记录": {
+    "en": "No usage records in this period"
+  },
+  "点击筛选该 Agent，再次点击显示全部": {
+    "en": "Click to filter this agent; click again to show all"
   }
 }

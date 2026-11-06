@@ -242,17 +242,49 @@ public struct TokenModelUsage:Identifiable {
     public var counts:TokenCounts
     public var requests:Int
 }
+public enum TokenAgentSort:String,CaseIterable {
+    case total,input,output,cacheHitRate,name
+}
+public struct TokenAgentUsage:Identifiable {
+    public var id:String {provider.rawValue}
+    public let provider:TokenProvider
+    public var counts:TokenCounts
+    public var requests:Int
+}
 public struct TokenUsageReport {
     public let events:[TokenUsageEvent]
     public let counts:TokenCounts
     public let buckets:[TokenUsageBucket]
     public let models:[TokenModelUsage]
+    public let agents:[TokenAgentUsage]
+    public func sortedAgents(by sort:TokenAgentSort = .total,ascending:Bool=false)->[TokenAgentUsage] {
+        agents.sorted {left,right in
+            let comparison:ComparisonResult
+            switch sort {
+            case .name:comparison=left.provider.title.localizedCaseInsensitiveCompare(right.provider.title)
+            case .cacheHitRate:
+                // Missing rates stay last in either direction, rather than becoming 0%.
+                guard let a=left.counts.cacheHitRate else{return right.counts.cacheHitRate == nil ? left.id<right.id:false}
+                guard let b=right.counts.cacheHitRate else{return true}
+                comparison=a==b ? .orderedSame:(a<b ? .orderedAscending:.orderedDescending)
+            default:
+                let a=sort == .input ? left.counts.input:(sort == .output ? left.counts.output:left.counts.total)
+                let b=sort == .input ? right.counts.input:(sort == .output ? right.counts.output:right.counts.total)
+                comparison=a==b ? .orderedSame:(a<b ? .orderedAscending:.orderedDescending)
+            }
+            if comparison == .orderedSame {return left.id<right.id}
+            return comparison == (ascending ? .orderedAscending:.orderedDescending)
+        }
+    }
     public init(events:[TokenUsageEvent],in range:DateInterval,provider:TokenProvider?=nil,intervals:[DateInterval]) {
         let selected=events.filter{range.start<=$0.date && $0.date<range.end && (provider==nil || $0.provider==provider)}
         self.events=selected;counts=selected.reduce(TokenCounts()){$0.adding($1.counts)}
         var models:[String:TokenModelUsage]=[:]
+        var agents:[TokenProvider:TokenAgentUsage]=[:]
         var buckets=intervals.map{TokenUsageBucket(interval:$0,counts:TokenCounts(),requests:0)}
         for event in selected {
+            var agent=agents[event.provider] ?? TokenAgentUsage(provider:event.provider,counts:TokenCounts(),requests:0)
+            agent.counts=agent.counts.adding(event.counts);agent.requests+=1;agents[event.provider]=agent
             let key=event.provider.rawValue+":"+event.model
             var model=models[key] ?? TokenModelUsage(provider:event.provider,model:event.model,counts:TokenCounts(),requests:0)
             model.counts=model.counts.adding(event.counts);model.requests+=1;models[key]=model
@@ -261,5 +293,6 @@ public struct TokenUsageReport {
             }
         }
         self.models=models.values.sorted{$0.counts.total==$1.counts.total ? $0.id<$1.id:$0.counts.total>$1.counts.total};self.buckets=buckets
+        self.agents=agents.values.sorted{$0.id<$1.id}
     }
 }

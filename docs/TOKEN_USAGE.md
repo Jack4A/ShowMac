@@ -45,3 +45,7 @@ Chinese compact totals use 万 / 百万 / 千万 / 亿 / 万亿 (Traditional Chi
 ## Cache hit rate (1.18.20)
 
 The summary card shows recorded cache-read tokens / input tokens for the selected tool and time range. Input already includes cache reads and cache writes; output is excluded. Aggregate counts first, then divide, rather than averaging per-event percentages. No input or inconsistent counters show unavailable. Hover to inspect the exact numerator and denominator. Counts remain stored unchanged; sources that omit cache details cannot describe their actual caching performance.
+
+## Agent statistics
+
+Use the Agent selector to filter agents with locally recorded usage, or click an Agent statistics row. Click the selected row again to show all agents. Cards, trends, models and agent rows share the selected date range and agent filter. Sort the list by total tokens, input, output, cache hit rate or name, then use the arrow button to reverse the direction. Missing cache hit rates remain last; all model records for one agent are combined before the rate is calculated. The list scrolls to expose every recorded agent, without a top-six cutoff. All 60 supported source adapters remain available in data sources.

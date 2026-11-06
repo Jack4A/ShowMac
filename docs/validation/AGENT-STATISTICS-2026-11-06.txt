@@ -1,0 +1,20 @@
+ShowMac 1.18.21 / 288 — Agent filtering and sorting
+
+138 core checks passed. New fixtures aggregate multiple models per agent, verify
+provider/date boundaries and shared bucket/model totals, cover total/input/output/
+name/cache-rate ordering, stable ties and unavailable rates last in both directions.
+The weighted cache-rate checks from 1.18.20 remain enabled.
+
+English/Chinese/Traditional conversion and 1227 localization keys passed. Token
+formatting and metadata-only quota checks passed. 26 light/dark layouts rendered
+per language; taller Token captures expose all four sample agent rows. Chinese/light
+and English/dark layouts visually inspected. Fixture checks preserve preferences
+and never write hardware or use real account settings.
+
+Installed local 1.18.21 and verified cache hit percentage, whole-row agent filtering,
+click-again return to all agents, cache-rate sort choice and ascending direction in
+the real UI. Local data only contained Codex; multi-agent ordering was verified
+with core fixtures and four-agent renders. Public images contain example data only.
+
+Local SDK 27 build targets 12; production source/CI targets macOS 11. Physical older
+OS validation remains pending. No new account access, imports or history schema.
