@@ -65,6 +65,9 @@ import ThermalCore
                 model.statusPanel.showProcesses=false
                 let previewHeight:CGFloat=122+78+StatusCardLayout.height(count:model.statusPanel.cards.count)+122
                 evidence[theme+"-popover"]=try render(StatusOverview(model:model,height:previewHeight,onNavigate:{_ in},onSettings:{},onActions:{},onResize:{_ in}),name:theme+"-popover",size:CGSize(width:390,height:previewHeight));count+=1
+                let dragging=StatusCardDragController(model:model)
+                dragging.begin(model.statusPanel.cards[0].id);dragging.removalTarget=true
+                _=try render(StatusOverview(model:model,height:previewHeight,onNavigate:{_ in},onSettings:{},onActions:{},onResize:{_ in},dragController:dragging),name:theme+"-card-drag-popover",size:CGSize(width:390,height:previewHeight));count+=1
                 model.menuComposition=previousComponents;model.statusPanel.showProcesses=previousProcesses
                 _=try render(FanSceneManager(model:model,curve:.balanced,onClose:{}),name:theme+"-scene-manager-popover",size:CGSize(width:520,height:580));count+=1
                 model.fanStopTimer=try FanStopTimer(minutes:30)
@@ -76,7 +79,7 @@ import ThermalCore
                 let encoder=JSONEncoder();encoder.outputFormatting=[.prettyPrinted,.sortedKeys]
                 try encoder.encode(evidence).write(to:URL(fileURLWithPath:folder).appendingPathComponent("appearance-metrics.json"))
             }
-            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, electricity, token tabs, quota, tokens, metric detail, settings, popover, scene manager and stop timer). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
+            print("PASS: \(count) unified light/dark layouts (overview, fan curve, sensors, diagnosis, electricity, token tabs, quota, tokens, metric detail, settings, popover, native drag state, scene manager and stop timer). Current-OS rendering only; not a macOS 11 runtime certification. No hardware writes or saved preference changes.")
         } catch {print("FAIL: "+error.localizedDescription);exit(1)}
     }
     private struct RenderEvidence:Codable {

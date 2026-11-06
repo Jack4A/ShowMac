@@ -51,3 +51,9 @@ Pushes and pull requests build artifacts only. A matching version tag publishes 
 The checks also render fourteen light/dark layouts using the macOS 11/12 control paths on the current runner. A separate matrix renders the exact same checked binary in titled windows on macOS 26 and 27, uploads PNGs and measurements, and blocks publication if sidebar geometry or measured colors drift. This is not old-OS runtime certification; physical-device macOS 11/12 validation remains pending.
 
 Runner references: [macOS 26 software](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md), [Apple deployment targets](https://developer.apple.com/xcode/system-requirements).
+
+## Explicit single-run publishing
+
+Manual **Build and Release → Run workflow** offers `publish` (default false). When true, the Info.plist version is published only after the same native checks, macOS appearance comparison, dual-architecture packaging and asset checks pass. It creates the version tag at the checked commit using the workflow token, avoiding a second tag-triggered build. Normal main pushes remain build-only; tag publication still works. Published releases cannot be overwritten. Running this on main also makes the engine cache available to later branch/tag builds.
+
+GitHub references: [GITHUB_TOKEN event behavior](https://docs.github.com/en/actions/concepts/security/github_token), [manual workflow inputs](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow).

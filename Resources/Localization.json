@@ -7226,5 +7226,20 @@
   },
   "最近报告": {
     "en": "Last reported"
+  },
+  "按住卡片拖动排序，拖到底部移除；点击查看详情。": {
+    "en": "Hold and drag to reorder; drop at the bottom to remove. Click for details."
+  },
+  "至少保留一个指标卡片": {
+    "en": "Keep at least one metric card"
+  },
+  "Token 用量与余量": {
+    "en": "Token usage and allowance"
+  },
+  "显示 Token 用量与余量": {
+    "en": "Show Token usage and allowance"
+  },
+  "工具报告的额度，与 Token 累计分开统计。": {
+    "en": "Reported allowance is separate from token totals."
   }
 }

@@ -6,6 +6,11 @@ on:
     tags: ['v*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the Info.plist version after every release gate succeeds
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -46,11 +51,13 @@ jobs:
           sdk="$(xcrun --sdk macosx --show-sdk-version)"
           test "$sdk" = 26.5
           python3 - <<'PYCODE'
-          import os, plistlib
+          import json, os, plistlib
           from pathlib import Path
           version = plistlib.loads(Path('Resources/Info.plist').read_bytes())['CFBundleShortVersionString']
           if os.environ['GITHUB_REF'].startswith('refs/tags/'):
               assert os.environ['GITHUB_REF_NAME'] == 'v' + version, 'Tag must match Info.plist version'
+          event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
+          if os.environ['GITHUB_REF'].startswith('refs/tags/') or event.get('inputs', {}).get('publish') in ('true', True):
               assert Path('docs/releases/v' + version + '.md').is_file(), 'Missing release notes'
           PYCODE
       - name: Check website routing
@@ -181,7 +188,7 @@ jobs:
 
   release:
     name: Publish version tag
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.publish)
     needs: [package, compare-appearance]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -198,18 +205,24 @@ jobs:
           merge-multiple: true
       - name: Verify release pair
         run: |
+          version="$(python3 -c 'import plistlib; print(plistlib.load(open("Resources/Info.plist", "rb"))["CFBundleShortVersionString"])')"
           python3 scripts/verify-release-assets.py dist \
-            --version "${GITHUB_REF_NAME#v}" --commit "$(git rev-parse HEAD)"
+            --version "$version" --commit "$(git rev-parse HEAD)"
       - name: Upload verified assets and publish
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          tag="$GITHUB_REF_NAME"
+          version="$(python3 -c 'import plistlib; print(plistlib.load(open("Resources/Info.plist", "rb"))["CFBundleShortVersionString"])')"
+          tag="v$version"
+          remote_commit="$(git ls-remote origin "refs/tags/$tag" "refs/tags/$tag^{}" | tail -1 | cut -f1)"
+          if [[ -n "$remote_commit" ]]; then test "$remote_commit" = "$(git rev-parse HEAD)"; fi
+          tag_args=(--target "$(git rev-parse HEAD)")
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then tag_args=(--verify-tag); fi
           if gh release view "$tag" --json isDraft > "$RUNNER_TEMP/existing-release.json" 2>/dev/null; then
             python3 -c 'import json,sys; assert json.load(open(sys.argv[1]))["isDraft"], "Refusing to overwrite a published release"' "$RUNNER_TEMP/existing-release.json"
           else
-            gh release create "$tag" --draft --verify-tag \
+            gh release create "$tag" --draft "${tag_args[@]}" \
               --title "ShowMac $tag · Intel + Apple Silicon" \
               --notes-file "docs/releases/$tag.md"
           fi

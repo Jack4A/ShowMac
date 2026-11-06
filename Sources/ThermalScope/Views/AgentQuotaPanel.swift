@@ -35,25 +35,29 @@ struct AgentQuotaPanel:View {
     @ObservedObject var store:TokenUsageStore
     @State private var connecting=false
     init(model:AppModel){self.model=model;self.store=model.tokens}
-    private var rows:[AgentQuotaWindow] {
-        store.quotas.sorted {a,b in
-            let left=a.provider.rawValue+(a.pool=="codex" || a.pool=="default" ? "0":"1")
-            let right=b.provider.rawValue+(b.pool=="codex" || b.pool=="default" ? "0":"1")
-            return left==right ? (a.minutes ?? 0)<(b.minutes ?? 0):left<right
-        }
+    private struct Group:Identifiable {
+        let provider:TokenProvider
+        let pool:String
+        let rows:[AgentQuotaWindow]
+        var id:String {provider.rawValue+":"+pool}
+    }
+    private var groups:[Group] {
+        Dictionary(grouping:store.quotas,by:{$0.provider.rawValue+":"+$0.pool}).values.compactMap {rows in
+            guard let first=rows.first else{return nil}
+            return Group(provider:first.provider,pool:first.pool,rows:rows.sorted{($0.minutes ?? 0)<($1.minutes ?? 0)})
+        }.sorted{$0.id<$1.id}
     }
     var body:some View {
         VStack(alignment:.leading,spacing:14) {
             HStack {
-                Label(L("账户额度"),systemImage:"chart.pie").font(AppTypography.section)
-                Text(L("最近报告")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+                Text(L("账户额度")).font(AppTypography.section)
                 Spacer()
-                Button {connecting=true} label:{Label(L("Claude Code 同步"),systemImage:"link")}.buttonStyle(AppChoiceButtonStyle()).font(AppTypography.caption)
+                Button {connecting=true} label:{HStack(spacing:5) {AgentProviderBadge(provider:.claude,size:17,background:false);Text(L("Claude Code 同步"))}}.buttonStyle(AppChoiceButtonStyle()).font(AppTypography.caption)
                     .accessibilityIdentifier("claudeQuotaConnection")
             }
-            if rows.isEmpty {
+            if groups.isEmpty {
                 HStack(spacing:12) {
-                    Image(systemName:"hourglass").font(.system(size:24)).foregroundColor(Palette.violet)
+                    AgentProviderBadge(provider:.codex,size:36)
                     VStack(alignment:.leading,spacing:6) {
                         Text(L("等待工具报告额度")).font(AppTypography.body)
                         Text(L("Codex 自动读取最近的额度记录；Claude Code 可启用本机同步。"))
@@ -62,45 +66,73 @@ struct AgentQuotaPanel:View {
                     Spacer(minLength:0)
                 }.padding(.vertical,6)
             } else {
-                LazyVGrid(columns:rows.count==1 ? [GridItem(.flexible())]:[GridItem(.flexible()),GridItem(.flexible())],alignment:.leading,spacing:12) {
-                    ForEach(rows) {row in quotaCard(row)}
-                }
+                ForEach(groups) {group in providerCard(group)}
             }
-            Text(L("余量来自工具报告，与本机 Token 累计独立；超过 15 分钟未更新或已重置的读数不作为当前余量。"))
-                .font(AppTypography.caption).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+            HStack(spacing:5) {
+                Image(systemName:"info.circle")
+                Text(L("工具报告的额度，与 Token 累计分开统计。"))
+            }.font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+                .help(L("余量来自工具报告，与本机 Token 累计独立；超过 15 分钟未更新或已重置的读数不作为当前余量。"))
         }.subtlePanel(padding:18).sheet(isPresented:$connecting){ClaudeQuotaConnectionSheet(store:store,preview:model.isFanControlPreview)}
     }
-    private func quotaCard(_ row:AgentQuotaWindow)->some View {
+    private func providerCard(_ group:Group)->some View {
+        VStack(alignment:.leading,spacing:14) {
+            HStack(spacing:10) {
+                AgentProviderBadge(provider:group.provider,size:32)
+                VStack(alignment:.leading,spacing:3) {
+                    Text(AgentProviderArtwork.title(group.provider)).font(AppTypography.body).fontWeight(.semibold)
+                    if !["codex","default"].contains(group.pool) {Text(group.rows.first?.poolName ?? group.pool).font(AppTypography.caption).foregroundColor(Palette.secondaryText)}
+                }
+                Spacer(minLength:4)
+                if let latest=group.rows.max(by:{$0.observedAt<$1.observedAt}) {
+                    Text(L("最近报告")+" · "+QuotaFormat.updated(latest)).font(.system(size:10)).foregroundColor(Palette.secondaryText)
+                        .help(ElectricityFormat.powerDate(latest.observedAt))
+                }
+            }
+            if group.rows.count==1,let row=group.rows.first {quotaWindow(row,compact:true)}
+            else {
+                LazyVGrid(columns:[GridItem(.flexible()),GridItem(.flexible())],alignment:.leading,spacing:14) {
+                    ForEach(group.rows) {row in quotaWindow(row)}
+                }
+            }
+        }.padding(14).appBackground(AgentProviderArtwork.color(group.provider).opacity(0.04),in:RoundedRectangle(cornerRadius:14,style:.continuous))
+    }
+    private func quotaWindow(_ row:AgentQuotaWindow,compact:Bool=false)->some View {
         let remaining=row.remaining(),pinned=model.hasTokenMetric(.tokenQuota,provider:row.provider.rawValue,quotaID:row.id)
-        return VStack(alignment:.leading,spacing:10) {
-            HStack {
-                Text(row.provider.title).font(AppTypography.body)
-                Spacer(minLength:6)
-                Button {model.pinTokenMetric(.tokenQuota,provider:row.provider.rawValue,quotaID:row.id)} label:{Image(systemName:pinned ? "checkmark":"pin")}
-                    .buttonStyle(.borderless).disabled(pinned || model.effectiveMenuComponents.count>=MenuBarComponent.limit).help(L("显示在状态栏")).accessibilityLabel(row.provider.title+" · "+QuotaFormat.window(row)+" · "+L("显示在状态栏"))
-            }
+        return VStack(alignment:.leading,spacing:9) {
             HStack(alignment:.firstTextBaseline,spacing:6) {
-                Text(remaining.map{QuotaFormat.percent($0)} ?? "—").font(AppTypography.number(27,weight:.semibold)).foregroundColor(QuotaFormat.color(remaining)).appMonospacedDigit()
-                Text(L(remaining==nil ? "等待更新":"剩余")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-                Spacer(minLength:0)
-                Text(QuotaFormat.window(row)).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+                if compact {
+                    VStack(alignment:.leading,spacing:5) {
+                        Text(QuotaFormat.window(row)).font(AppTypography.body)
+                        resetLabel(row)
+                    }
+                    Spacer(minLength:4)
+                } else {Text(QuotaFormat.window(row)).font(AppTypography.caption).foregroundColor(Palette.secondaryText);Spacer(minLength:4)}
+                if compact {percent(remaining)}
+                Button {model.pinTokenMetric(.tokenQuota,provider:row.provider.rawValue,quotaID:row.id)} label:{Image(systemName:pinned ? "checkmark":"pin")}
+                    .buttonStyle(.borderless).disabled(pinned || model.effectiveMenuComponents.count>=MenuBarComponent.limit).help(L("显示在状态栏")).accessibilityLabel(AgentProviderArtwork.title(row.provider)+" · "+QuotaFormat.window(row)+" · "+L("显示在状态栏"))
             }
+            if !compact {percent(remaining)}
             GeometryReader {proxy in
                 ZStack(alignment:.leading) {
                     Capsule().fill(Palette.violet.opacity(0.09))
                     if let remaining {Capsule().fill(QuotaFormat.color(remaining)).frame(width:max(0,proxy.size.width*remaining/100))}
                 }
             }.frame(height:5).accessibilityLabel(L("额度余量")).accessibilityValue(remaining.map{QuotaFormat.percent($0)} ?? L("未提供"))
-            HStack {
-                Text(QuotaFormat.reset(row)).lineLimit(1)
-                Spacer(minLength:3)
-                Text(QuotaFormat.updated(row)).lineLimit(1).font(.system(size:9))
-            }.font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-            if !["codex","default"].contains(row.pool) {Text(row.poolName ?? row.pool).font(.system(size:10)).foregroundColor(Palette.secondaryText).lineLimit(1)}
-        }.padding(14).appBackground(Palette.violet.opacity(0.045),in:RoundedRectangle(cornerRadius:12,style:.continuous))
-            .help(L("工具最近报告")+" · "+ElectricityFormat.powerDate(row.observedAt))
+            if !compact {resetLabel(row)}
+        }.padding(compact ? 0:12).appBackground(compact ? Color.clear:Palette.surface.opacity(0.65),in:RoundedRectangle(cornerRadius:10))
+    }
+    private func percent(_ remaining:Double?)->some View {
+        HStack(alignment:.firstTextBaseline,spacing:5) {
+            Text(remaining.map{QuotaFormat.percent($0)} ?? "—").font(AppTypography.number(29,weight:.semibold)).foregroundColor(QuotaFormat.color(remaining)).appMonospacedDigit()
+            Text(L(remaining==nil ? "等待更新":"剩余")).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+        }.fixedSize(horizontal:true,vertical:false)
+    }
+    private func resetLabel(_ row:AgentQuotaWindow)->some View {
+        Label(QuotaFormat.reset(row),systemImage:"clock").font(.system(size:10)).foregroundColor(Palette.secondaryText).lineLimit(1)
     }
 }
+
 struct ClaudeQuotaConnectionSheet:View {
     @ObservedObject var store:TokenUsageStore
     let preview:Bool
@@ -137,13 +169,15 @@ struct StatusTokenSummary:View {
     var body:some View {
         let usage=model.effectiveMenuComponents.first{$0.metric == .tokens},quota=model.effectiveMenuComponents.first{$0.metric == .tokenQuota}
         let count=model.tokenMenuReading(metric:.tokens,configuration:usage?.token ?? TokenMenuConfiguration())
-        let remaining=model.tokenMenuReading(metric:.tokenQuota,configuration:quota?.token ?? TokenMenuConfiguration())
+        let quotaConfig=quota?.token ?? TokenMenuConfiguration(provider:usage?.token?.tool?.rawValue ?? "codex")
+        let provider=quotaConfig.tool ?? .codex
+        let remaining=model.tokenMenuReading(metric:.tokenQuota,configuration:quotaConfig)
         return Button(action:onOpen) {
             HStack(spacing:12) {
                 Image(systemName:"number.circle").foregroundColor(Palette.violet)
                 VStack(alignment:.leading,spacing:4) {Text(L((usage?.token?.period ?? .day).currentTitle)+" Token").font(AppTypography.caption).foregroundColor(Palette.secondaryText);Text(count.text).font(AppTypography.number(18,weight:.semibold))}
                 Spacer(minLength:4)
-                VStack(alignment:.trailing,spacing:4) {Text(L("账户余量")).font(AppTypography.caption).foregroundColor(Palette.secondaryText);Text(remaining.text).font(AppTypography.number(18,weight:.semibold))}
+                VStack(alignment:.trailing,spacing:4) {HStack(spacing:4) {AgentProviderBadge(provider:provider,size:15,background:false);Text(AgentProviderArtwork.title(provider)+" · "+L("余量"))}.font(AppTypography.caption).foregroundColor(Palette.secondaryText);Text(remaining.text).font(AppTypography.number(18,weight:.semibold))}
                 Image(systemName:"chevron.right").font(.system(size:10)).foregroundColor(Palette.secondaryText)
             }.padding(12).contentShape(Rectangle()).modifier(StatusCardSurface())
         }.buttonStyle(.plain).help(count.title+" · "+remaining.title).accessibilityLabel("Token · "+count.text+" · "+L("账户余量")+" "+remaining.text)

@@ -72,6 +72,7 @@ struct StatusPanelConfiguration:Codable,Equatable {
     var cards:[StatusCardSource]=[.metric(.cpuTemperature),.metric(.cpuUsage),.metric(.fan),.metric(.memory)]
     var showFanControls=true
     var showProcesses=true
+    var showTokenSummary:Bool?=nil
     static func decode(_ data:Data?)->Self {
         guard let data,let saved=try? JSONDecoder().decode(Self.self,from:data) else{return Self()}
         var result=saved,seen=Set<String>()
@@ -82,6 +83,14 @@ struct StatusPanelConfiguration:Codable,Equatable {
 }
 
 extension AppModel {
+    var showsStatusTokenSummary:Bool {statusPanel.showTokenSummary ?? effectiveMenuComponents.contains{$0.metric.isToken}}
+    @discardableResult func moveStatusCard(id:String,before target:String)->Bool {
+        guard id != target,let index=statusPanel.cards.firstIndex(where:{$0.id==id}),statusPanel.cards.contains(where:{$0.id==target}) else{return false}
+        var cards=statusPanel.cards
+        let item=cards.remove(at:index)
+        let destination=cards.firstIndex(where:{$0.id==target})!
+        cards.insert(item,at:destination);statusPanel.cards=cards;return true
+    }
     var retainedSensorReferences:[MenuSensorReference] {Array(Set(effectiveMenuComponents.compactMap(\.sensor)+statusPanel.cards.compactMap(\.sensor)))}
     @discardableResult func addStatusCard(_ source:StatusCardSource)->Bool {
         guard source.isValid,statusPanel.cards.count<StatusPanelConfiguration.limit,!statusPanel.cards.contains(source) else{return false}

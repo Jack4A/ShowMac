@@ -7,6 +7,7 @@ struct StatusOverview:View {
     @ObservedObject var readings:LiveReadings
     @ObservedObject var control:FanControlReadings
     @State private var editing=false
+    @StateObject private var drag:StatusCardDragController
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorScheme) private var scheme
     let height:CGFloat
@@ -14,14 +15,15 @@ struct StatusOverview:View {
     let onSettings:()->Void
     let onActions:()->Void
     let onResize:(CGFloat)->Void
-    init(model:AppModel,height:CGFloat,onNavigate:@escaping(String)->Void,onSettings:@escaping()->Void,onActions:@escaping()->Void,onResize:@escaping(CGFloat)->Void) {
+    init(model:AppModel,height:CGFloat,onNavigate:@escaping(String)->Void,onSettings:@escaping()->Void,onActions:@escaping()->Void,onResize:@escaping(CGFloat)->Void,dragController:StatusCardDragController?=nil) {
+        self._drag=StateObject(wrappedValue:dragController ?? StatusCardDragController(model:model))
         self.model=model;self.readings=model.readings;self.control=model.fanControl;self.height=height
         self.onNavigate=onNavigate;self.onSettings=onSettings;self.onActions=onActions;self.onResize=onResize
     }
     private var panelHeight:CGFloat {
         if editing {return height}
         let fanHeight=model.statusPanel.showFanControls ? 122+(model.systemFanHeatWarning || control.status?.protectionActive==true ? 18:0):0
-        let tokenHeight=model.effectiveMenuComponents.contains{$0.metric.isToken} ? 78:0
+        let tokenHeight=model.showsStatusTokenSummary ? 78:0
         let contents=122+CGFloat(tokenHeight)+StatusCardLayout.height(count:model.statusPanel.cards.count)+CGFloat(fanHeight)+(model.statusPanel.showProcesses ? 110:0)+(model.messageIsError ? 32:0)
         return min(height,max(240,contents))
     }
@@ -41,15 +43,19 @@ struct StatusOverview:View {
                             ForEach(Array(stride(from:0,to:model.statusPanel.cards.count,by:2)),id:\.self) {index in
                                 HStack(spacing:StatusCardLayout.spacing) {
                                     let source=model.statusPanel.cards[index]
-                                    StatusMetricCard(model:model,source:source,wide:index+1==model.statusPanel.cards.count,onOpen:{onNavigate(source.destination)})
+                                    draggableCard(source,wide:index+1==model.statusPanel.cards.count)
                                     if index+1<model.statusPanel.cards.count {
                                         let next=model.statusPanel.cards[index+1]
-                                        StatusMetricCard(model:model,source:next,onOpen:{onNavigate(next.destination)})
+                                        draggableCard(next)
                                     }
                                 }
                             }
                         }.padding(.top,2).padding(.horizontal,1)
-                        if model.effectiveMenuComponents.contains(where:{$0.metric.isToken}) {StatusTokenSummary(model:model,onOpen:{onNavigate("tokens")})}
+                        if model.showsStatusTokenSummary {
+                            StatusTokenSummary(model:model,onOpen:{onNavigate("tokens")})
+                                .opacity(drag.sourceID==StatusCardDragController.tokenSummary ? 0.45:1)
+                                .appOverlay {StatusCardDragSurface(controller:drag,id:StatusCardDragController.tokenSummary,title:L("Token 用量与余量"),onOpen:{onNavigate("tokens")})}
+                        }
                         if model.statusPanel.showFanControls {
                             StatusFanControl(model:model,onManage:{model.navigation.showFanSceneManager=true;onNavigate("thermal")})
                         }
@@ -62,12 +68,30 @@ struct StatusOverview:View {
                 }
             }
             Divider().opacity(0.6)
-            footer.padding(.top,8)
+            Group {
+                if drag.active {
+                    Label(L(drag.sourceID.map{drag.canRemove($0)} == true ? "拖到这里移除":"至少保留一个指标卡片"),systemImage:"trash")
+                        .font(AppTypography.caption).foregroundColor(drag.removalTarget ? .white:.red)
+                        .frame(maxWidth:.infinity,minHeight:32)
+                        .appBackground(drag.removalTarget ? Color.red:Color.red.opacity(0.07),in:RoundedRectangle(cornerRadius:8))
+                        .appOverlay {StatusCardDragSurface(controller:drag,trash:true)}
+                        .accessibilityIdentifier("statusCardRemovalZone")
+                } else {footer}
+            }.padding(.top,8)
         }.foregroundColor(Palette.primaryText).font(AppTypography.body).padding(.horizontal,16).padding(.vertical,12).frame(width:390,height:panelHeight)
             .appBackground {Palette.canvas}
             .id(model.language).environment(\.locale,Locale(identifier:AppLocalization.shared.resolvedLanguage)).preferredColorScheme(model.colorScheme)
             .transaction{$0.animation=nil;$0.disablesAnimations=true}
+            .onDisappear{drag.end()}
             .onAppear{onResize(panelHeight)}.onChange(of:panelHeight){onResize($0)}
+    }
+    private func draggableCard(_ source:StatusCardSource,wide:Bool=false)->some View {
+        StatusMetricCard(model:model,source:source,wide:wide,onOpen:{onNavigate(source.destination)})
+            .opacity(drag.sourceID==source.id ? 0.45:1)
+            .appOverlay {
+                RoundedRectangle(cornerRadius:12).stroke(drag.targetID==source.id ? Palette.violet:Color.clear,lineWidth:2).allowsHitTesting(false)
+            }
+            .appOverlay {StatusCardDragSurface(controller:drag,id:source.id,title:source.title(model),detail:source.valueText(source.value(readings))+" "+source.unit,onOpen:{onNavigate(source.destination)})}
     }
     var header:some View {
         VStack(spacing:5) {

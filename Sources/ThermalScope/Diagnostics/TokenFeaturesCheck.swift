@@ -10,6 +10,7 @@ import ThermalCore
         let root=FileManager.default.temporaryDirectory.appendingPathComponent("showmac-token-features-"+UUID().uuidString)
         defer{try? FileManager.default.removeItem(at:root)}
         do {
+            guard AgentProviderArtwork.image(.codex)?.isValid==true,AgentProviderArtwork.image(.claude)?.isValid==true else{throw ScopeError.message("Provider artwork not bundled")}
             let localized:[(Int64,String)]=[(9999,"9,999"),(10_000,"1万"),(75_750,"7.58万"),(1_500_000,"1.5百万"),(25_000_000,"2.5千万"),(559_710_000,"5.6亿"),(1_200_000_000_000,"1.2万亿")]
             for (value,expected) in localized {guard TokenFormat.compact(value,language:"zh-Hans")==expected else{throw ScopeError.message("Chinese token magnitude: "+String(value))}}
             guard TokenFormat.compact(1_500_000,language:"en")=="1.5M",TokenFormat.compact(75_750,language:"en")=="75.75K",TokenFormat.compact(559_710_000,language:"zh-Hant")=="5.6億",!TokenFormat.compact(Int64.max,language:"zh-Hans").isEmpty else{throw ScopeError.message("Token magnitude locale or overflow")}

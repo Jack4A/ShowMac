@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 import ThermalCore
 
 @MainActor enum StatusCardsCheck {
@@ -34,6 +35,23 @@ import ThermalCore
             try require(!model.addStatusCard(power) && !model.addStatusCard(.sensor(MenuSensorReference(key:"NOPE",kind:.power))),"Duplicate/unavailable sensor accepted")
             try require(power.valueText(power.value(model.readings))=="-2.12" && current.valueText(current.value(model.readings))=="-1.250","Signed values or precision lost")
             try require(power.unit=="W" && current.unit=="A" && power.warningKind==nil,"Power/current units or temperature classification wrong")
+            let drag=StatusCardDragController(model:model),originalCards=model.statusPanel.cards
+            let first=originalCards.first!,last=originalCards.last!
+            drag.begin(first.id)
+            try require(drag.resolve("unrelated-external-file")==nil && !drag.remove("unrelated-external-file") && model.statusPanel.cards==originalCards,"External drag payload changed cards")
+            drag.targetID=last.id;drag.end()
+            try require(model.statusPanel.cards==originalCards && !drag.active,"Hover or cancelled drag edited cards")
+            drag.begin(first.id)
+            try require(drag.move(drag.token(first.id),before:last.id) && model.statusPanel.cards[model.statusPanel.cards.count-2]==first,"Drop did not commit card ordering")
+            drag.end();model.statusPanel.cards=originalCards
+            model.statusPanel.showTokenSummary=true;drag.begin(StatusCardDragController.tokenSummary)
+            try require(drag.remove(drag.token(StatusCardDragController.tokenSummary)) && !model.showsStatusTokenSummary,"Token summary cannot be independently hidden")
+            drag.end()
+            let visibility=StatusPanelConfiguration.decode(try JSONEncoder().encode(model.statusPanel))
+            try require(visibility.showTokenSummary==false,"Token summary visibility not retained")
+            model.statusPanel.showTokenSummary=nil
+            var legacy=try JSONSerialization.jsonObject(with:JSONEncoder().encode(model.statusPanel)) as! [String:Any];legacy.removeValue(forKey:"showTokenSummary")
+            try require(StatusPanelConfiguration.decode(try JSONSerialization.data(withJSONObject:legacy)).cards==originalCards,"Legacy cards lost after adding visibility")
             let index=model.statusPanel.cards.firstIndex(of:power)!
             model.moveStatusCard(power,by:-1)
             try require(model.statusPanel.cards[index-1]==power,"Card order not updated")
@@ -65,13 +83,23 @@ import ThermalCore
                 model.sensorHistory.record(sample(195),menuSensors:model.retainedSensorReferences,publish:false)
                 try require(model.sensorHistory.points(for:power.sensor!,minutes:5).isEmpty,"Unselected physical sensor history retained")
             }
+            let controller=NSHostingController(rootView:StatusOverview(model:model,height:640,onNavigate:{_ in},onSettings:{},onActions:{},onResize:{_ in}))
+            let window=NSWindow(contentRect:NSRect(x:0,y:0,width:390,height:640),styleMask:.borderless,backing:.buffered,defer:false)
+            window.contentViewController=controller;controller.view.frame=NSRect(x:0,y:0,width:390,height:640);controller.view.layoutSubtreeIfNeeded()
+            func descendants(_ view:NSView)->[NSView] {view.subviews.flatMap{[$0]+descendants($0)}}
+            let surfaces=descendants(controller.view).compactMap{$0 as? StatusCardDragView}.filter{$0.cardID != nil}
+            try require(surfaces.count>=model.statusPanel.cards.count && surfaces.allSatisfy{$0.bounds.width>=100 && $0.bounds.height>=40},"Native drag hit areas do not fill visible cards")
+            window.contentViewController=nil
             while model.statusPanel.cards.count>1 {model.removeStatusCard(model.statusPanel.cards[0])}
+            drag.begin(model.statusPanel.cards[0].id)
+            try require(!drag.remove(drag.token(model.statusPanel.cards[0].id)),"Drag removed the last metric card")
+            drag.end()
             model.removeStatusCard(model.statusPanel.cards[0])
             try require(model.statusPanel.cards.count==1,"Removed the last card")
             model.statusPanel.showProcesses=false;model.statusPanel.showFanControls=false
             try require(StatusPanelConfiguration.decode(try JSONEncoder().encode(model.statusPanel))==model.statusPanel,"Section visibility lost on reload")
             try require(model.effectiveMenuComponents==menu && model.menuSpacing==spacing && before.isEqual(preferences()),"Popover editing changed the menu configuration or saved preferences during checks")
-            print("PASS: compact-card defaults, bounded configuration, stable sensor identity/order, all source kinds, telemetry vs CPU, zero/signed/missing values, units/precision, range/gap preservation, shared history retention/release, section visibility, reload and isolated preferences. No hardware writes.")
+            print("PASS: native drag commit/cancel isolation, reorder, independent Token visibility, legacy configuration, compact-card defaults, bounded configuration, stable sensor identity/order, all source kinds, telemetry vs CPU, zero/signed/missing values, units/precision, range/gap preservation, shared history retention/release, section visibility, reload and isolated preferences. No hardware writes.")
         } catch {print("FAIL: "+error.localizedDescription);exit(1)}
     }
 }

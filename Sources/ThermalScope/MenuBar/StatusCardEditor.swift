@@ -26,10 +26,7 @@ struct StatusCardEditor:View {
                 }
             }
             cardRows
-            HStack(spacing:20) {
-                visibilityControls
-                Spacer(minLength:0)
-            }
+            VStack(alignment:.leading,spacing:10) {visibilityControls}
         }
     }
     private var popoverContents:some View {
@@ -59,6 +56,7 @@ struct StatusCardEditor:View {
             .disabled(model.statusPanel.cards.count>=StatusPanelConfiguration.limit).buttonStyle(AppChoiceButtonStyle(expanded:choosing))
     }
     @ViewBuilder private var visibilityControls:some View {
+        Toggle(L("显示 Token 用量与余量"),isOn:Binding(get:{model.showsStatusTokenSummary},set:{model.statusPanel.showTokenSummary=$0}))
         Toggle(L("显示风扇控制"),isOn:$model.statusPanel.showFanControls)
         Toggle(L("显示 CPU 占用排行"),isOn:$model.statusPanel.showProcesses)
     }

@@ -87,7 +87,10 @@ enum MenuBarAppearanceRenderer {
         }
         if component.metric.isToken {
             let value=model.tokenMenuReading(metric:component.metric,configuration:component.token ?? TokenMenuConfiguration())
-            return MenuBarTile(metric:component.metric,style:component.style,label:MenuIconStore.label(component.label,fallback:component.metric.barLabel),value:value.text,number:value.number,points:value.points,upper:value.upper,color:color(hex:component.colorHex),icon:MenuIconStore.icon(component.icon,metric:component.metric,preview:model.isFanControlPreview),displayTitle:value.title,historyRange:value.range)
+            var icon=MenuIconStore.icon(component.icon,metric:component.metric,preview:model.isFanControlPreview)
+            let provider=component.token?.tool ?? (component.metric == .tokenQuota ? TokenProvider.codex:nil)
+            if component.icon==nil || component.icon=="auto",let provider,let artwork=AgentProviderArtwork.image(provider) {icon = .image(artwork)}
+            return MenuBarTile(metric:component.metric,style:component.style,label:MenuIconStore.label(component.label,fallback:component.metric.barLabel),value:value.text,number:value.number,points:value.points,upper:value.upper,color:color(hex:component.colorHex),icon:icon,displayTitle:value.title,historyRange:value.range)
         }
         let metric=component.metric,n=metric.barNumber(model.readings)
         let points=model.metricHistory.points(metric.historyKind,minutes:2)
