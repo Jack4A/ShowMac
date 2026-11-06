@@ -37,3 +37,7 @@ Codex reads bounded tails (up to 1 MiB each) from at most 32 recently modified l
 Claude Code sync is off until explicitly enabled from the connection sheet. The sheet explains its change to ~/.claude/settings.json. The command forwards existing status-line output and captures the documented rate_limits.five_hour / seven_day metadata. Its numeric cache is ~/Library/Application Support/ShowMac/ClaudeQuota/quota.json (0600). The original statusLine configuration, including its command, is separately saved as original-statusline.json (0600) for restoration. No other settings are copied into that restoration record. Conversation input is processed in memory and never written to the allowance cache. The inherited original command retains its previous behavior. Unknown settings formats and configurations changed by other tools are preserved instead of overwritten.
 
 Without a readable local quota source, a tool's token history still works but account allowance is unavailable. Codex and opt-in Claude Code quota are supported in this version; 60-source history support does not imply all 60 services expose a local account allowance.
+
+## Display units (1.18.18)
+
+Chinese compact totals use 万 / 百万 / 千万 / 亿 / 万亿 (Traditional Chinese equivalents when selected), consistently in cards, menu bar components, the popover and tool totals. English keeps K/M/B. Precise sampled and model counts remain unabridged; only presentation changes, never accounting.

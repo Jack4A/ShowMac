@@ -1,4 +1,4 @@
-ShowMac 1.18.17 / 284 — Usage tabs, menu components and account allowance
+ShowMac 1.18.18 / 285 — Usage tabs, menu components and account allowance
 
 Local checks on macOS 27:
 - 136 ThermalCore checks passed, including real-window parsing, quota freshness,
@@ -26,3 +26,7 @@ not imply account allowance support for all sixty tools.
 Local SDK 27 build targets macOS 12; production source targets 11. CI gates both
 architectures with SDK 26.5 and compares rendering on macOS 26/27. Physical older
 OS validation remains pending. No hardware control changed by feature fixtures.
+
+Follow-up: Chinese magnitude formatting tests cover 9,999; 1万; 7.58万;
+1.5百万; 2.5千万; 5.6亿; 1.2万亿; Traditional Chinese, English K/M
+and Int64 maximum input. All token surfaces share the same formatter.

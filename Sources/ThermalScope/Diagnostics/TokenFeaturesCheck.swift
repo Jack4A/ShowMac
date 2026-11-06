@@ -10,6 +10,9 @@ import ThermalCore
         let root=FileManager.default.temporaryDirectory.appendingPathComponent("showmac-token-features-"+UUID().uuidString)
         defer{try? FileManager.default.removeItem(at:root)}
         do {
+            let localized:[(Int64,String)]=[(9999,"9,999"),(10_000,"1万"),(75_750,"7.58万"),(1_500_000,"1.5百万"),(25_000_000,"2.5千万"),(559_710_000,"5.6亿"),(1_200_000_000_000,"1.2万亿")]
+            for (value,expected) in localized {guard TokenFormat.compact(value,language:"zh-Hans")==expected else{throw ScopeError.message("Chinese token magnitude: "+String(value))}}
+            guard TokenFormat.compact(1_500_000,language:"en")=="1.5M",TokenFormat.compact(75_750,language:"en")=="75.75K",TokenFormat.compact(559_710_000,language:"zh-Hant")=="5.6億",!TokenFormat.compact(Int64.max,language:"zh-Hans").isEmpty else{throw ScopeError.message("Token magnitude locale or overflow")}
             let now=Date(),range=ElectricityPeriod.day.interval(containing:now)
             model.tokens.setPreview([TokenUsageEvent(id:"fixture",provider:.codex,date:now,model:"sample",counts:TokenCounts(input:100,output:20,cacheRead:40))])
             model.menuComposition=[MenuBarComponent(metric:.cpu,style:.iconValue)]
@@ -51,7 +54,7 @@ import ThermalCore
             let cached=try String(contentsOf:directory.appendingPathComponent("quota.json"),encoding:.utf8)
             guard !cached.contains("PRIVATE"),cached.contains("usedPercent") else{throw ScopeError.message("Capture retained non-quota data")}
             guard before.isEqual(NSDictionary(dictionary:UserDefaults.standard.persistentDomain(forName:key) ?? [:])) else{throw ScopeError.message("Token fixtures changed preferences")}
-            print("PASS: token menu pinning/dedup, period and provider totals, real graph scale, monochrome rendering, quota expiration, configuration round trip, opt-in Claude status-line preservation/restoration and metadata-only capture. Isolated fixtures; no hardware or real CLI settings changed.")
+            print("PASS: Chinese/English/Traditional token magnitudes, token menu pinning/dedup, period and provider totals, real graph scale, monochrome rendering, quota expiration, configuration round trip, opt-in Claude status-line preservation/restoration and metadata-only capture. Isolated fixtures; no hardware or real CLI settings changed.")
         }catch{fputs("Token feature check failed: \(error)\n",stderr);exit(1)}
     }
 }

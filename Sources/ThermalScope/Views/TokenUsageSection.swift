@@ -194,9 +194,20 @@ struct TokenUsageSection:View {
 }
 enum TokenFormat {
     static func number(_ value:Int64)->String {let f=NumberFormatter();f.locale=ElectricityFormat.locale;f.numberStyle = .decimal;return f.string(from:NSNumber(value:value)) ?? String(value)}
-    static func compact(_ value:Int64)->String {
-        if value<10000 {return number(value)}
-        let divisor:Double=value>=1_000_000_000 ? 1_000_000_000:(value>=1_000_000 ? 1_000_000:1000)
-        return ElectricityFormat.number(Double(value)/divisor,maximum:2)+(divisor==1_000_000_000 ? "B":(divisor==1_000_000 ? "M":"K"))
+    static func compact(_ value:Int64,language:String?=nil)->String {
+        let language=language ?? AppLocalization.shared.resolvedLanguage
+        let formatter=NumberFormatter();formatter.locale=Locale(identifier:language);formatter.numberStyle = .decimal;formatter.usesGroupingSeparator=value<10000;formatter.maximumFractionDigits=2
+        guard value>=10000 else{return formatter.string(from:NSNumber(value:value)) ?? String(value)}
+        let divisor:Double,unit:String
+        if language.hasPrefix("zh") {
+            let traditional=language.hasPrefix("zh-Hant") || language.hasPrefix("zh-TW") || language.hasPrefix("zh-HK") || language.hasPrefix("zh-MO")
+            let units:[(Int64,String)]=[(1_000_000_000_000,traditional ? "萬億":"万亿"),(100_000_000,traditional ? "億":"亿"),(10_000_000,traditional ? "千萬":"千万"),(1_000_000,traditional ? "百萬":"百万"),(10_000,traditional ? "萬":"万")]
+            let scale=units.first{value >= $0.0}!
+            divisor=Double(scale.0);unit=scale.1
+        } else {
+            divisor=value>=1_000_000_000 ? 1_000_000_000:(value>=1_000_000 ? 1_000_000:1000)
+            unit=divisor==1_000_000_000 ? "B":(divisor==1_000_000 ? "M":"K")
+        }
+        return (formatter.string(from:NSNumber(value:Double(value)/divisor)) ?? "—")+unit
     }
 }
