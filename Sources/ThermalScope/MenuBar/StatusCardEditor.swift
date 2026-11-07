@@ -36,10 +36,12 @@ struct StatusCardEditor:View {
         VStack(alignment:.leading,spacing:10) {
             if choosing {sourcePicker}
             else {
-                HStack {
-                    Text(L("显示内容")).font(.system(size:12,weight:.medium))
-                    Spacer()
-                    count
+                if showsHeading {
+                    HStack {
+                        Text(L("显示内容")).font(.system(size:12,weight:.medium))
+                        Spacer()
+                        count
+                    }
                 }
                 ScrollView(showsIndicators:false) {
                     cardRows

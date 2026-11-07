@@ -24,40 +24,35 @@ struct StatusFanControl:View {
                 Text(L("风扇控制")).font(.system(size:12,weight:.semibold))
                 Spacer()
                 if model.busy {ProgressView().appControlSize(.mini)}
-                else {
-                    Text((readings.snapshot?.fans.map{valueText($0.rpm)}.joined(separator:" / ") ?? "—")+" RPM")
-                        .font(.system(size:11)).appMonospacedDigit().foregroundColor(Palette.secondaryText)
-                }
+                if !AppDistribution.isAppStore {modePicker}
             }
             if AppDistribution.isAppStore {
                 Text(L(AppDistribution.monitoringOnlyMessage)).font(.system(size:11)).foregroundColor(Palette.secondaryText)
             } else {
                 HStack(spacing:7) {
-                    AppChoicePicker(title:L("风扇模式"),selection:Binding(get:{selection},set:{value in
-                        switch value {case .strategy(let strategy):model.applyFanStrategy(strategy);case .scene(let id):model.applyFanScene(id);case nil:break}
-                    }),choices:choices,placeholder:L("状态未知"),labelWidth:104,listWidth:250,maximumListHeight:320)
-                        .accessibilityIdentifier("statusFanMode")
-                    Spacer(minLength:0)
                     FanStopTimerButton(model:model)
-                    Button(action:onManage) {Image(systemName:AppSymbols.resolve("slider.horizontal.3"))}
-                        .buttonStyle(.plain).foregroundColor(Palette.secondaryText).frame(width:23,height:28)
-                        .help(L("场景与应用")).accessibilityLabel(L("场景与应用")).accessibilityIdentifier("fanSceneSettings")
-                }.disabled(model.busy)
-                HStack(spacing:8) {
+                    Spacer(minLength:0)
                     Toggle(L("按应用切换"),isOn:Binding(get:{model.fanAutomation.enabled},set:{model.setFanAutomationEnabled($0)}))
                         .toggleStyle(.switch).appControlSize(.mini).font(.system(size:11)).accentColor(Palette.violet)
                         .disabled(model.busy || (model.fanAutomation.rules.isEmpty && !model.fanAutomation.enabled))
                         .help(L("在场景与应用设置中关联应用；手动选档会暂停自动切换。"))
                         .accessibilityIdentifier("statusFanAutomation")
-                    Spacer(minLength:0)
-                    Text(model.fanAutomation.enabled ? (model.fanAutomationApplication?.name ?? L("未匹配应用")):L("手动选择"))
-                        .font(.system(size:10)).foregroundColor(Palette.secondaryText).lineLimit(1)
-                }
+                    Button(action:onManage) {Image(systemName:AppSymbols.resolve("slider.horizontal.3"))}
+                        .buttonStyle(.plain).foregroundColor(Palette.secondaryText).frame(width:23,height:28)
+                        .help(L("场景与应用")).accessibilityLabel(L("场景与应用")).accessibilityIdentifier("fanSceneSettings")
+                }.disabled(model.busy)
             }
             if control.status?.protectionActive==true || model.systemFanHeatWarning {
                 Label(L(control.status?.protectionActive==true ? "高温保护中":"温度较高，系统风扇仍接近最低转速"),systemImage:AppSymbols.resolve("exclamationmark.triangle"))
                     .font(.system(size:10)).foregroundColor(.orange).fixedSize(horizontal:false,vertical:true)
             }
         }.padding(12).modifier(StatusCardSurface())
+    }
+    private var modePicker:some View {
+        AppChoicePicker(title:L("风扇模式"),selection:Binding(get:{selection},set:{value in
+            switch value {case .strategy(let strategy):model.applyFanStrategy(strategy);case .scene(let id):model.applyFanScene(id);case nil:break}
+        }),choices:choices,placeholder:L("状态未知"),labelWidth:116,listWidth:250,maximumListHeight:320)
+            .disabled(model.busy).accessibilityIdentifier("statusFanMode")
+            .help((readings.snapshot?.fans.map{valueText($0.rpm)}.joined(separator:" / ") ?? "—")+" RPM"+(model.fanAutomationApplication.map{" · "+$0.name} ?? ""))
     }
 }

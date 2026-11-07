@@ -6,6 +6,7 @@ struct StatusOverview:View {
     @ObservedObject var model:AppModel
     @ObservedObject var readings:LiveReadings
     @ObservedObject var control:FanControlReadings
+    @ObservedObject var processes:ProcessObserver
     @State private var editing=false
     @StateObject private var drag:StatusCardDragController
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -17,25 +18,23 @@ struct StatusOverview:View {
     let onResize:(CGFloat)->Void
     init(model:AppModel,height:CGFloat,onNavigate:@escaping(String)->Void,onSettings:@escaping()->Void,onActions:@escaping()->Void,onResize:@escaping(CGFloat)->Void,dragController:StatusCardDragController?=nil) {
         self._drag=StateObject(wrappedValue:dragController ?? StatusCardDragController(model:model))
-        self.model=model;self.readings=model.readings;self.control=model.fanControl;self.height=height
+        self.model=model;self.readings=model.readings;self.control=model.fanControl;self.processes=model.processes;self.height=height
         self.onNavigate=onNavigate;self.onSettings=onSettings;self.onActions=onActions;self.onResize=onResize
     }
     private var panelHeight:CGFloat {
         if editing {return height}
-        let fanHeight=model.statusPanel.showFanControls ? 122+(model.systemFanHeatWarning || control.status?.protectionActive==true ? 18:0):0
-        let tokenHeight=model.showsStatusTokenSummary ? 78:0
-        let contents=122+CGFloat(tokenHeight)+StatusCardLayout.height(count:model.statusPanel.cards.count)+CGFloat(fanHeight)+(model.statusPanel.showProcesses ? 110:0)+(model.messageIsError ? 32:0)
+        let fanHeight:CGFloat=model.statusPanel.showFanControls ? 94+(model.systemFanHeatWarning || control.status?.protectionActive==true ? 30:0):0
+        let tokenHeight:CGFloat=model.showsStatusTokenSummary ? 78:0
+        let rows=model.statusPanel.showProcesses ? StatusCPUContributor.visibleRows(processes).count:0
+        let processHeight:CGFloat=rows>0 ? 28+CGFloat(rows)*24:0
+        let contents:CGFloat=100+tokenHeight+StatusCardLayout.height(count:model.statusPanel.cards.count)+fanHeight+processHeight+(model.messageIsError ? 48:0)
         return min(height,max(240,contents))
-    }
-    var turbo:String {
-        guard let state=readings.snapshot?.turbo else{return "未知"}
-        return state == .disabledDriverLoaded ? "已关闭":(state == .driverNotLoaded ? "允许开启":"状态不可用")
     }
     var body:some View {
         VStack(spacing:0) {
             header.padding(.bottom,10)
             if editing {
-                StatusCardEditor(model:model)
+                StatusCardEditor(model:model,showsHeading:false)
             } else {
                 ScrollView(showsIndicators:false) {
                     VStack(spacing:10) {
@@ -94,27 +93,26 @@ struct StatusOverview:View {
             .appOverlay {StatusCardDragSurface(controller:drag,id:source.id,title:source.title(model),detail:source.valueText(source.value(readings))+" "+source.unit,onOpen:{onNavigate(source.destination)})}
     }
     var header:some View {
-        VStack(spacing:5) {
-            HStack {
-                Button(L(editing ? "完成":"编辑")){editing.toggle()}.buttonStyle(AppChoiceButtonStyle(expanded:editing))
+        HStack(spacing:8) {
+            if editing {
+                Text(L("显示内容")).font(.system(size:12,weight:.semibold))
                 Spacer()
+                Button(L("完成")){editing=false}.buttonStyle(AppChoiceButtonStyle(expanded:true))
+            } else {
+                Button {onNavigate("optimization")} label:{
+                    HStack(spacing:6) {
+                        let sample=readings.snapshot
+                        let warning=sample?.limited==true || (sample?.thermalState ?? 0)>0
+                        Circle().fill((sample?.thermalState ?? 0)>=3 ? Color.red:(warning ? Color.orange:(sample==nil ? Color.secondary:Palette.violet.opacity(0.7)))).frame(width:6,height:6)
+                        Text(sample.map{$0.limited ? L("系统正在限制性能"):L("热压力")+" · "+L($0.thermalTitle)} ?? L("正在读取…"))
+                            .font(.system(size:11)).foregroundColor(warning ? Color.orange:Palette.secondaryText).lineLimit(1)
+                    }.contentShape(Rectangle())
+                }.buttonStyle(.plain).help(L("性能诊断"))
+                Spacer(minLength:4)
                 AppChoicePicker(title:L("趋势时间范围"),selection:$model.statusMinutes,
                                 choices:[AppChoice(2,L("2 分钟")),AppChoice(5,L("5 分钟")),AppChoice(10,L("10 分钟"))])
                     .accessibilityIdentifier("statusTimeRange")
             }
-            HStack(spacing:5) {
-                Button {onNavigate("thermal")} label:{
-                    HStack(spacing:5) {
-                        Text(L(model.fanStrategyTitle))
-                        Image(systemName:AppSymbols.resolve("chevron.right")).font(.system(size:8,weight:.semibold))
-                    }.lineLimit(1).contentShape(Rectangle())
-                }.buttonStyle(.plain).help(L("温度控制"))
-                Spacer(minLength:4)
-                if ControlAvailability.isAppleSilicon {
-                    Text(L("热压力")+" · "+L(readings.snapshot?.thermalTitle ?? "未知")).lineLimit(1)
-                        .foregroundColor((readings.snapshot?.thermalState ?? 0)>0 ? Color.orange:Color.secondary)
-                } else {Text(L("睿频")+" · "+L(turbo)).lineLimit(1)}
-            }.font(.system(size:11)).foregroundColor(.secondary)
         }
     }
     var footer:some View {
@@ -125,6 +123,10 @@ struct StatusOverview:View {
             AppUpdateBadge(updates:model.updates)
             freshness
             ClamshellStatusButton(mode:model.clamshell,busy:model.busy)
+            if !editing {
+                Button {editing=true} label:{Image(systemName:AppSymbols.resolve("pencil"))}
+                    .help(L("编辑卡片")).accessibilityLabel(L("编辑卡片")).accessibilityIdentifier("statusEditCards")
+            }
             Button(action:onSettings) {Image(systemName:AppSymbols.resolve("gearshape"))}.help(L("设置")).accessibilityLabel(L("设置"))
             Button(action:onActions) {Image(systemName:AppSymbols.resolve("ellipsis"))}.help(L("更多操作")).accessibilityLabel(L("更多操作"))
         }.buttonStyle(.borderless).appControlSize(.small).frame(minHeight:24)
@@ -134,13 +136,8 @@ struct StatusOverview:View {
             let date=readings.snapshot?.date
             let stale=date.map{context.date.timeIntervalSince($0)>max(15,model.interval*3)} ?? false
             let description=date.map{L(stale ? "读数未更新":"采样时间")+" · "+DateFormatter.localizedString(from:$0,dateStyle:.none,timeStyle:.medium)} ?? L("正在读取…")
-            HStack(spacing:4) {
-                if let date {
-                    if stale {Image(systemName:AppSymbols.resolve("exclamationmark.circle")).foregroundColor(.orange)}
-                    Text(date,style:.time).appMonospacedDigit()
-                        .foregroundColor(stale ? Color.orange:Color.secondary)
-                } else {Text(L("正在读取…"))}
-            }.font(.system(size:10)).foregroundColor(.secondary)
+            Image(systemName:AppSymbols.resolve(stale ? "exclamationmark.circle":"waveform.path"))
+                .font(.system(size:11)).foregroundColor(stale ? Color.orange:Color.secondary)
                 .accessibilityElement(children:.ignore).accessibilityLabel(description).help(description)
         }
     }
@@ -149,9 +146,9 @@ struct StatusOverview:View {
 struct StatusCPUContributor:View {
     @ObservedObject var observer:ProcessObserver
     let onOpen:()->Void
-    var rows:[ObservedProcess] {guard let date=observer.sampledAt,Date().timeIntervalSince(date)<20 else{return []};return Array(observer.allRows.sorted{$0.reading.cpu>$1.reading.cpu}.prefix(3))}
+    static func visibleRows(_ observer:ProcessObserver)->[ObservedProcess] {guard let date=observer.sampledAt,Date().timeIntervalSince(date)<20 else{return []};return Array(observer.allRows.sorted{$0.reading.cpu>$1.reading.cpu}.prefix(3))}
     var body:some View {
-        let currentRows=rows
+        let currentRows=Self.visibleRows(observer)
         if !currentRows.isEmpty {
             VStack(alignment:.leading,spacing:6) {
                 HStack {Text(L("CPU 占用排行"));Spacer();Text(L("单核 100%"))}.font(.system(size:10)).foregroundColor(.secondary)

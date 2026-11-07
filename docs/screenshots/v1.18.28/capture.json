@@ -1,0 +1,177 @@
+{
+  "version": "1.18.28",
+  "build": "295",
+  "captureType": "native-isolated-fixture",
+  "sampleData": true,
+  "hardwareWrites": false,
+  "images": {
+    "zh/overview-dark.png": {
+      "fixture": "dark-metrics",
+      "sha256": "cb15086076e41ff0498b6afb373d238146a04d15fd0bcae97cf6c2257933819b"
+    },
+    "zh/overview-light.png": {
+      "fixture": "light-metrics",
+      "sha256": "329e9ad9fbeb04b9ee8cc3a7c1a7677cbdba34418c0bde6737b07e5f44c88900"
+    },
+    "zh/thermal-control-dark.png": {
+      "fixture": "dark-thermal",
+      "sha256": "434030da9c2ec304e4564cc222898d59d77889edbbefdb0b9de337a881e09be8"
+    },
+    "zh/thermal-control-light.png": {
+      "fixture": "light-thermal",
+      "sha256": "ad092a5b5a378dae1b843fb9a61c2e081f9c6c0c48d07857b85ccff343f0331d"
+    },
+    "zh/thermal-control.png": {
+      "fixture": "light-thermal",
+      "sha256": "ad092a5b5a378dae1b843fb9a61c2e081f9c6c0c48d07857b85ccff343f0331d"
+    },
+    "zh/sensors-dark.png": {
+      "fixture": "dark-sensors",
+      "sha256": "6d71a62c0a8cb69fdd47cbcf8f63c16344f4ea25d0c4fddb270ef6316e086c93"
+    },
+    "zh/sensors-light.png": {
+      "fixture": "light-sensors",
+      "sha256": "799305cb445f2b7289de1453fb7c4a2e9ae6d8918e5246240a4ca2c8ace8d72f"
+    },
+    "zh/sensors.png": {
+      "fixture": "light-sensors",
+      "sha256": "799305cb445f2b7289de1453fb7c4a2e9ae6d8918e5246240a4ca2c8ace8d72f"
+    },
+    "zh/settings-dark.png": {
+      "fixture": "dark-settings",
+      "sha256": "c0d52d617874d5a3de3ad774483ace28ab28b6a5e6603cda01bc591d83842938"
+    },
+    "zh/settings-light.png": {
+      "fixture": "light-settings",
+      "sha256": "fec401d154d747675db1a13011ea7b2b7df257e3918034007ffcdec2e34d8405"
+    },
+    "zh/settings.png": {
+      "fixture": "light-settings",
+      "sha256": "fec401d154d747675db1a13011ea7b2b7df257e3918034007ffcdec2e34d8405"
+    },
+    "zh/status-panel-dark.png": {
+      "fixture": "dark-popover",
+      "sha256": "d8990343c0b0354b717a0ceae1820fed8ce498416e4c27b0c7bee9af86214328"
+    },
+    "zh/status-panel-light.png": {
+      "fixture": "light-popover",
+      "sha256": "1b44a832c40f7c6b597213d7a75248058af469a99fec125ab99bbe0088dcb8a6"
+    },
+    "zh/status-drag-light.png": {
+      "fixture": "light-card-drag-popover",
+      "sha256": "fddc55f05b5eb8d1209856489e3706e114e03a33cb5bb84048d76a835c8cef29"
+    },
+    "zh/scene-manager.png": {
+      "fixture": "light-scene-manager-popover",
+      "sha256": "64d0af394c7803381798b2ac9e11daf83d62670d18749e476fb829185922ea19"
+    },
+    "zh/electricity-dark.png": {
+      "fixture": "dark-electricity",
+      "sha256": "646218848d6095bc9128d14efdabc91561b888ccacd6664205e5c5a3400b9c6e"
+    },
+    "zh/electricity-light.png": {
+      "fixture": "light-electricity",
+      "sha256": "0480ae894b1f68bfee28d830f6d895733394c0a2f1d04d3e0f5d02cd1e005864"
+    },
+    "zh/token-usage-dark.png": {
+      "fixture": "dark-tokens",
+      "sha256": "f1e3fa2e5e6f161566196203782c99caeda3fd9a1eb0a068674835a1e9c07e03"
+    },
+    "zh/token-usage-light.png": {
+      "fixture": "light-tokens",
+      "sha256": "62b648c3ceabbca122d404ce782fbbddd53128ccc693903cce47e62fe3fb4fc3"
+    },
+    "zh/cpu-history.png": {
+      "fixture": "light-metric",
+      "sha256": "a67250879c711eea7772b34551a407007fc749ea4d7dfb6c45c6ee9c6ac7d462"
+    },
+    "zh/turbo-settings.png": {
+      "fixture": "light-turbo-allowed-popover",
+      "sha256": "732ecf0f3e1f9c143d83271f53bb6fcc1240259aceb2781a7cb818bce1bd20ea"
+    },
+    "en/overview-dark.png": {
+      "fixture": "dark-metrics",
+      "sha256": "2808a082dc57ee10eee1ff4daf7a43a401e1c34a2e593931ae5d80b02c88e116"
+    },
+    "en/overview-light.png": {
+      "fixture": "light-metrics",
+      "sha256": "e77f53281229679de3fde67bbefeac8fcb3dcaed651d7573effd0df856d9dcbe"
+    },
+    "en/thermal-control-dark.png": {
+      "fixture": "dark-thermal",
+      "sha256": "3b2b011702c38263ed0e60403463fc6b3f6a3a7ffc43faee42e16cecdec5414f"
+    },
+    "en/thermal-control-light.png": {
+      "fixture": "light-thermal",
+      "sha256": "f877c91097326f213bbed620585e58117072f5965d95cb947113b9eb65230d06"
+    },
+    "en/thermal-control.png": {
+      "fixture": "light-thermal",
+      "sha256": "f877c91097326f213bbed620585e58117072f5965d95cb947113b9eb65230d06"
+    },
+    "en/sensors-dark.png": {
+      "fixture": "dark-sensors",
+      "sha256": "10ee86cb40b794ae9a09f1db5609f7fcc8e93fe5414023034e2303df499c55c0"
+    },
+    "en/sensors-light.png": {
+      "fixture": "light-sensors",
+      "sha256": "c21e489f832e0c343e23806561f19ac2b42a57486f805cc13ed8292298207e05"
+    },
+    "en/sensors.png": {
+      "fixture": "light-sensors",
+      "sha256": "c21e489f832e0c343e23806561f19ac2b42a57486f805cc13ed8292298207e05"
+    },
+    "en/settings-dark.png": {
+      "fixture": "dark-settings",
+      "sha256": "01d4c907b2d8eed7f00fba550ce4af3e5f339a0cb58353403c8549624e9ec0e1"
+    },
+    "en/settings-light.png": {
+      "fixture": "light-settings",
+      "sha256": "fac4dfe69dc45a9875cf0713135e8a303e096f2b09b97d5da3c19609671ba79c"
+    },
+    "en/settings.png": {
+      "fixture": "light-settings",
+      "sha256": "fac4dfe69dc45a9875cf0713135e8a303e096f2b09b97d5da3c19609671ba79c"
+    },
+    "en/status-panel-dark.png": {
+      "fixture": "dark-popover",
+      "sha256": "5ed5967689d38aa70ba0fcbdf392584748c3c704f772548d4e03eef16a6a4125"
+    },
+    "en/status-panel-light.png": {
+      "fixture": "light-popover",
+      "sha256": "570753d35452e461d787a43b1b4d6be159cfaf9e62867a26f7f9b3052673e74f"
+    },
+    "en/status-drag-light.png": {
+      "fixture": "light-card-drag-popover",
+      "sha256": "54f35dfdd54ebf31c1ac82338bb7584837ec309dee852514c32d57654775b2ee"
+    },
+    "en/scene-manager.png": {
+      "fixture": "light-scene-manager-popover",
+      "sha256": "7ecc6b928dccc76cd4d589f1f89ce6560f574fc2ca0a64be7ee068f5eda1f686"
+    },
+    "en/electricity-dark.png": {
+      "fixture": "dark-electricity",
+      "sha256": "2ff492ea411b35a856e6c6458a3f21ad413c2b1ce15f72f87cb02808f877a13b"
+    },
+    "en/electricity-light.png": {
+      "fixture": "light-electricity",
+      "sha256": "610e892d32935cdf4aeb67d2deb97a98a02e2f9a5d4bc1a7aef2a96339ba178e"
+    },
+    "en/token-usage-dark.png": {
+      "fixture": "dark-tokens",
+      "sha256": "524591b5b52f4f993cf216086ed5fa6f4c1a03166a882556a5db0ed37ec96977"
+    },
+    "en/token-usage-light.png": {
+      "fixture": "light-tokens",
+      "sha256": "bd2b5bc23d82cc2fc19038122f51eb3ff539e1f04635ac0fde84dd29887f14d4"
+    },
+    "en/cpu-history.png": {
+      "fixture": "light-metric",
+      "sha256": "19c19d0abeb04c3945773f5ae5854b18452a8fb23951dc1b1b74451e75b468e7"
+    },
+    "en/turbo-settings.png": {
+      "fixture": "light-turbo-allowed-popover",
+      "sha256": "b977098f74e218cdf5546b9baf03d2b17656bab1cd85b95b37282dc093d512e5"
+    }
+  }
+}

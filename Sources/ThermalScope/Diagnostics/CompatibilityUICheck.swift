@@ -29,7 +29,8 @@ import ThermalCore
             }
             model.timeline.resumeVisualUpdates()
             model.electricity.resume()
-            let energyEnd=Date()
+            // Keep example records inside the displayed day, including captures after midnight.
+            let energyEnd=Calendar.current.startOfDay(for:Date()).addingTimeInterval(12*3600)
             for index in 0...360 {
                 model.electricity.recordPower(25+Double(index%80),source:.system,at:energyEnd.addingTimeInterval(Double(index-360)*10),publish:false)
             }
@@ -63,7 +64,7 @@ import ThermalCore
                 model.pinTokenMetric(.tokenQuota,provider:"codex")
                 let previousProcesses=model.statusPanel.showProcesses
                 model.statusPanel.showProcesses=false
-                let previewHeight:CGFloat=122+78+StatusCardLayout.height(count:model.statusPanel.cards.count)+122
+                let previewHeight:CGFloat=100+78+StatusCardLayout.height(count:model.statusPanel.cards.count)+94
                 evidence[theme+"-popover"]=try render(StatusOverview(model:model,height:previewHeight,onNavigate:{_ in},onSettings:{},onActions:{},onResize:{_ in}),name:theme+"-popover",size:CGSize(width:390,height:previewHeight));count+=1
                 let dragging=StatusCardDragController(model:model)
                 dragging.begin(model.statusPanel.cards[0].id);dragging.removalTarget=true
@@ -73,6 +74,9 @@ import ThermalCore
                 model.fanStopTimer=try FanStopTimer(minutes:30)
                 _=try render(FanStopTimerButton(model:model).timerOptions,name:theme+"-stop-timer-popover",size:CGSize(width:260,height:250));count+=1
                 model.fanStopTimer=nil
+                for (name,state) in [("allowed",TurboState.driverNotLoaded),("disabled",.disabledDriverLoaded),("unknown",.unknown)] {
+                    _=try render(TurboSettingsRow(state:state,busy:false,setAllowed:{_ in}).padding(16).frame(maxWidth:.infinity,maxHeight:.infinity).background(Palette.surface).preferredColorScheme(model.colorScheme),name:theme+"-turbo-"+name+"-popover",size:CGSize(width:520,height:60));count+=1
+                }
             }
             guard before.isEqual(NSDictionary(dictionary:UserDefaults.standard.persistentDomain(forName:key) ?? [:])) else {throw ScopeError.message("Compatibility check changed saved preferences")}
             if let folder=ProcessInfo.processInfo.environment["THERMALSCOPE_COMPATIBILITY_OUTPUT"] {

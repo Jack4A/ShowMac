@@ -7,15 +7,17 @@ Production: https://show-mac.cc/ · English `/en/` · Chinese `/zh/`.
 ## Build and preview
 
 ```sh
-python3 website/scripts/build.py --releases build/releases/v1.18.3-published
+# Download the public release assets into a fresh local directory first.
+gh release download v1.18.23 --repo Jack4A/ShowMac --dir build/site-release-v1.18.23
+python3 website/scripts/build.py --releases build/site-release-v1.18.23 --preview-screenshots docs/screenshots/v1.18.28
 python3 -m http.server 8714 --bind 127.0.0.1 --directory website/dist
 ```
 
-The static preview cannot write statistics. To test the actual Pages worker and a local D1 database, run `wrangler d1 execute STATS_DB --local --file cloudflare/migrations/0001_statistics.sql` and `wrangler pages dev --port 8723 --binding STATS_ENV=local` from `website/`. Localhost uses isolated local storage; only the explicit local flag enables recording. Preview deployment hostnames never write production counters.
+The public app download is **1.18.23 (290)**. Current source and the explicitly labeled screenshot preview are **1.18.28 (295)**. A site-only deployment must not advertise an unpublished app in download metadata or replace verified archives with local builds. Update `docs/releases/`, the paired language guides and screenshot capture records when app behavior changes. Preview captures require the explicit `--preview-screenshots` argument and documented provenance; `release.json` records screenshot and public app versions separately.
 
-The build verifies paired release archives, source commit, minimum macOS versions and checksums before copying downloads unchanged. `release.json` records app and site revisions separately. Screenshots use actual app captures in each language. The builder uses the newest documented capture no later than the downloaded app version, falling back to the 1.18.1 baseline. The 1.18.2 panel captures remain in use until a later capture replaces them. The curve demonstration is labeled example data and does not control hardware.
+The builder verifies both architecture archives, source commit, minimum macOS versions and checksums before copying downloads unchanged. Without an explicit preview argument it selects documented captures no newer than the download. All gallery pages now follow the selected light/dark appearance, including Settings; English and Chinese use their own captures. Product and curve previews are labeled example data and do not control hardware.
 
-The landing page and support guide explicitly label the 1.18.4 changes as a developer preview while public downloads remain 1.18.3. Its single-curve demonstration supports CPU/GPU MAX selection, fractional temperature edits and a draggable speed ceiling; all temperatures and fan ranges in the demonstration are illustrative. A site-only deployment must not advertise an unpublished app version in `release.json` or replace the verified release archives with local builds.
+The static preview cannot write statistics. To exercise the Pages worker and an isolated local D1 database, use `wrangler d1 execute STATS_DB --local --file cloudflare/migrations/0001_statistics.sql` and `wrangler pages dev --port 8723 --binding STATS_ENV=local` from `website/`. Preview hostnames never write production counters.
 
 ## Cloudflare Pages
 

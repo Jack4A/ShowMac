@@ -42,11 +42,9 @@
     const image=document.querySelector('#product-screenshot');
     if(image){
       image.closest('.screenshot-frame')?.setAttribute('data-preview',value);
-      const files={overview:theme==='dark'?'overview-dark':'overview-light',thermal:'thermal-control',sensors:'sensors',electricity:'electricity-'+theme,tokens:'token-usage-'+theme};
+      const files={overview:'overview-'+theme,thermal:'thermal-control-'+theme,sensors:'sensors-'+theme,electricity:'electricity-'+theme,tokens:'token-usage-'+theme,settings:'settings-'+theme};
       const names={overview:'ShowMac live metrics UI preview with today’s electricity card and sample readings',thermal:'ShowMac fan presets and editable temperature-to-RPM curve',sensors:'ShowMac sensor overview with readable names and recent trends',electricity:'ShowMac combined electricity and token usage preview with sample readings',tokens:'ShowMac Agent filtering, sortable token statistics and cache hit rate with sample data'};
-      image.src=new URL('assets/'+language+'/'+files[value]+'.png',siteBase);image.alt=language==='zh'?{overview:'ShowMac 实时监测界面预览，包含今日用电卡片和示例读数',thermal:'ShowMac 温度控制档位与风扇曲线',sensors:'ShowMac 传感器名称、读数与近期趋势',electricity:'ShowMac 用电与 Token 用量统计界面预览，使用示例数据',tokens:'ShowMac Agent 筛选、排序统计和缓存命中率界面预览，使用示例数据'}[value]:names[value];
-      const label=document.querySelector('#features .window-label');
-      if(label)label.textContent=['electricity','overview','tokens'].includes(value)?(language==='zh'?'界面预览 · 示例用量数据':'UI preview · sample usage data'):(language==='zh'?'真实应用界面':'Actual app interface');
+      image.src=new URL('assets/'+language+'/'+files[value]+'.png',siteBase);image.alt=language==='zh'?{overview:'ShowMac 实时监测界面预览，包含今日用电卡片和示例读数',thermal:'ShowMac 温度控制档位与风扇曲线',sensors:'ShowMac 传感器名称、读数与近期趋势',electricity:'ShowMac 用电统计界面预览，使用示例数据',tokens:'ShowMac Agent 筛选、排序统计和缓存命中率界面预览，使用示例数据',settings:'ShowMac 精简设置：通用、状态栏、功能和底部关于'}[value]:(names[value] || 'ShowMac compact General, Menu bar and Features settings');
       document.querySelectorAll('[data-screen]').forEach(button=>{const active=button.dataset.screen===value;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
     }
   }

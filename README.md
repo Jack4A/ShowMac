@@ -8,19 +8,27 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 <img src="Resources/AppIcon.png" width="72" alt="ShowMac app icon">
 
-A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
+A native macOS utility built around a customizable menu bar and a full monitoring app. Follow temperatures, fans and power, inspect local AI token usage, and choose a fan scene or edit one simple curve.
 
 **Public download: [v1.18.23](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.23 · build 290** adds **Closed-lid mode** for MacBooks on external power, with controls in Settings and the menu bar popover. Unplugging, quitting or critical thermal pressure restores sleep. An independent watchdog and boot recovery protect interrupted sessions. Off by default; physical MacBook lid testing is still pending. All Token statistics, agent filters/sorting, menu bar customization and fan scenes are retained. See the [release notes](docs/releases/v1.18.23.md).
+**Latest development preview: 1.18.28 (295)** · The current source and screenshots include compact Settings, launch at login, one-switch AC-powered closed-lid automation, an Intel Turbo Boost setting and a simpler menu bar popover. **Public downloads remain 1.18.23 (290)**; these preview changes are not in that archive yet. [Recent changes](docs/releases/v1.18.28.md).
 
-<img src="docs/screenshots/v1.18.19/en/overview-dark.png" width="1000" alt="ShowMac 1.18.19 Live metrics UI preview with the compact electricity and token card and sample readings">
+| Feature | What you can do |
+| --- | --- |
+| Menu bar + popover | Combine icons, values and trends; choose 1–8 cards, drag to reorder or remove, and open details in one click. |
+| Monitoring + diagnosis | Inspect readable sensors, recent trends, CPU limits and active processes. |
+| Fan scenes | Edit a CPU/GPU MAX curve, save scenes, switch by app and optionally set a stop timer. |
+| Electricity + Token | Review measured power, recorded energy, estimated electricity cost, 60-source local token history and available Codex/Claude allowance reports. |
+| Everyday settings | Launch at login, light/dark themes, language, widgets and updates. The preview also simplifies closed-lid automation and adds Intel Turbo control in Settings. |
+
+<img src="docs/screenshots/v1.18.28/en/overview-dark.png" width="1000" alt="ShowMac 1.18.28 Live metrics UI preview with the compact electricity and token card and sample readings">
 
 ## Download and launch
 
 1. Open the [ShowMac website](https://show-mac.cc/en/#download) and choose your Mac’s chip. You can also download from [GitHub Releases](https://github.com/Jack4A/ShowMac/releases).
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
-3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
+3. Launch the app and click its menu bar item for quick monitoring. Use Open main window for the full app.
 
 | Mac | v1.18.23 archive | Control support |
 | --- | --- | --- |
@@ -53,7 +61,7 @@ Open **Thermal control**, then choose **Auto**, **Quiet**, **Balanced**, **Boost
 
 Choose **Auto** to return control to macOS at any time. macOS then decides fan speed; the app's curve and temperature thresholds are inactive. App-controlled sessions keep running by default. Click **Set timer…** to return fans to system control after 15/30/60/120 minutes or a custom 1–1440 minutes. Cancel the timer to continue running. A timer applies to this app run only, keeps its original deadline across mode/app switches, and is not restored on relaunch. Quitting, a missing control sensor or a failed control check returns fans to macOS; thermal protection remains active throughout. The page shows continuous control or the remaining time, and flags high temperature with fans near minimum speed without silently taking control. **Fan test…** asks for confirmation before a five-second maximum-speed test.
 
-<img src="docs/screenshots/v1.18.9/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
+<img src="docs/screenshots/v1.18.28/en/thermal-control.png" width="1000" alt="Thermal control with five equally sized fan presets and an editable temperature-to-RPM curve; Auto is selected">
 
 ### Saved fan scenes
 
@@ -65,7 +73,7 @@ Choose **Create or manage scenes…** to open **Scenes & apps**. Use **New scene
 
 ### Switch scenes with your apps
 
-<img src="docs/screenshots/v1.18.9/en/scene-manager.png" width="520" alt="Scenes and apps UI preview with named scenes, app associations and an opt-in automation switch">
+<img src="docs/screenshots/v1.18.28/en/scene-manager.png" width="520" alt="Scenes and apps UI preview with named scenes, app associations and an opt-in automation switch">
 
 Open **Scenes & apps** from Thermal control or the menu bar fan-control settings. Click the app icon beside a scene to link running apps, or choose another installed app. Each app maps to one scene. Turn on **Switch by app** when ready; it starts off.
 
@@ -92,17 +100,17 @@ ShowMac prepares a boot recovery job before changing the system `disablesleep` s
 
 ### Choose the popover cards
 
-Expand **Settings → Menu bar → Popover cards → Add card**, or click **Edit** in the menu bar popover. Keep 1–8 metric or sensor cards; use the arrows to reorder and the remove button to delete. Fan controls and top CPU processes can be shown independently. Changes save automatically.
+Expand **Settings → Menu bar → Popover cards → Add card**, or click the **pencil** at the bottom of the menu bar popover (development preview). Keep 1–8 metric or sensor cards; use the arrows to reorder and the remove button to delete. Fan controls and top CPU processes can be shown independently. Changes save automatically.
 
 Hold and drag a popover card: drop onto another card to reorder, or into the removal zone at the bottom to remove. Clicking still opens details. Cancelling or dropping outside preserves the layout; at least one metric card stays. The Token summary can be removed independently and restored with **Show Token usage and allowance** in Popover cards.
 
-<img src="docs/screenshots/v1.18.19/en/status-drag-light.png" width="390" alt="Synthetic drag-state preview showing a lifted card and the bottom removal zone">
+<img src="docs/screenshots/v1.18.28/en/status-drag-light.png" width="390" alt="Synthetic drag-state preview showing a lifted card and the bottom removal zone">
 
-Menu bar components and popover cards are configured separately. The UI preview below shows five example cards and the simplified fan controls. These previews use sample readings; process rankings are hidden.
+Menu bar components and popover cards are configured separately. The UI preview below shows four example cards and the simplified fan controls. These previews use sample readings; process rankings are hidden.
 
-<img src="docs/screenshots/v1.18.9/en/status-panel-light.png" width="390" alt="Menu bar preview with five sample cards and unified fan mode, one-shot timer and app switching controls">
+<img src="docs/screenshots/v1.18.28/en/status-panel-light.png" width="390" alt="Menu bar preview with four sample cards and unified fan mode, one-shot timer and app switching controls">
 
-<img src="docs/screenshots/v1.18.1/en/settings.png" width="1000" alt="Settings with a draggable menu bar composition and controls to add, reorder or remove popover cards">
+<img src="docs/screenshots/v1.18.28/en/settings.png" width="1000" alt="Compact settings: General, Menu bar, Features and About at the bottom">
 
 ### Electricity and token usage
 
@@ -110,7 +118,7 @@ Open **Usage statistics** in the sidebar, click the small electricity/token card
 
 Device power, DC input power and battery discharge are recorded separately where available. Choose a source to inspect it; they are never added together. These are internal readings, not a wall-outlet meter or a utility bill. Coverage is shown explicitly. Recording starts with this version while ShowMac runs, including when its window is hidden. Sleep, app exit and unreadable intervals are excluded. Local history is saved periodically and on normal sleep/quit, and survives relaunch. Power detail retains the original first, minimum, maximum and last sample per minute for seven days, then per hour; each point keeps its measured timestamp and wattage. Sampling gaps stay disconnected. Old energy-only history cannot reconstruct past power readings.
 
-<img src="docs/screenshots/v1.18.19/en/electricity-light.png" width="1000" alt="Electricity details UI preview: recorded energy, estimated cost and measured power curve, using sample data and an example rate">
+<img src="docs/screenshots/v1.18.28/en/electricity-light.png" width="1000" alt="Electricity details UI preview: recorded energy, estimated cost and measured power curve, using sample data and an example rate">
 
 The **Token usage** chart supports the full **60-source Tokscale catalog**, including Codex, Claude Code, Cursor, Gemini, OpenCode, Cline, Roo Code, Kiro, Zed and GitHub Copilot. View time buckets, filter tools, search detected sources and expand **By model**. Cache and reasoning categories are included in input/output once. Some upstream sources estimate tokens when exact counters are absent. These totals are not account quota or actual bills.
 
@@ -122,11 +130,17 @@ The **Cache hit rate** card is recorded cache-read tokens ÷ input tokens. Input
 
 The native engine reads local logs/databases/exports in offline mode, checks changes every minute and reuses cached metadata. Cursor requires a previously synced local Tokscale cache; ShowMac does not log in or sync accounts. Missing logs, web chats and other devices are outside coverage. Source settings allow pausing scans and adding folders where supported. No transcript text or credentials are cached or uploaded. [All sources and implementation](docs/TOKEN_USAGE.md).
 
-<img src="docs/screenshots/v1.18.21/en/token-usage-light.png" width="1000" alt="Local token usage UI preview with hourly totals, tool filtering and collapsed model/source details; sample data">
+<img src="docs/screenshots/v1.18.28/en/token-usage-light.png" width="1000" alt="Local token usage UI preview with hourly totals, tool filtering and collapsed model/source details; sample data">
 
 Use the **pin** beside Token usage or an allowance card to show it in the menu bar. Open **Settings → Menu bar**, then click that component to choose the tool, Day/Week/Month/Year period, allowance window, style, icon and color. Components default to monochrome. With a Token component added, the menu bar popover also shows a compact usage/allowance summary.
 
 **Account allowance** is separate from token totals. Codex reads the most recent local quota report automatically; **Claude Code sync** optionally installs a reversible status-line command and preserves existing status-line output. The connection sheet explains the exact change before enabling it. Expired readings or readings past their reset show **—** until a new report arrives. Other tools without a local quota source show unavailable; 60-source token history does not imply 60-source account-quota support. No account API, credentials or Keychain access is added.
+
+### Compact settings (development preview)
+
+Settings has **General**, **Menu bar** and **Features**, with About and updates at the bottom. Expand Menu bar items, Popover cards, or Font and spacing to edit one section at a time. In the popover, use the bottom pencil to edit cards; the top status opens diagnosis. Fan mode, timer, app switching and scene management stay together. Hover the live indicator for the exact sampling time.
+
+On **Intel Macs**, **Settings → Features → Turbo Boost** controls whether boosting is allowed. Off means the disable extension is confirmed loaded; unknown states cannot be toggled. It requires the existing macOS-approved extension described above. It does not indicate instantaneous CPU frequency. The Intel menu bar actions remain available; Apple Silicon does not show this setting.
 
 ### Appearance, language and widgets
 
@@ -134,7 +148,7 @@ In **Settings**, choose **Follow system**, **Light** or **Dark** under **Theme**
 
 Selection menus and segmented controls share a purple palette in both appearances, including fan presets, chart options, font, icon and color choices, and the popover time range. Use arrow keys and Return in an open selection menu; Escape cancels without closing the main popover. Custom colors and image selection still use the system panels.
 
-Set **Sampling interval** or use **Refresh readings** in the same page. Expand **System widgets** for widget options. Widgets support Notification Center on macOS 11+ and the desktop on macOS 14+.
+Set **Sampling interval** or use **Refresh readings** in the same page. Choose **Settings → Features → System widgets → Preview & add** for widget options. Widgets support Notification Center on macOS 11+ and the desktop on macOS 14+.
 
 ## Check for updates
 
@@ -142,26 +156,26 @@ Open **Settings → About ShowMac → Check for updates**, or **ShowMac → Chec
 
 ## More screenshots
 
-Captured from the installed **v1.18.1 / build 267** app on macOS 27, using its English interface and actual readings. Values, available sensors and process names reflect the capture session. [Capture records](docs/screenshots/v1.18.1/README.md).
+Rendered from **v1.18.28 / build 295**, using the English interface and isolated sample readings. These development-preview screenshots contain no personal usage, account or process data. [Capture records](docs/screenshots/v1.18.28/README.md).
 
 <details>
 <summary>Light appearance</summary>
 
-<img src="docs/screenshots/v1.18.1/en/overview-light.png" width="1000" alt="Live metrics and temperature history in the light appearance">
+<img src="docs/screenshots/v1.18.28/en/overview-light.png" width="1000" alt="Live metrics and temperature history in the light appearance">
 
 </details>
 
 <details>
 <summary>Readable sensors and recent trends</summary>
 
-<img src="docs/screenshots/v1.18.1/en/sensors.png" width="1000" alt="Sensors overview with readable labels, recent history, a search field and a link to all sensor readings">
+<img src="docs/screenshots/v1.18.28/en/sensors.png" width="1000" alt="Sensors overview with readable labels, recent history, a search field and a link to all sensor readings">
 
 </details>
 
 <details>
 <summary>CPU history and chart controls</summary>
 
-<img src="docs/screenshots/v1.18.1/en/cpu-history.png" width="1000" alt="CPU detail with time range, pause, scale, line/area controls and sampled statistics">
+<img src="docs/screenshots/v1.18.28/en/cpu-history.png" width="1000" alt="CPU detail with time range, pause, scale, line/area controls and sampled statistics">
 
 </details>
 

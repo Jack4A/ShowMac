@@ -1,0 +1,19 @@
+ShowMac 1.18.28 (295) — Intel Turbo setting, compact popover, documentation refresh
+
+- Intel-only Features → Turbo Boost uses confirmed extension state: allowed when the disabling driver is absent; disabled when loaded. Unknown/unsupported states cannot be toggled. Existing verified helper path and menu action retained; no hardware-control policy changes.
+- Popover has one thermal/performance status header; repeated fan mode header and RPM line removed. Mode, timer, app switching and scene settings use two rows. Footer includes card editing; sampling time moves to hover. Panel sizing follows visible CPU rows and optional sections. Existing card drag/reorder/removal, token allowance, process links and warning semantics retained.
+- README English remains default; Chinese guide, usage paths, feature summary, version scope and screenshots updated.
+- 42 documented English/Chinese screenshot files include both themes, settings, overview, fan control, sensors, electricity, tokens, popover, scenes, drag and Intel row fixture. Numeric/sample data only; no personal information published.
+- Website feature content/support guide updated; Settings joins the theme-aware gallery. Explicit preview captures cannot change verified public app metadata or archives.
+- Public binary remains 1.18.23 (290), source 709602d. New source/local build is explicitly described as development preview; no new app release tag or binary is published in this task.
+
+Validation
+- SDK27 release compilation, packaging and strict/deep ad-hoc signatures passed. Local minimum macOS12 is declared truthfully; source/SDK26.5 release path remains macOS11.
+- 32 Chinese and 32 English fixture layouts passed, including three Intel Turbo states per theme on an ARM host. Fixtures leave preferences/hardware untouched.
+- Confirmed Turbo mapping and unknown-state checks added to existing status card regression; status cards, menu composition and 1286-key localization checks passed.
+- Website Node checks (7) and SQLite migration check passed; generated page links, all README images, paired locale/theme captures and unchanged archive hashes verified.
+- Native install: 1.18.28 (295); login startup ON, light theme, system language, six menu components and five cards preserved.
+- Native popover: compact header/fan controls, footer pencil opens shared editor, Done returns to monitoring. No test cards or hardware commands were applied.
+- Intel switch is not shown on this Apple Silicon host; Intel UI state rendering and mapping were fixture-tested, not physical Turbo changes.
+
+Signing remains ad-hoc; no notarization or macOS security-protection changes.

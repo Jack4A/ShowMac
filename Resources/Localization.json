@@ -7451,5 +7451,11 @@
   },
   "%d 项": {
     "en": "%d items"
+  },
+  "允许 Intel 睿频。关闭需要本机已安装且获系统批准的禁用扩展。": {
+    "en": "Allow Intel Turbo Boost. Disabling requires an already installed, macOS-approved extension."
+  },
+  "编辑卡片": {
+    "en": "Edit cards"
   }
 }

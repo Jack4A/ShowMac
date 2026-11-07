@@ -40,6 +40,10 @@ struct PreferencesPage:View {
                 MenuSettings(model:model)
             }.id(PreferencesSection.menubar)
             settingsGroup("功能") {
+                if !AppDistribution.isAppStore && !ControlAvailability.isAppleSilicon {
+                    TurboSettings(model:model).padding(.horizontal,16).frame(minHeight:38)
+                    rowDivider
+                }
                 if !AppDistribution.isAppStore {
                     ClamshellModeSettings(mode:model.clamshell,busy:model.busy,embedded:true)
                         .padding(.horizontal,16).frame(minHeight:38)

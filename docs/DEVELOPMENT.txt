@@ -36,7 +36,7 @@ ThermalCore保留独立领域逻辑，CSMC保留原生接口。硬件写入只�
 
 发布打包：bash scripts/package-release.sh /absolute/new-release-dir
 需先提交源码；脚本创建全新目录，校验签名/架构/归档解压及本地化，输出ZIP、双语安装说明、manifest和SHA256SUMS。
-中文README.md与英文README.en.md均为当前使用说明；发布说明和docs/INSTALL.txt为双语。
+默认英文README.md与中文README.zh-CN.md均为当前使用说明，README.en.md保留为旧链接入口；发布说明和docs/INSTALL.txt为双语。
 
 ARM交叉构建：THERMALSCOPE_ARCH=arm64 bash scripts/package-release.sh /absolute/new-arm64-release-dir
 当前源码的ARM包包含实验性独立风扇控制；客户端和辅助程序均拒绝Intel睿频、电源写入及组合性能模式。硬件验证范围见APPLE_SILICON_FANS.txt。跨架构构建只做静态、架构、签名及归档检查，清单不宣称运行时验证通过。

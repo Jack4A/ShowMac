@@ -7,10 +7,15 @@ site_commit=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],te
 asset_version=site_commit[:12]
 def version_assets(text):
  return re.sub(r'((?:href|src)="[^"]*?)(style\.css|app\.js|stats\.js)(")',lambda m:m[1]+m[2]+'?v='+asset_version+m[3],text)
-p=argparse.ArgumentParser();p.add_argument('--hosting',choices=['cloudflare','nginx'],default='cloudflare');p.add_argument('--releases',type=Path,required=True);p.add_argument('--screenshots',type=Path,default=ROOT/'docs/screenshots/v1.18.1');args=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--hosting',choices=['cloudflare','nginx'],default='cloudflare');p.add_argument('--releases',type=Path,required=True);p.add_argument('--screenshots',type=Path,default=ROOT/'docs/screenshots/v1.18.1');p.add_argument('--preview-screenshots',type=Path,help='Explicitly labeled development-preview captures; never changes download metadata');args=p.parse_args()
 release=args.releases.resolve()
 arm=json.loads((release/'release-manifest-arm64.json').read_text());intel=json.loads((release/'release-manifest.json').read_text())
 assert arm['source_commit']==intel['source_commit'] and arm['version']==intel['version']
+preview=args.preview_screenshots.resolve() if args.preview_screenshots else None
+if preview:
+ assert preview.is_dir() and (preview/'README.md').is_file(), 'Preview captures need a documented source'
+ assert re.fullmatch(r'v\d+\.\d+\.\d+',preview.name), 'Preview capture directory must identify its version'
+screenshot_version=preview.name[1:] if preview else arm['version']
 subprocess.run(['python3',str(ROOT/'scripts/verify-release-assets.py'),str(release),'--version',arm['version'],'--commit',arm['source_commit']],check=True)
 dist=SITE/'dist'
 if dist.exists():shutil.rmtree(dist)
@@ -29,6 +34,8 @@ for lang in ['en','zh']:
   text=text.replace('lang="en"',f'lang="{"zh-CN" if lang=="zh" else "en"}"',1)
   for manifest in [arm,intel]:text=text.replace(f"showmac-1.18.0-macOS-{manifest['architecture']}.zip",manifest['archive'])
   text=text.replace('1.18.0',arm['version']).replace('Build 266','Build '+arm['build']).replace('build 266','build '+arm['build'])
+  text=text.replace('__PUBLIC_VERSION__',arm['version']).replace('__SCREENSHOT_VERSION__',screenshot_version)
+  text=text.replace('__CAPTURE_LABEL_EN__',('Development preview '+screenshot_version if preview else 'Version '+screenshot_version)+' · sample data').replace('__CAPTURE_LABEL_ZH__',('开发预览 '+screenshot_version if preview else '版本 '+screenshot_version)+' · 示例数据')
   # Resolve every local file from the localized page, including support/privacy.
   depth=2 if page else 1;prefix='../'*depth
   def url(m):
@@ -68,7 +75,17 @@ for lang in ['en','zh']:
   for directory in capture_roots:
    refreshed=directory/lang/(name+'.png')
    if refreshed.is_file():source=refreshed;break
+  if preview:
+   source=preview/lang/(name+'.png')
+   assert source.is_file(), 'Missing preview capture: '+str(source)
   shutil.copy2(source,target/(name+'.png'))
+ # The gallery follows the website theme for every page, including settings.
+ for name in ['thermal-control','sensors','settings']:
+  for theme in ['light','dark']:
+   source=(preview or args.screenshots)/lang/(name+'-'+theme+'.png')
+   if not source.is_file():
+    source=target/(name+'.png') if name!='settings' else args.screenshots/lang/'settings.png'
+   shutil.copy2(source,target/(name+'-'+theme+'.png'))
 downloads=dist/'downloads';downloads.mkdir()
 for file in release.iterdir():
  if file.is_file():shutil.copy2(file,downloads/file.name)
@@ -77,6 +94,8 @@ builds={}
 for manifest in [arm,intel]:
  archive=downloads/manifest['archive'];builds[manifest['architecture']]={'file':archive.name,'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}
 metadata={'version':arm['version'],'build':arm['build'],'minimumMacOS':arm['minimum_macos'],'sourceCommit':arm['source_commit'],'siteCommit':site_commit,'signing':arm['signing'],'notarized':arm['notarized'],'builds':builds}
+metadata['screenshotVersion']=screenshot_version
+metadata['screenshotIsPreview']=bool(preview)
 (dist/'release.json').write_text(json.dumps(metadata,indent=2)+'\n')
 (dist/'robots.txt').write_text('User-agent: *\nAllow: /\nSitemap: https://show-mac.cc/sitemap.xml\nSitemap: https://show-mac.cc/sitemap.txt\n')
 urls=[f'https://show-mac.cc/{lang}/{page}' for lang in ['en','zh'] for page in ['','support/','privacy/']]

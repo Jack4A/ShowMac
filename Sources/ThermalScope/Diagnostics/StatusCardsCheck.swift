@@ -10,6 +10,8 @@ import ThermalCore
             func require(_ condition:Bool,_ message:String)throws {if !condition {throw ScopeError.message(message)}}
             func preferences()->NSDictionary {NSDictionary(dictionary:UserDefaults.standard.persistentDomain(forName:Bundle.main.bundleIdentifier ?? "local.jack.ThermalScope") ?? [:])}
             let before=preferences(),model=AppModel(),base=Date(timeIntervalSince1970:50_000)
+            try require(TurboSettingsRow.allowed(.driverNotLoaded)==true && TurboSettingsRow.allowed(.disabledDriverLoaded)==false,"Turbo toggle inverted confirmed extension state")
+            try require(TurboSettingsRow.allowed(.unknown)==nil && TurboSettingsRow.allowed(.unsupported)==nil && TurboSettingsRow.allowed(nil)==nil,"Unknown/unsupported Turbo state became a confirmed choice")
             defer {model.shutdown()}
             let menu=model.effectiveMenuComponents,spacing=model.menuSpacing
             func sample(_ seconds:Double,missing:Bool=false)->Snapshot {
