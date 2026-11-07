@@ -27,7 +27,7 @@
 | Mac 类型 | v1.18.23 安装包 | 控制能力 |
 | --- | --- | --- |
 | Intel | `showmac-1.18.23-macOS-x86_64.zip` | 风扇控制；睿频控制依赖本机已有且获系统批准的扩展 |
-| Apple Silicon | `showmac-1.18.23-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源设置控制不可用 |
+| Apple Silicon | `showmac-1.18.23-macOS-arm64.zip` | 按本机能力开放实验性风扇控制；睿频与电源优化控制不可用；符合条件的 MacBook 支持合盖运行 |
 
 预编译应用不需要 Xcode、Swift、Rust、Node 或 Python。只读监测无需管理员授权，首次需要硬件控制时才会请求授权。当前安装包采用 ad-hoc 签名、未经公证，macOS 可能提示无法验证开发者。详见 [Intel 安装指南](docs/INSTALL.txt) 与 [Apple Silicon 安装指南](docs/INSTALL-arm64.txt)。
 

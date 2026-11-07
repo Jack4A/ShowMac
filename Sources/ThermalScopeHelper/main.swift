@@ -78,7 +78,7 @@ func profile(_ args:[String]) throws {
 let args=CommandLine.arguments
 #if arch(arm64)
 let command=args.dropFirst().first ?? ""
-let fanCommands=["probe","fan-probe","serve","cooling","test-fans","auto"]
+let fanCommands=["probe","fan-probe","serve","cooling","test-fans","auto","clamshell-guard"]
 if !fanCommands.contains(command) && !(command=="profile" && args.count>2 && args[2]=="custom") {
     fail("Apple Silicon 当前仅支持独立风扇控制")
 }

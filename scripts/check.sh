@@ -18,6 +18,15 @@ APP="$ROOT/build/check/ThermalScope.app"
 bash "$ROOT/scripts/build.sh" "$APP"
 BIN="$(xcrun swift build "${ARGS[@]}" --show-bin-path)"
 "$BIN/ThermalCoreChecks"
+python3 - "$APP/Contents/Helpers/ThermalScopeHelper" <<'PY'
+import json, subprocess, sys
+# Exercise the packaged executable allowlist as well as the Swift protocol.
+# Invalid owner/parent identities are rejected before locks or power writes.
+result = subprocess.run([sys.argv[1], 'clamshell-guard', '0', '501', '1'], capture_output=True, text=True, check=True)
+reply = json.loads(result.stdout)
+assert not reply['ok'] and not reply['clamshell']['active'] and reply['clamshell']['failed']
+print('Packaged clamshell guard rejects invalid authorization identities without hardware writes.')
+PY
 python3 -m unittest discover -s Tests/Performance -v
 python3 -m unittest discover -s Tests/Release -v
 "$APP/Contents/MacOS/ThermalScope" --hidden-view-update-check
