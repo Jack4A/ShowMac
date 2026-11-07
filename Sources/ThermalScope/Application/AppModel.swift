@@ -13,7 +13,7 @@ struct TimelineEvent: Identifiable {
 @MainActor final class AppModel: ObservableObject {
     let processes=ProcessObserver()
     let optimization=PowerOptimizationModel()
-    let clamshell=ClamshellModeModel()
+    let clamshell=ClamshellModeModel(defaults:CommandLine.arguments.contains("--ui-check") ? nil:.standard)
     let diagnostics=DiagnosisStore()
     let updates=AppUpdateController()
     let loginItem=LoginItemController(preview:CommandLine.arguments.contains("--ui-check"))
@@ -229,6 +229,11 @@ struct TimelineEvent: Identifiable {
         clamshell.perform={ [weak self] request,completion in
             self?.control(request,completion:completion)
         }
+        clamshell.canPerform={ [weak self] in
+            guard let self else{return false}
+            return !self.busy && !self.fanSuspending && !self.isFanControlPreview
+        }
+        if !isFanControlPreview {clamshell.startObservingPower()}
         if menuItems.isEmpty { menuItems=[.temperature] }
         let savedInterval=UserDefaults.standard.double(forKey:"sampleInterval")
         if savedInterval==2 || savedInterval==5 { interval=savedInterval }
@@ -496,5 +501,5 @@ struct TimelineEvent: Identifiable {
         do { try Export.csv(history).write(to:url,atomically:true,encoding:.utf8); report(String(format:L("已导出 %d 条采样。"),history.count),error:false) }
         catch { report(error.localizedDescription,error:true) }
     }
-    func shutdown() { fanSuspending=true;fanRestorePending=false;fanStopWork?.cancel();fanAutomationWork?.cancel();electricity.shutdown();tokens.shutdown();updates.shutdown();widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
+    func shutdown() { clamshell.shutdown();fanSuspending=true;fanRestorePending=false;fanStopWork?.cancel();fanAutomationWork?.cancel();electricity.shutdown();tokens.shutdown();updates.shutdown();widgetPublisher.shutdown();controller.shutdown(); processes.shutdown();optimization.shutdown();timer?.cancel() }
 }

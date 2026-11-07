@@ -7385,5 +7385,32 @@
   },
   "设置…": {
     "en": "Settings…"
+  },
+  "手动开启": {
+    "en": "Enable manually"
+  },
+  "接通电源时自动开启": {
+    "en": "When connected to power"
+  },
+  "开启条件": {
+    "en": "Activation condition"
+  },
+  "自动规则已开启，等待接通电源": {
+    "en": "Automatic rule enabled. Waiting for external power."
+  },
+  "自动开启已暂停，可重试或重新接通电源": {
+    "en": "Automatic activation is paused. Retry or reconnect power."
+  },
+  "合盖运行已中断，可重试或重新接通电源": {
+    "en": "Closed-lid mode was interrupted. Retry or reconnect power."
+  },
+  "无法确认电源状态，自动开启已暂停": {
+    "en": "Power status is unavailable. Automatic activation is paused."
+  },
+  "自动规则会保留；ShowMac 运行时满足条件便开启，拔电或退出后恢复休眠。": {
+    "en": "The automatic rule is remembered. It runs while ShowMac is open; disconnecting power or quitting restores sleep."
+  },
+  "重试": {
+    "en": "Retry"
   }
 }

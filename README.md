@@ -73,9 +73,13 @@ A matching foreground app takes priority. Switching to an unrelated app keeps th
 
 Before applying control, quit other fan controllers to avoid competing commands. On Intel, Turbo Boost control reuses an already installed, macOS-approved `com.rugarciap.DisableTurboBoost` extension. ShowMac does not bundle or download that driver.
 
+### Launch at login
+
+Enable **Settings → General → Launch at login** to run ShowMac in the menu bar after signing in, without opening its main window. If macOS requests approval, use the System Settings button beside the switch. Combine this with an explicitly enabled closed-lid automatic rule to recheck external power after login.
+
 ### Keep working with the lid closed
 
-Open **Settings → Closed-lid mode**, or click the laptop button at the bottom of the menu bar popover. Connect a MacBook to external power to enable it; macOS administrator authorization is required the first time. It can keep background tasks running without an external display. System sleep is blocked while enabled; display sleep keeps its existing settings. Unplug, turn off the switch, quit ShowMac, or reach critical thermal pressure to stop. Every app launch starts with this mode off. Keep vents clear and turn it off before packing your Mac.
+Open **Settings → Closed-lid mode**, or click the laptop button at the bottom of the menu bar popover. Connect a MacBook to external power to enable it; macOS administrator authorization is required the first time. It can keep background tasks running without an external display. System sleep is blocked while enabled; display sleep keeps its existing settings. Unplug, turn off the switch, quit ShowMac, or reach critical thermal pressure to stop. Choose **Activation condition → When connected to power** to enable it automatically on AC power. The main switch arms the rule even while on battery, and the rule is remembered across app launches. Manual mode still starts off on every launch. Power-source notifications trigger reevaluation; a denied authorization pauses automatic activation until you retry or reconnect power. ShowMac must be running. Keep vents clear and turn it off before packing your Mac.
 
 ShowMac prepares a boot recovery job before changing the system `disablesleep` setting. An independent watchdog restores sleep when the app or control helper exits; if both are forcibly terminated, the next boot also restores it. Temporary recovery files are removed after restoration. Fan scenes, Turbo Boost and display sleep timers are unchanged. Desktop Macs cannot enable this mode. It uses system commands; physical closed-lid behavior still needs validation on each supported Mac/macOS combination.
 

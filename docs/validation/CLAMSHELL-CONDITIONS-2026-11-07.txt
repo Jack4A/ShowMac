@@ -1,0 +1,35 @@
+ShowMac 1.18.25 (292) — conditional closed-lid mode, local validation
+
+Behavior
+- Two activation choices: manual, or automatically while connected to external power.
+- The main switch explicitly arms/disarms automatic operation, including while on battery.
+- Displayed states distinguish the saved rule from a verified, currently active sleep override.
+- Only an explicitly armed automatic rule resumes after relaunch; manual mode still starts off.
+- IOKit power-source notifications recheck eligibility without waiting for the sampling timer.
+- Existing helper watchdog independently enforces external power, process lifetime, and critical thermal pressure.
+- Disconnection restores sleep while preserving the armed rule; reconnecting can activate a new session.
+- A denied authorization or interrupted session pauses retries until explicit retry or a new known power/eligibility interval.
+- Unknown power readings do not reset authorization backoff. Other hardware controls defer activation while busy.
+- Turning off during a pending activation releases a late successful override.
+- Failed replies retain reported ownership so partial activation can be restored.
+- Shutdown cancels observation and never restarts the override; existing helper shutdown/boot recovery remains in place.
+
+Validation
+- Local release compilation and app/helper/widget packaging passed.
+- Dedicated manual/automatic fixtures passed: eligibility, power connect/disconnect, saved rules,
+  denied authorization, retry, unknown power, in-flight cancellation, partial activation rollback,
+  failed-stop retry suppression, interrupted guard, busy deferral, desktop gate and shutdown isolation.
+- 16 localized light/dark manual, waiting, active and error card captures rendered; checked English Retry text.
+- 26 whole-app compatibility fixtures passed without saved preference changes.
+- Login-item and fan-scene regression checks passed; 143 core checks passed without hardware writes.
+- 1271 localization keys passed, including English coverage and format arguments.
+- /Applications/showmac.app installed as 1.18.25 (292); host/helper/resources match the checked local bundle.
+- Native settings show Activation condition, manual/off default, MacBook-only gating and version 1.18.25 (292).
+- Existing login-startup setting was preserved. No automatic clamshell rule was enabled on the user's machine.
+
+Limits
+- Current physical host is a desktop Mac; actual MacBook lid, unplug/replug, sleep and reboot behavior remains unverified.
+- Conditions were exercised with isolated simulated power and control responses, not real privileged writes.
+- Local SDK 27 build declares macOS 12.0; official SDK 26.5 source target remains macOS 11.0.
+- This local preview remains ad-hoc signed and non-notarized. No Gatekeeper settings or signing permissions changed.
+- Existing public v1.18.23 release and website downloads were not changed.

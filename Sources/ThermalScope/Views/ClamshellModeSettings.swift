@@ -15,16 +15,33 @@ struct ClamshellModeSettings:View {
                 }
                 Spacer(minLength:8)
                 if mode.changing {ProgressView().appControlSize(.small)}
-                Toggle(L("合盖运行"),isOn:Binding(get:{mode.status.active},set:{mode.setEnabled($0)}))
+                Toggle(L("合盖运行"),isOn:Binding(get:{mode.isEnabled},set:{mode.setEnabled($0)}))
                     .labelsHidden().toggleStyle(.switch).accentColor(Palette.violet)
-                    .disabled(busy || mode.changing || (!mode.status.active && !mode.canEnable))
+                    .disabled(busy || mode.changing || !mode.canSetEnabled)
                     .help(L("开启期间阻止系统休眠，屏幕仍可熄灭。"))
                     .accessibilityIdentifier("settingsClamshellMode")
             }
-            Text(L(mode.detail)).font(.caption)
-                .foregroundColor(mode.status.failed ? Color.orange:Palette.secondaryText)
-                .fixedSize(horizontal:false,vertical:true)
-            Text(L("仅接电时生效；拔电、关闭开关或退出 ShowMac 后恢复休眠。请保持通风，放入包前关闭。"))
+            Divider().opacity(0.5)
+            HStack(spacing:12) {
+                Text(L("开启条件")).font(AppTypography.body)
+                Spacer(minLength:8)
+                AppChoicePicker(title:L("开启条件"),selection:Binding(get:{mode.activation},set:{mode.setActivation($0)}),
+                                choices:ClamshellActivation.allCases.map{AppChoice($0,L($0.title))})
+                    .disabled(busy || mode.changing || !mode.canArmAutomatic)
+                    .accessibilityIdentifier("clamshellActivation")
+            }
+            HStack(alignment:.top,spacing:10) {
+                Text(L(mode.detail)).font(.caption)
+                    .foregroundColor(mode.status.failed || mode.automaticIssue != nil ? Color.orange:Palette.secondaryText)
+                    .fixedSize(horizontal:false,vertical:true)
+                    .accessibilityIdentifier("clamshellConditionStatus")
+                Spacer(minLength:0)
+                if mode.canRetryAutomatic {
+                    Button(L("重试")){mode.retryAutomatic()}.buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
+                        .disabled(busy || mode.changing).accessibilityIdentifier("retryClamshellAutomatic")
+                }
+            }
+            Text(L(mode.explanation))
                 .font(.caption).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
         }.subtlePanel(padding:18)
     }
@@ -35,14 +52,14 @@ struct ClamshellStatusButton:View {
     let busy:Bool
     var body:some View {
         if mode.environment?.portable==true {
-            Button {mode.setEnabled(!mode.status.active)} label:{
+            Button {mode.setEnabled(!mode.isEnabled)} label:{
                 Image(systemName:AppSymbols.resolve("laptopcomputer"))
                     .foregroundColor(mode.status.active ? Palette.violet:Palette.secondaryText)
             }
             .help(L("合盖运行")+" · "+L(mode.detail))
-            .accessibilityLabel(L("合盖运行")+" · "+L(mode.status.active ? "已开启":"已关闭"))
+            .accessibilityLabel(L("合盖运行")+" · "+L(mode.detail))
             .accessibilityIdentifier("statusClamshellMode")
-            .disabled(busy || mode.changing || (!mode.status.active && !mode.canEnable))
+            .disabled(busy || mode.changing || !mode.canSetEnabled)
         }
     }
 }
