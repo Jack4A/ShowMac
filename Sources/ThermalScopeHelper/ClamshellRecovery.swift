@@ -9,6 +9,10 @@ import ThermalCore
 enum ClamshellRecovery {
     static let script="/Library/PrivilegedHelperTools/cc.showmac.clamshell-recovery"
     static let job="/Library/LaunchDaemons/cc.showmac.clamshell-recovery.plist"
+    static var isPrepared:Bool {
+        var info=stat()
+        return lstat(job,&info)==0 && info.st_uid==0 && info.st_mode & S_IFMT == S_IFREG && info.st_mode & 0o077==0
+    }
     static let body="""
     #!/bin/sh
     set -eu

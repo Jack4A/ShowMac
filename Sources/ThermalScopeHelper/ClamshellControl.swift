@@ -3,6 +3,33 @@ import Darwin
 import CSMC
 import ThermalCore
 
+/// Both activation and emergency recovery use the same exclusive lock. A dead
+/// guard's parent must not restore over a newly started ShowMac session.
+private func clamshellLock() throws ->Int32? {
+    let fd=open("/var/run/showmac-clamshell.lock",O_CREAT|O_RDWR|O_NOFOLLOW|O_CLOEXEC,0o600)
+    guard fd>=0 else {throw ScopeError.message("无法建立合盖运行会话")}
+    var info=stat()
+    guard fstat(fd,&info)==0,info.st_uid==0,info.st_mode & S_IFMT == S_IFREG,info.st_mode & 0o077==0 else {
+        close(fd);throw ScopeError.message("无法建立合盖运行会话")
+    }
+    if flock(fd,LOCK_EX|LOCK_NB) != 0 {
+        let busy=errno==EWOULDBLOCK;close(fd)
+        if busy {return nil}
+        throw ScopeError.message("无法建立合盖运行会话")
+    }
+    return fd
+}
+private func recoverAfterGuardExit(owned:Bool) throws ->Bool {
+    guard let fd=try clamshellLock() else{return false}
+    defer{close(fd)}
+    // A startup acknowledgement may be lost after pmset applies the write.
+    // The prepared recovery job is proof that rollback was armed beforehand.
+    guard owned || ClamshellRecovery.isPrepared else{return false}
+    try NativeClamshellPower.writeSleepDisabled(false)
+    try ClamshellRecovery.clear()
+    return true
+}
+
 /// Runs separately from the fan helper. Losing the parent IPC connection also
 /// releases the override, including when the parent helper is force-terminated.
 func runClamshellGuard(_ args:[String]) throws {
@@ -12,14 +39,8 @@ func runClamshellGuard(_ args:[String]) throws {
     }
     signal(SIGPIPE,SIG_IGN);ts_install_stop_handlers()
     let output=ControlChannel(fd:STDOUT_FILENO)
-    let lockFD=open("/var/run/showmac-clamshell.lock",O_CREAT|O_RDWR|O_NOFOLLOW|O_CLOEXEC,0o600)
-    guard lockFD>=0 else {throw ScopeError.message("无法建立合盖运行会话")}
+    guard let lockFD=try clamshellLock() else {throw ScopeError.message("合盖运行会话已被占用")}
     defer{close(lockFD)}
-    var info=stat()
-    guard fstat(lockFD,&info)==0,info.st_uid==0,info.st_mode & S_IFMT == S_IFREG,
-          info.st_mode & 0o077 == 0,flock(lockFD,LOCK_EX|LOCK_NB)==0 else {
-        throw ScopeError.message("合盖运行会话已被占用")
-    }
     let lease=ClamshellLease(power:NativeClamshellPower())
     func send(_ status:ClamshellStatus) {
         var reply=ControlReply(ok:!status.failed,message:status.message);reply.clamshell=status
@@ -107,10 +128,13 @@ final class ClamshellController {
             }
             output.fileHandleForReading.closeFile()
             lock.lock()
-            if current.active {
+            if current.active || ClamshellRecovery.isPrepared {
                 // A killed watchdog cannot run defer/cleanup. The still-live
                 // session helper takes responsibility for the runtime override.
-                do {try NativeClamshellPower.writeSleepDisabled(false);try ClamshellRecovery.clear();current=ClamshellStatus(message:"合盖运行会话已中断，系统休眠已恢复")}
+                do {
+                    let restored=try recoverAfterGuardExit(owned:current.active)
+                    current=ClamshellStatus(message:restored ? "合盖运行会话已中断，系统休眠已恢复":"合盖运行已关闭")
+                }
                 catch {current=ClamshellStatus(active:true,message:error.localizedDescription,failed:true)}
             }
             stopPipe?.closeFile();stopPipe=nil;process=nil
@@ -130,8 +154,7 @@ final class ClamshellController {
         }
         let status=status()
         if status.active {
-            try NativeClamshellPower.writeSleepDisabled(false)
-            try ClamshellRecovery.clear()
+            _=try recoverAfterGuardExit(owned:true)
             lock.lock();current=ClamshellStatus();lock.unlock()
         }
     }
