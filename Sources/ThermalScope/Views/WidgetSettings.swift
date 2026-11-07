@@ -8,19 +8,15 @@ struct WidgetSettings:View {
     init(model:AppModel){self.model=model;self.publisher=model.widgetPublisher}
     @State private var showPreview=false
     var body:some View {
-        HStack(alignment:.top,spacing:12) {
-            Image(systemName:AppSymbols.resolve("square.grid.2x2")).foregroundColor(Palette.violet).font(.system(size:17)).frame(width:24)
-            VStack(alignment:.leading,spacing:5) {
-                Text(L("系统小组件")).font(.system(size:12,weight:.medium))
-                if #available(macOS 14,*) {Text(L("桌面与通知中心 · 小、中、大三种尺寸")).font(.system(size:12)).foregroundColor(Palette.secondaryText)}
-                else {Text(L("通知中心 · 小、中、大三种尺寸")).font(.system(size:12)).foregroundColor(Palette.secondaryText)}
-                Text(L("刷新由 macOS 调度，卡片显示采样时间。")).font(.system(size:12)).foregroundColor(Palette.secondaryText)
-                if publisher.error != nil {Text(L("暂时无法提供组件数据")).font(.system(size:12)).foregroundColor(.orange)}
-                else if let date=publisher.lastPublished {HStack(spacing:4){Text(L("采样时间"));Text(date,style:.time).appMonospacedDigit()}.font(.system(size:12)).foregroundColor(Palette.secondaryText)}
-            }
+        HStack(spacing:12) {
+            Text(L("系统小组件")).font(AppTypography.body)
+                .help(L("刷新由 macOS 调度，卡片显示采样时间。"))
             Spacer()
+            if publisher.error != nil {Image(systemName:AppSymbols.resolve("exclamationmark.circle")).foregroundColor(.orange).help(L("暂时无法提供组件数据")).accessibilityLabel(L("暂时无法提供组件数据"))}
             Button(L("预览与添加")){showPreview=true}.buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
-        }.subtlePanel().sheet(isPresented:$showPreview){WidgetPreviewSheet(model:model,onClose:{showPreview=false}).preferredColorScheme(model.colorScheme)}
+                .accessibilityIdentifier("settingsWidgetPreview")
+        }.sheet(isPresented:$showPreview){WidgetPreviewSheet(model:model,onClose:{showPreview=false}).preferredColorScheme(model.colorScheme)}
+            .onReceive(model.navigation.$preferencesSection){if $0 == .widgets {showPreview=true}}
     }
 }
 struct WidgetPreviewSheet:View {

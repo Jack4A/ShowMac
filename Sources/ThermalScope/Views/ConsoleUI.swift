@@ -23,7 +23,7 @@ struct ConsoleShell:View {
                     }
                     Spacer()
                 }.consolePageContent().padding(.top,navigation.metric != nil ? 25:20).padding(.bottom,14)}
-                if model.noticeVisible,(model.tab==1 || navigation.page != .thermal || model.messageIsError) {OperationNotice(model:model).padding(.horizontal,28).padding(.bottom,12)}
+                if model.noticeVisible,(model.messageIsError || (model.tab==0 && navigation.page != .thermal)) {OperationNotice(model:model).consolePageContent().padding(.bottom,12)}
                 if model.tab==0,navigation.page == .thermal {
                     FanControlPage(model:model)
                 } else if model.tab==0,navigation.page == .sensors {

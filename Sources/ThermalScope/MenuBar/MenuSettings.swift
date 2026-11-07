@@ -23,45 +23,57 @@ enum MenuMetric:String,CaseIterable,Identifiable,Codable {
 
 struct MenuSettings:View {
     @ObservedObject var model:AppModel
+    @ObservedObject private var navigation:DiagnosticNavigation
+    private enum Editor {case components,cards,appearance}
     @State private var editing:MenuBarComponent?
-    @State private var showAppearance=false
-    @State private var showCards=false
+    @State private var expanded:Editor?
+    init(model:AppModel){self.model=model;self.navigation=model.navigation}
+    private func selection(_ editor:Editor)->Binding<Bool> {
+        Binding(get:{expanded==editor},set:{expanded=$0 ? editor:nil})
+    }
+    private var divider:some View {Divider().opacity(0.5).padding(.horizontal,16)}
     var body:some View {
-        VStack(alignment:.leading,spacing:16) {
-            if model.menuStyle == "custom" {
-                MenuCompositionCanvas(model:model,onEdit:{editing=$0})
-            } else {
-                VStack(alignment:.leading,spacing:14) {
-                    Text(L("状态栏定制")).font(AppTypography.section)
-                    MenuLivePreview(readings:model.readings,items:model.menuItems,style:model.menuStyle)
-                    Text(L("当前使用兼容布局，可切换为逐项定制。")).font(AppTypography.body)
-                    Button(L("启用逐项定制")){enableCustomization()}.buttonStyle(AppNativeButtonStyle())
+        VStack(alignment:.leading,spacing:0) {
+            AppDisclosureGroup(isExpanded:selection(.components),inset:8) {
+                if model.menuStyle == "custom" {
+                    MenuCompositionCanvas(model:model,embedded:true,onEdit:{editing=$0}).padding(.top,4)
+                } else {
+                    VStack(alignment:.leading,spacing:14) {
+                        MenuLivePreview(readings:model.readings,items:model.menuItems,style:model.menuStyle)
+                        Button(L("启用逐项定制")){enableCustomization()}.buttonStyle(AppNativeButtonStyle())
+                    }.padding(.top,6)
                 }
-                .subtlePanel(padding:18)
-            }
-            AppDisclosureGroup(isExpanded:$showCards,inset:18) {
-                StatusCardEditor(model:model,embedded:true).padding(.top,8)
             } label:{
-                HStack(spacing:12) {
-                    Text(L("弹窗内容")).font(AppTypography.body.weight(.medium))
-                    Spacer(minLength:4)
-                    Text(String(format:L("%d 张卡片"),model.statusPanel.cards.count))
-                        .font(AppTypography.caption).foregroundColor(Palette.secondaryText)
-                }
-            }.subtlePanel(padding:0).accessibilityIdentifier("settingsStatusCards")
+                rowLabel("菜单栏组件",summary:String(format:L("%d 项"),model.effectiveMenuComponents.count))
+            }.accessibilityIdentifier("settingsMenuComponents")
+            divider
+            AppDisclosureGroup(isExpanded:selection(.cards),inset:8) {
+                StatusCardEditor(model:model,embedded:true,showsHeading:false).padding(.top,4)
+            } label:{rowLabel("弹窗卡片",summary:String(format:L("%d 张卡片"),model.statusPanel.cards.count))}
+                .accessibilityIdentifier("settingsStatusCards")
             if model.menuStyle == "custom" {
-                AppDisclosureGroup(L("字体与外观"),isExpanded:$showAppearance,inset:18) {
-                    VStack(alignment:.leading,spacing:18) {
+                divider
+                AppDisclosureGroup(isExpanded:selection(.appearance),inset:8) {
+                    VStack(alignment:.leading,spacing:16) {
                         MenuFontControls(model:model)
                         Divider().opacity(0.45)
                         MenuAppearanceControls(model:model)
-                    }.padding(.top,14)
-                }.font(AppTypography.body).subtlePanel(padding:0)
+                    }.padding(.top,8)
+                } label:{rowLabel("字体与间距",summary:String(format:"%g pt",model.menuTypography.size))}
+                    .accessibilityIdentifier("settingsMenuAppearance")
             }
         }.sheet(item:$editing) {component in
             MenuTileEditor(model:model,componentID:component.id,metric:component.metric,onClose:{editing=nil})
                 .preferredColorScheme(model.colorScheme)
         }
+        .onReceive(navigation.$preferencesSection){if $0 == .menubar {expanded = .components}}
+    }
+    private func rowLabel(_ title:String,summary:String)->some View {
+        HStack(spacing:12) {
+            Text(L(title)).font(AppTypography.body)
+            Spacer(minLength:4)
+            Text(summary).font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+        }.padding(.trailing,4)
     }
     func enableCustomization() {
         let legacy=model.menuStyle

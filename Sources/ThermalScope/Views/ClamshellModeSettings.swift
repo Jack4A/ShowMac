@@ -4,18 +4,32 @@ import ThermalCore
 struct ClamshellModeSettings:View {
     @ObservedObject var mode:ClamshellModeModel
     let busy:Bool
-    var body:some View {
+    var embedded=false
+    @ViewBuilder var body:some View {
+        if embedded {contents}
+        else {contents.subtlePanel(padding:18)}
+    }
+    private var contents:some View {
         HStack(spacing:12) {
+                if !embedded {
                 Image(systemName:AppSymbols.resolve("laptopcomputer"))
                     .font(.system(size:20)).foregroundColor(Palette.violet).frame(width:30)
+                }
                 VStack(alignment:.leading,spacing:4) {
-                    Text(L("合盖运行")).font(AppTypography.body.weight(.semibold))
+                    Text(L("合盖运行")).font(embedded ? AppTypography.body:AppTypography.body.weight(.semibold))
+                    if !embedded {
                     Text(L(mode.summary)).font(.caption)
                         .foregroundColor(mode.status.failed || mode.automaticIssue != nil ? Color.orange:Palette.secondaryText)
                         .fixedSize(horizontal:false,vertical:true)
                         .accessibilityIdentifier("clamshellConditionStatus")
+                    }
                 }
                 Spacer(minLength:8)
+                if embedded,mode.isEnabled,!mode.changing {
+                    Text(L(mode.status.failed || mode.automaticIssue != nil ? "已暂停":(mode.status.active ? "运行中":"等待接电")))
+                        .font(AppTypography.caption).foregroundColor(mode.status.failed || mode.automaticIssue != nil ? Color.orange:Palette.secondaryText)
+                        .help(L(mode.detail))
+                }
                 if mode.changing {ProgressView().appControlSize(.small)}
                 Toggle(L("合盖运行"),isOn:Binding(get:{mode.isEnabled},set:{mode.setEnabled($0)}))
                     .labelsHidden().toggleStyle(.switch).accentColor(Palette.violet)
@@ -37,7 +51,7 @@ struct ClamshellModeSettings:View {
                     .disabled(busy || mode.changing || !mode.canArmAutomatic)
                     .help(L("更多选项")).accessibilityLabel(L("合盖运行")+" · "+L("更多选项"))
                     .accessibilityIdentifier("clamshellMoreOptions")
-        }.subtlePanel(padding:18)
+        }.help(L(mode.detail)).accessibilityValue(L(mode.detail))
     }
 }
 

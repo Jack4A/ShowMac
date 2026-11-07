@@ -1,0 +1,24 @@
+ShowMac 1.18.27 (294) — settings layout refinement
+
+- Three compact groups: General, Menu bar, Features; app/developer/update information stays at the bottom.
+- Uniform row spacing and aligned controls. Removed group subtitles, duplicated headings and always-visible instructional paragraphs.
+- Menu bar items, popover cards, and font/spacing share one group; only the current editor expands.
+- Existing component composition, colors, icons, card add/reorder/remove and zero-padding controls are retained.
+- Login startup stays directly visible. Closed-lid mode remains one switch with AC automation as its default.
+- Widget preview opens directly; help and last-update time appear on hover. Errors remain visible.
+- Settings suppress generic successful-operation banners; other pages and error feedback retain existing behavior.
+
+Verification
+- Local SDK27 release compile, app/helper/widget packaging and deep strict signature passed.
+- 26 Chinese and 26 English light/dark whole-app fixture layouts passed; 1284 localization keys passed.
+- Menu composition, menu customization, status cards, app updates, login item and closed-lid regression checks passed with isolated fixtures.
+- Native installed UI: default groups fit approximately one normal window; version is 1.18.27 (294).
+- Native component editor opens with the existing icon/color/style selections.
+- Opening popover cards closes component editing; adding a card opens the sensor picker without changing the existing five cards.
+- Opening font/spacing closes cards; user's outer/inner padding 0, spacing 18, graph width 44 and font 11.5 remain available.
+- Widget preview opens and closes normally. Left the page with all three editors collapsed.
+- Existing six menu items, five cards, language, light theme, login startup and automatic-update preferences were preserved.
+- /Applications/showmac.app host/helper/localization hashes match the checked local bundle.
+
+Distribution remains local: ad-hoc signing, no notarization. Local SDK27 bundle declares macOS12;
+repository SDK26.5 package target remains macOS11. No public release or website downloads changed.

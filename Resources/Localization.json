@@ -7430,5 +7430,26 @@
   },
   "更多选项": {
     "en": "More options"
+  },
+  "菜单栏组件": {
+    "en": "Menu bar items"
+  },
+  "字体与间距": {
+    "en": "Font and spacing"
+  },
+  "功能": {
+    "en": "Features"
+  },
+  "等待接电": {
+    "en": "Waiting for power"
+  },
+  "运行中": {
+    "en": "Running"
+  },
+  "已暂停": {
+    "en": "Paused"
+  },
+  "%d 项": {
+    "en": "%d items"
   }
 }

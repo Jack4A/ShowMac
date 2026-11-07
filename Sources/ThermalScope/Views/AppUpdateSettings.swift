@@ -13,6 +13,7 @@ struct AppUpdateSettings:View {
                 Button(L("检查更新")){updates.checkNow()}
                     .buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
                     .disabled(updates.state == .checking).accessibilityIdentifier("checkForUpdates")
+                    .help(updates.lastCheckedAt.map{L("上次检查")+" · "+DateFormatter.localizedString(from:$0,dateStyle:.short,timeStyle:.short)} ?? L("检查更新"))
                 if updates.availableVersion != nil {
                     Menu(L("下载…")) {
                         Button(L("前往官网下载")){updates.openWebsite()}
@@ -25,10 +26,6 @@ struct AppUpdateSettings:View {
                     .help(L("每天检查一次，仅获取公开版本信息。"))
                     .accessibilityIdentifier("automaticUpdateChecks")
                 Spacer(minLength:8)
-                if let date=updates.lastCheckedAt {
-                    Text(L("上次检查")+" · "+DateFormatter.localizedString(from:date,dateStyle:.short,timeStyle:.short))
-                        .foregroundColor(Palette.secondaryText)
-                }
             }.font(.caption)
         }.accessibilityElement(children:.contain).accessibilityIdentifier("appUpdateSettings")
     }

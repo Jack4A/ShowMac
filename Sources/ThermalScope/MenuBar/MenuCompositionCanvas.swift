@@ -12,17 +12,22 @@ struct MenuCompositionCanvas:View {
     @State private var targetedID:String?
     @State private var targetedEnd=false
     @State private var targetedRemoval=false
+    let embedded:Bool
     let onEdit:(MenuBarComponent)->Void
-    init(model:AppModel,onEdit:@escaping(MenuBarComponent)->Void) {
-        self.model=model;self.readings=model.readings;self.history=model.metricHistory;self.tokens=model.tokens;self.onEdit=onEdit
+    init(model:AppModel,embedded:Bool=false,onEdit:@escaping(MenuBarComponent)->Void) {
+        self.model=model;self.readings=model.readings;self.history=model.metricHistory;self.tokens=model.tokens;self.embedded=embedded;self.onEdit=onEdit
     }
     private static let dragType="public.utf8-plain-text"
     private var components:[MenuBarComponent] {model.effectiveMenuComponents}
     private var dark:Bool {scheme == .dark}
-    var body:some View {
+    @ViewBuilder var body:some View {
+        if embedded {contents}
+        else {contents.subtlePanel(padding:18)}
+    }
+    private var contents:some View {
         VStack(alignment:.leading,spacing:14) {
             HStack {
-                Text(L("状态栏")).font(AppTypography.section)
+                if !embedded {Text(L("状态栏")).font(AppTypography.section)}
                 Spacer()
                 MenuPresetGallery(model:model)
                 Button {model.statusMenuRequested?()} label:{Image(systemName:AppSymbols.resolve("macwindow"))}
@@ -38,6 +43,7 @@ struct MenuCompositionCanvas:View {
                 }.padding(8)
             }.frame(height:66)
                 .appBackground(Palette.inset,in:RoundedRectangle(cornerRadius:8))
+                .help(L("拖动添加或排序，点按编辑。"))
             HStack(spacing:8) {
                 MenuSensorPicker(model:model,source:$source)
                 ForEach(source.metric == .tokenQuota ? [MenuTileStyle.icon,.value,.ring]:[MenuTileStyle.icon,.value,.history]) {style in template(style)}
@@ -52,8 +58,7 @@ struct MenuCompositionCanvas:View {
                     }}
                     .help(L("拖到这里移除"))
             }
-            Text(L("拖动添加或排序，点按编辑。")).font(AppTypography.caption).foregroundColor(.secondary)
-        }.subtlePanel(padding:18)
+        }
     }
     private func provider(_ token:String)->NSItemProvider {
         NSItemProvider(object:token as NSString)

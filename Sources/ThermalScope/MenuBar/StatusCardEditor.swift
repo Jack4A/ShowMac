@@ -5,6 +5,7 @@ import ThermalCore
 struct StatusCardEditor:View {
     @ObservedObject var model:AppModel
     var embedded=false
+    var showsHeading=true
     @State private var choosing=false
     @State private var search=""
     private var query:String {search.trimmingCharacters(in:.whitespacesAndNewlines)}
@@ -17,8 +18,10 @@ struct StatusCardEditor:View {
     private var settingsContents:some View {
         VStack(alignment:.leading,spacing:12) {
             HStack(spacing:8) {
-                Text(L("弹窗卡片")).font(AppTypography.section)
-                count
+                if showsHeading {
+                    Text(L("弹窗卡片")).font(AppTypography.section)
+                    count
+                }
                 Spacer()
                 addButton.popover(isPresented:$choosing,arrowEdge:.bottom) {
                     sourcePicker.padding(12).frame(width:390,height:440).appBackground{Palette.surface}

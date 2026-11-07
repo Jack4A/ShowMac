@@ -29,33 +29,36 @@ struct MenuAppearanceControls:View {
     var body:some View {
         VStack(alignment:.leading,spacing:14) {
             HStack(spacing:12) {
-                Text(L("整体外边距")).frame(width:70,alignment:.leading)
+                Text(L("整体外边距")).frame(width:110,alignment:.leading)
+                Spacer(minLength:0)
                 Slider(value:$model.menuOuterPadding,in:0...20,step:1).frame(maxWidth:210)
                     .accessibilityLabel(L("整体外边距"))
-                Text(String(format:L("左右各 %.0f pt"),model.menuOuterPadding)).appMonospacedDigit().fixedSize()
+                Text(String(format:"%.0f pt",model.menuOuterPadding)).appMonospacedDigit().frame(width:46,alignment:.trailing)
             }.help(L("调整整组组件左右两端的留白。"))
             HStack(spacing:12) {
-                Text(L("组件内边距")).frame(width:70,alignment:.leading)
+                Text(L("组件内边距")).frame(width:110,alignment:.leading)
+                Spacer(minLength:0)
                 Slider(value:$model.menuInnerPadding,in:0...20,step:1).frame(maxWidth:210)
                     .accessibilityLabel(L("组件内边距"))
-                Text(String(format:L("左右各 %.0f pt"),model.menuInnerPadding)).appMonospacedDigit().fixedSize()
+                Text(String(format:"%.0f pt",model.menuInnerPadding)).appMonospacedDigit().frame(width:46,alignment:.trailing)
             }.help(L("调整每个组件内部左右两侧的留白。"))
             HStack(spacing:12) {
-                Text(L("项目间距")).frame(width:70,alignment:.leading)
+                Text(L("项目间距")).frame(width:110,alignment:.leading)
+                Spacer(minLength:0)
                 Slider(value:$model.menuSpacing,in:MenuBarLayout.spacingRange,step:1).frame(maxWidth:210)
                     .accessibilityLabel(L("项目间距"))
-                Text(String(format:"%.0f pt",model.menuSpacing)).appMonospacedDigit().frame(width:40)
+                Text(String(format:"%.0f pt",model.menuSpacing)).appMonospacedDigit().frame(width:46,alignment:.trailing)
             }
             Toggle(L("项目分隔线"),isOn:$model.menuDividers).toggleStyle(.checkbox)
             HStack(spacing:12) {
-                Text(L("曲线宽度")).frame(width:70,alignment:.leading)
+                Text(L("曲线宽度")).frame(width:110,alignment:.leading)
+                Spacer(minLength:0)
                 Slider(value:$model.menuGraphWidth,in:28...100,step:4).frame(maxWidth:210)
-                Text(String(format:"%.0f pt",model.menuGraphWidth)).appMonospacedDigit().frame(width:40)
+                Text(String(format:"%.0f pt",model.menuGraphWidth)).appMonospacedDigit().frame(width:46,alignment:.trailing)
             }
             Toggle(L("图形底色"),isOn:$model.menuGraphBackground).toggleStyle(.checkbox)
             Toggle(L("曲线告警色"),isOn:$model.menuCPUWarnings).toggleStyle(.checkbox)
-            Text(L("CPU ≥70% 橙色，持续 ≥90% 10 秒红色；CPU 温度 ≥80/90°C、GPU ≥75/85°C 分级变色。"))
-                .foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+                .help(L("CPU ≥70% 橙色，持续 ≥90% 10 秒红色；CPU 温度 ≥80/90°C、GPU ≥75/85°C 分级变色。"))
         }.font(AppTypography.caption)
     }
 }

@@ -85,14 +85,14 @@ ShowMac prepares a boot recovery job before changing the system `disablesleep` s
 
 ### Build your menu bar
 
-1. Open **Settings → Menu bar** and choose a reading from **Choose a Menu Bar Reading**. Available sources include common metrics and readable temperature, fan, power, voltage and current sensors.
+1. Expand **Settings → Menu bar → Menu bar items** and choose a reading from **Choose a Menu Bar Reading**. Available sources include common metrics and readable temperature, fan, power, voltage and current sensors.
 2. Click or drag **Icon**, **Value** or **Trend** into the composition. Drag components to reorder them; the same reading can appear more than once.
 3. Click a component to edit its display style, icon and color. Choose a built-in symbol or your own image. Colors default to **Black & white (default)**; each component can use a preset or custom color.
-4. Expand **Typography and appearance** to adjust menu bar font, item spacing, whole-group outer padding, component inner padding and chart width. Both padding controls support **0**. Warning colors and chart fill can be toggled here.
+4. Expand **Font and spacing** to adjust menu bar font, item spacing, whole-group outer padding, component inner padding and chart width. Both padding controls support **0**. Warning colors and chart fill can be toggled here.
 
 ### Choose the popover cards
 
-Expand **Settings → Popover content → Add card**, or click **Edit** in the menu bar popover. Keep 1–8 metric or sensor cards; use the arrows to reorder and the remove button to delete. Fan controls and top CPU processes can be shown independently. Changes save automatically.
+Expand **Settings → Menu bar → Popover cards → Add card**, or click **Edit** in the menu bar popover. Keep 1–8 metric or sensor cards; use the arrows to reorder and the remove button to delete. Fan controls and top CPU processes can be shown independently. Changes save automatically.
 
 Hold and drag a popover card: drop onto another card to reorder, or into the removal zone at the bottom to remove. Clicking still opens details. Cancelling or dropping outside preserves the layout; at least one metric card stays. The Token summary can be removed independently and restored with **Show Token usage and allowance** in Popover cards.
 
