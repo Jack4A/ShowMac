@@ -1,0 +1,36 @@
+ShowMac 1.18.24 (291) — local UI and login startup validation
+
+Changes
+- General settings first: login startup, appearance, language, sampling.
+- Removed the redundant settings-page introduction.
+- Popover content and menu appearance expand only on request; whole headers remain clickable.
+- About remains at the bottom. Existing menu composition and sensor/card settings are preserved.
+- Shared 1120-point maximum reading width and a stable leading edge across main pages.
+- Command-comma opens General; popover Settings scrolls to menu customization.
+- macOS 13+ uses SMAppService.mainApp and displays OS registration/approval state.
+- macOS 11–12 uses an opt-in per-user Aqua login LaunchAgent without KeepAlive or privilege elevation.
+- Login launches stay in the menu bar; manually opening the app shows its main window.
+
+Checks
+- Local SDK 27 release compile and app/helper/widget packaging passed.
+- 143 core checks passed without hardware writes.
+- Login fixture checks passed: enable/disable, duplicate suppression, denial, OS-state refresh,
+  pending approval, Apple login event and legacy launch arguments, Unicode/spaced paths,
+  round-trip legacy plist, no KeepAlive, and symlink rejection.
+- 1262 localization keys passed, including explicit English fallback and format verification.
+- Hidden-view subscription check passed.
+- 26 Chinese and 26 English light/dark fixture layouts passed without preference changes.
+- Native installation at /Applications/showmac.app verified by binary/resource hashes and deep strict codesign.
+- Native command-comma, whole-row popover-content expansion, and popover-to-menu-settings navigation passed.
+- Native login startup: off -> on; quit/reopen preserved on; disabled successfully; left off for user choice.
+- No real logout or reboot was performed. Older macOS login behavior was fixture-checked, not hardware-certified.
+
+Distribution limits
+- This is an ad-hoc signed, non-notarized local preview. No Gatekeeper settings were changed.
+- This host only has SDK 27, so the installed local preview truthfully declares macOS 12.0.
+- Repository/official package target remains macOS 11.0 with the existing SDK 26.5 build guard.
+- Existing public v1.18.23 release and website downloads were not changed.
+- Xcode Developer ID Application certificate creation was attempted with user approval.
+  Apple rejected it: “This operation can only be performed by the Account Holder.”
+  The signed-in Jack John team account has Admin role. No signing key was created or exported.
+  Developer ID signing and Apple notarization remain pending the Account Holder step.

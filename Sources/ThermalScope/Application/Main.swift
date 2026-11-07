@@ -111,7 +111,13 @@ import WidgetUI
             }
             window.orderFront(nil)
             window.displayIfNeeded()
-        } else { updateVisualVisibility();model.updates.start() }
+        } else {
+            if LoginLaunch.isAutomatic(arguments:CommandLine.arguments,event:NSAppleEventManager.shared().currentAppleEvent) {
+                NSApp.setActivationPolicy(.accessory)
+                updateVisualVisibility()
+            } else {showWindow()}
+            model.updates.start()
+        }
     }
     @objc func statusItemClicked(_ sender:Any?) {
         if NSApp.currentEvent?.type == .rightMouseUp || NSApp.currentEvent?.modifierFlags.contains(.control) == true {showStatusActions()}
@@ -265,6 +271,7 @@ import WidgetUI
         let about=NSMenuItem(title:L("关于ShowMac"),action:#selector(showAbout),keyEquivalent:"");about.target=self;appMenu.addItem(about)
         let project=NSMenuItem(title:L("GitHub 项目"),action:#selector(openProject),keyEquivalent:"");project.target=self;appMenu.addItem(project)
         let updates=NSMenuItem(title:L("检查更新…"),action:#selector(checkForUpdates),keyEquivalent:"");updates.target=self;appMenu.addItem(updates)
+        let preferences=NSMenuItem(title:L("设置…"),action:#selector(openGeneralPreferences),keyEquivalent:",");preferences.target=self;appMenu.addItem(preferences)
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle:L("隐藏ShowMac"),action:#selector(NSApplication.hide(_:)),keyEquivalent:"h")
         appMenu.addItem(.separator())
@@ -288,10 +295,12 @@ import WidgetUI
         NSApp.mainMenu=main;NSApp.windowsMenu=windowMenu
     }
     @objc func beginPerformanceObservation(){performanceProbe?.start()}
+    @objc func openGeneralPreferences(){model.navigation.preferencesSection = .general;showPreferences()}
     @objc func endPerformanceObservation(){performanceProbe?.stop()}
     @objc func exportSamples() { model.exportCSV() }
     @objc func refreshSamples() { model.refresh() }
     func applicationWillTerminate(_ notification:Notification) {performanceProbe?.stop();model.shutdown()}
+    func applicationDidBecomeActive(_ notification:Notification) {model.loginItem.refresh()}
     func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows flag:Bool)->Bool {statusPopover.performClose(nil);showWindow();return true}
     func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication)->Bool { false }
 
@@ -310,6 +319,7 @@ import WidgetUI
         if args.contains("--menu-composition-check") {MenuCompositionCheck.run();return}
         if args.contains("--menu-customization-check") {MenuCustomizationCheck.run();return}
         if args.contains("--app-update-check") {AppUpdateCheck.run();return}
+        if args.contains("--login-item-check") {LoginItemCheck.run();return}
         if args.contains("--fan-scenes-check") {FanScenesCheck.run();return}
         if args.contains("--token-usage-diagnostic") {TokenUsageDiagnostic.run();return}
         if args.contains("--electricity-check") {ElectricityHistoryCheck.run();return}

@@ -25,6 +25,7 @@ struct MenuSettings:View {
     @ObservedObject var model:AppModel
     @State private var editing:MenuBarComponent?
     @State private var showAppearance=false
+    @State private var showCards=false
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
             if model.menuStyle == "custom" {
@@ -38,7 +39,16 @@ struct MenuSettings:View {
                 }
                 .subtlePanel(padding:18)
             }
-            StatusCardEditor(model:model,embedded:true).subtlePanel(padding:18)
+            AppDisclosureGroup(isExpanded:$showCards,inset:18) {
+                StatusCardEditor(model:model,embedded:true).padding(.top,8)
+            } label:{
+                HStack(spacing:12) {
+                    Text(L("弹窗内容")).font(AppTypography.body.weight(.medium))
+                    Spacer(minLength:4)
+                    Text(String(format:L("%d 张卡片"),model.statusPanel.cards.count))
+                        .font(AppTypography.caption).foregroundColor(Palette.secondaryText)
+                }
+            }.subtlePanel(padding:0).accessibilityIdentifier("settingsStatusCards")
             if model.menuStyle == "custom" {
                 AppDisclosureGroup(L("字体与外观"),isExpanded:$showAppearance,inset:18) {
                     VStack(alignment:.leading,spacing:18) {

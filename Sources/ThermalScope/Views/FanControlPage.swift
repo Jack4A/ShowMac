@@ -34,7 +34,7 @@ struct FanControlPage:View {
                     Button(L("风扇测试…")){confirmTest=true}.buttonStyle(.borderless).font(.system(size:12)).disabled(model.busy || !ControlAvailability.fansAvailable(readings.snapshot))
                 }.fixedSize()
             }
-        }.padding(.horizontal,28).padding(.bottom,20)
+        }.consolePageContent().padding(.bottom,20)
         }.onAppear {
                 curve=model.sessionCurve ?? model.customCurve
                 if navigation.showFanTroubleshooting {confirmTest=true;navigation.showFanTroubleshooting=false}

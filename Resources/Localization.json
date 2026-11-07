@@ -7352,5 +7352,38 @@
   },
   "开启期间阻止系统休眠，屏幕仍可熄灭。": {
     "en": "System sleep is blocked while enabled. The display can still sleep."
+  },
+  "登录时启动": {
+    "en": "Launch at login"
+  },
+  "登录 Mac 后在状态栏运行，不打开主窗口。": {
+    "en": "Run in the menu bar after signing in to your Mac, without opening the main window."
+  },
+  "请在系统设置中允许 ShowMac 登录时启动。": {
+    "en": "Allow ShowMac to launch at login in System Settings."
+  },
+  "登录启动配置无法读取，请在系统设置中检查。": {
+    "en": "The login configuration could not be read. Check it in System Settings."
+  },
+  "请先将 ShowMac 放入应用程序文件夹。": {
+    "en": "Move ShowMac to Applications first."
+  },
+  "启动、外观与采样": {
+    "en": "Startup, appearance and sampling"
+  },
+  "硬件控制": {
+    "en": "Hardware control"
+  },
+  "仅在主动开启时改变系统行为": {
+    "en": "Changes system behavior only when you enable it"
+  },
+  "弹窗内容": {
+    "en": "Popover content"
+  },
+  "%d 张卡片": {
+    "en": "%d cards"
+  },
+  "设置…": {
+    "en": "Settings…"
   }
 }

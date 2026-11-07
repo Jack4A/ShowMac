@@ -88,7 +88,7 @@ ShowMac prepares a boot recovery job before changing the system `disablesleep` s
 
 ### Choose the popover cards
 
-Open **Settings → Popover cards → Add card**, or click **Edit** in the menu bar popover. Keep 1–8 metric or sensor cards; use the arrows to reorder and the remove button to delete. Fan controls and top CPU processes can be shown independently. Changes save automatically.
+Expand **Settings → Popover content → Add card**, or click **Edit** in the menu bar popover. Keep 1–8 metric or sensor cards; use the arrows to reorder and the remove button to delete. Fan controls and top CPU processes can be shown independently. Changes save automatically.
 
 Hold and drag a popover card: drop onto another card to reorder, or into the removal zone at the bottom to remove. Clicking still opens details. Cancelling or dropping outside preserves the layout; at least one metric card stays. The Token summary can be removed independently and restored with **Show Token usage and allowance** in Popover cards.
 

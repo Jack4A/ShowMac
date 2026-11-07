@@ -25,7 +25,7 @@ struct ConsoleSidebar:View {
             guard let value else{return}
             if navigation.metric != nil {navigation.metric=nil}
             if navigation.section != nil {navigation.section=nil}
-            if value=="preferences" {if model.tab != 1 {model.tab=1}}
+            if value=="preferences" {if model.tab != 1 {navigation.preferencesSection = .general;model.tab=1}}
             else if let page=ConsolePage(rawValue:value) {
                 if model.tab != 0 {model.tab=0}
                 if navigation.page != page {navigation.page=page}

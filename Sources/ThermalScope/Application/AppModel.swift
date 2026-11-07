@@ -16,6 +16,7 @@ struct TimelineEvent: Identifiable {
     let clamshell=ClamshellModeModel()
     let diagnostics=DiagnosisStore()
     let updates=AppUpdateController()
+    let loginItem=LoginItemController(preview:CommandLine.arguments.contains("--ui-check"))
     let navigation=DiagnosticNavigation()
     @Published var language=UserDefaults.standard.string(forKey:"appLanguage") ?? "system" {
         didSet {UserDefaults.standard.set(language,forKey:"appLanguage");AppLocalization.shared.set(language);languageChanged?()}
