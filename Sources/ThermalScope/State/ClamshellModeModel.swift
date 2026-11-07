@@ -3,7 +3,7 @@ import ThermalCore
 
 enum ClamshellActivation:String,CaseIterable {
     case manual,whenPowered
-    var title:String {self == .manual ? "手动开启":"接通电源时自动开启"}
+    var title:String {self == .manual ? "仅本次开启":"接通电源时自动开启"}
 }
 
 @MainActor final class ClamshellModeModel:ObservableObject {
@@ -24,7 +24,9 @@ enum ClamshellActivation:String,CaseIterable {
     var perform:((ControlRequest,@escaping(Result<ControlReply,Error>)->Void)->Void)?
     init(defaults:UserDefaults?=nil,readEnvironment:@escaping()throws->ClamshellEnvironment = NativeClamshellPower.readEnvironment) {
         self.defaults=defaults;self.readEnvironment=readEnvironment
-        activation=ClamshellActivation(rawValue:defaults?.string(forKey:"clamshellActivation") ?? "") ?? .manual
+        // The single switch defaults to AC automation. Keep a different mode
+        // only when it was explicitly chosen from the new secondary menu.
+        activation=ClamshellActivation(rawValue:defaults?.string(forKey:"clamshellActivationChoice") ?? "") ?? .whenPowered
         // Only an explicitly enabled automatic rule survives relaunch. Manual
         // sessions still start off, and preferences never imply an active lease.
         enabled=activation == .whenPowered && defaults?.bool(forKey:"clamshellAutomaticEnabled")==true
@@ -51,8 +53,14 @@ enum ClamshellActivation:String,CaseIterable {
     var explanation:String {
         activation == .whenPowered ? "自动规则会保留；ShowMac 运行时满足条件便开启，拔电或退出后恢复休眠。":"仅接电时生效；拔电、关闭开关或退出 ShowMac 后恢复休眠。请保持通风，放入包前关闭。"
     }
+    var summary:String {
+        if changing || status.failed || automaticIssue != nil || !canArmAutomatic {return detail}
+        if activation == .manual {return status.active ? detail:"仅本次手动运行，退出后关闭"}
+        if enabled {return status.active ? "接电运行中，拔电自动停止":detail}
+        return "开启后接电运行，拔电自动停止"
+    }
     private func persist() {
-        defaults?.set(activation.rawValue,forKey:"clamshellActivation")
+        defaults?.set(activation.rawValue,forKey:"clamshellActivationChoice")
         defaults?.set(activation == .whenPowered && enabled,forKey:"clamshellAutomaticEnabled")
     }
     func setActivation(_ value:ClamshellActivation) {

@@ -7,13 +7,14 @@ import ThermalCore
     static func run() {
         guard CommandLine.arguments.contains("--ui-check") else {exit(2)}
         _=NSApplication.shared
-        do {try check();try automaticCheck();try interruptionCheck();print("PASS: manual and automatic power conditions, saved rules, waiting/active/error states, one attempt per power interval, explicit retry, busy deferral, unknown power, in-flight cancellation, partial activation rollback, stop failure and interrupted-session handling, shutdown isolation, desktop/battery gating, localized light/dark layouts. Fixtures only; no hardware writes.");exit(0)}
+        do {try check();try simpleDefaultCheck();try automaticCheck();try interruptionCheck();print("PASS: single-switch AC default and legacy migration, explicit secondary mode, saved rules, waiting/active/error states, one attempt per power interval, retry, busy deferral, unknown power, in-flight cancellation, partial activation rollback, stop failure and interrupted-session handling, shutdown isolation, desktop/battery gating, localized light/dark layouts. Fixtures only; no hardware writes.");exit(0)}
         catch {print("FAIL: \(error.localizedDescription)");exit(1)}
     }
     private static func require(_ value:Bool,_ message:String)throws {if !value {throw ScopeError.message(message)}}
     private static func check() throws {
         var state=ClamshellEnvironment(portable:true,acPower:true,sleepDisabled:false)
         let model=ClamshellModeModel(readEnvironment:{state})
+        model.setActivation(.manual)
         var commands:[String]=[]
         model.perform={request,completion in
             commands.append(request.command)
@@ -45,6 +46,31 @@ import ThermalCore
         model.receive(ClamshellStatus(active:true,message:"合盖运行中 · 仅接电"))
         state=ClamshellEnvironment(portable:true,acPower:false,sleepDisabled:false);model.refresh()
         try require(!model.status.active,"Unplugged/restored mode retained a stale active state")
+    }
+    private static func simpleDefaultCheck() throws {
+        let suite="showmac-simple-clamshell-"+UUID().uuidString
+        let defaults=UserDefaults(suiteName:suite)!
+        defer {defaults.removePersistentDomain(forName:suite)}
+        defaults.set("manual",forKey:"clamshellActivation")
+        var state=ClamshellEnvironment(portable:true,acPower:false,sleepDisabled:false)
+        let model=ClamshellModeModel(defaults:defaults,readEnvironment:{state})
+        var commands:[String]=[]
+        model.perform={request,completion in
+            commands.append(request.command)
+            let active=request.command=="clamshell-start"
+            state=ClamshellEnvironment(portable:true,acPower:state.acPower,sleepDisabled:active)
+            var reply=ControlReply(ok:true,message:"fixture")
+            reply.clamshell=ClamshellStatus(active:active)
+            completion(.success(reply))
+        }
+        try require(model.activation == .whenPowered && !model.isEnabled,"Legacy manual default survived the simplified control")
+        model.setEnabled(true)
+        try require(model.isEnabled && !model.status.active && commands.isEmpty,"Single switch on battery did not arm the AC default")
+        state=ClamshellEnvironment(portable:true,acPower:true,sleepDisabled:false);model.refresh()
+        try require(model.status.active && commands==["clamshell-start"],"Single switch needed an extra condition-selection step")
+        model.setEnabled(false);model.setActivation(.manual)
+        let restored=ClamshellModeModel(defaults:defaults,readEnvironment:{state})
+        try require(restored.activation == .manual && !restored.isEnabled,"Explicit secondary manual choice was not retained")
     }
     private static func automaticCheck() throws {
         let suite="showmac-clamshell-check-"+UUID().uuidString
@@ -178,11 +204,11 @@ import ThermalCore
     private static func capture(_ model:ClamshellModeModel,dark:Bool,language:String,name:String="manual")throws {
         NSApp.appearance=NSAppearance(named:dark ? .darkAqua:.aqua)
         let content=ClamshellModeSettings(mode:model,busy:false).padding(20)
-            .frame(width:600,height:300).appBackground{Palette.canvas}.preferredColorScheme(dark ? .dark:.light)
+            .frame(width:600,height:160).appBackground{Palette.canvas}.preferredColorScheme(dark ? .dark:.light)
         let controller=NSHostingController(rootView:content)
-        let window=NSWindow(contentRect:CGRect(x:0,y:0,width:600,height:300),styleMask:.borderless,backing:.buffered,defer:false)
+        let window=NSWindow(contentRect:CGRect(x:0,y:0,width:600,height:160),styleMask:.borderless,backing:.buffered,defer:false)
         window.contentViewController=controller
-        let host=controller.view;host.frame=CGRect(x:0,y:0,width:600,height:300);host.layoutSubtreeIfNeeded()
+        let host=controller.view;host.frame=CGRect(x:0,y:0,width:600,height:160);host.layoutSubtreeIfNeeded()
         guard let bitmap=host.bitmapImageRepForCachingDisplay(in:host.bounds) else {throw ScopeError.message("Missing closed-lid settings bitmap")}
         host.cacheDisplay(in:host.bounds,to:bitmap)
         guard let data=bitmap.representation(using:.png,properties:[:]),data.count>1000 else {throw ScopeError.message("Empty closed-lid settings bitmap")}

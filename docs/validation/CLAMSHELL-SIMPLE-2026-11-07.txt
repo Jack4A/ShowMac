@@ -1,0 +1,18 @@
+ShowMac 1.18.26 (293) — simplified closed-lid control
+
+- One compact settings row: title/current status, primary switch, secondary native More menu.
+- Removed the activation-condition row and always-visible explanation; details remain in help.
+- A fresh/default switch uses external-power automation immediately, including arming while on battery.
+- The old manual default is migrated without enabling the feature. A manual choice is retained only when explicitly selected in the new More menu.
+- More contains automatic operation, This session only, and Retry when needed.
+- Existing power guards, rollback, remembered automatic intent and authorization backoff remain in place.
+
+Validation: release compile/package and deep strict signature passed. Dedicated condition checks,
+including new single-switch/default migration and explicit manual-choice persistence, passed.
+16 compact localized state captures and 26 whole-app appearance fixtures passed; 1277 localization keys passed.
+Installed /Applications/showmac.app 1.18.26 (293), matching checked host/helper/resource hashes.
+Native settings verified the primary switch, secondary More entry, removal of condition row, and version.
+Existing login-startup setting was retained; no actual sleep override was enabled on this desktop Mac.
+Real MacBook closed-lid behavior remains unverified. Local SDK27 build declares macOS12;
+repository SDK26.5 release target remains macOS11. Still ad-hoc signed, not notarized.
+No GitHub release or website download was changed.

@@ -5,44 +5,38 @@ struct ClamshellModeSettings:View {
     @ObservedObject var mode:ClamshellModeModel
     let busy:Bool
     var body:some View {
-        VStack(alignment:.leading,spacing:12) {
-            HStack(spacing:12) {
+        HStack(spacing:12) {
                 Image(systemName:AppSymbols.resolve("laptopcomputer"))
                     .font(.system(size:20)).foregroundColor(Palette.violet).frame(width:30)
                 VStack(alignment:.leading,spacing:4) {
                     Text(L("合盖运行")).font(AppTypography.body.weight(.semibold))
-                    Text(L("像台式机一样，合盖后继续运行任务。")).font(.caption).foregroundColor(Palette.secondaryText)
+                    Text(L(mode.summary)).font(.caption)
+                        .foregroundColor(mode.status.failed || mode.automaticIssue != nil ? Color.orange:Palette.secondaryText)
+                        .fixedSize(horizontal:false,vertical:true)
+                        .accessibilityIdentifier("clamshellConditionStatus")
                 }
                 Spacer(minLength:8)
                 if mode.changing {ProgressView().appControlSize(.small)}
                 Toggle(L("合盖运行"),isOn:Binding(get:{mode.isEnabled},set:{mode.setEnabled($0)}))
                     .labelsHidden().toggleStyle(.switch).accentColor(Palette.violet)
                     .disabled(busy || mode.changing || !mode.canSetEnabled)
-                    .help(L("开启期间阻止系统休眠，屏幕仍可熄灭。"))
+                    .help(L(mode.explanation)+" "+L("开启期间阻止系统休眠，屏幕仍可熄灭。"))
                     .accessibilityIdentifier("settingsClamshellMode")
-            }
-            Divider().opacity(0.5)
-            HStack(spacing:12) {
-                Text(L("开启条件")).font(AppTypography.body)
-                Spacer(minLength:8)
-                AppChoicePicker(title:L("开启条件"),selection:Binding(get:{mode.activation},set:{mode.setActivation($0)}),
-                                choices:ClamshellActivation.allCases.map{AppChoice($0,L($0.title))})
+                Menu {
+                    Picker(L("运行方式"),selection:Binding(get:{mode.activation},set:{mode.setActivation($0)})) {
+                        ForEach(ClamshellActivation.allCases,id:\.self) {value in Text(L(value.title)).tag(value)}
+                    }.pickerStyle(.inline)
+                    if mode.canRetryAutomatic {
+                        Divider()
+                        Button(L("重试")){mode.retryAutomatic()}
+                    }
+                } label:{Image(systemName:AppSymbols.resolve("ellipsis")).frame(width:20,height:24).contentShape(Rectangle())}
+                    .menuStyle(BorderlessButtonMenuStyle())
+                    .fixedSize()
+                    .foregroundColor(Palette.secondaryText)
                     .disabled(busy || mode.changing || !mode.canArmAutomatic)
-                    .accessibilityIdentifier("clamshellActivation")
-            }
-            HStack(alignment:.top,spacing:10) {
-                Text(L(mode.detail)).font(.caption)
-                    .foregroundColor(mode.status.failed || mode.automaticIssue != nil ? Color.orange:Palette.secondaryText)
-                    .fixedSize(horizontal:false,vertical:true)
-                    .accessibilityIdentifier("clamshellConditionStatus")
-                Spacer(minLength:0)
-                if mode.canRetryAutomatic {
-                    Button(L("重试")){mode.retryAutomatic()}.buttonStyle(AppNativeButtonStyle()).appControlSize(.small)
-                        .disabled(busy || mode.changing).accessibilityIdentifier("retryClamshellAutomatic")
-                }
-            }
-            Text(L(mode.explanation))
-                .font(.caption).foregroundColor(Palette.secondaryText).fixedSize(horizontal:false,vertical:true)
+                    .help(L("更多选项")).accessibilityLabel(L("合盖运行")+" · "+L("更多选项"))
+                    .accessibilityIdentifier("clamshellMoreOptions")
         }.subtlePanel(padding:18)
     }
 }

@@ -7412,5 +7412,23 @@
   },
   "重试": {
     "en": "Retry"
+  },
+  "仅本次开启": {
+    "en": "This session only"
+  },
+  "仅本次手动运行，退出后关闭": {
+    "en": "Run manually for this session; quitting turns it off."
+  },
+  "开启后接电运行，拔电自动停止": {
+    "en": "Runs on external power when enabled; stops when unplugged."
+  },
+  "接电运行中，拔电自动停止": {
+    "en": "Running on external power; stops when unplugged."
+  },
+  "运行方式": {
+    "en": "Run mode"
+  },
+  "更多选项": {
+    "en": "More options"
   }
 }
