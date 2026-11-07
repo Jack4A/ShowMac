@@ -10,9 +10,9 @@ Developer: [@Jack4A](https://github.com/Jack4A). The **About ShowMac** card at t
 
 A native macOS utility for temperature, fan speed, sensor readings and performance diagnostics. Monitor from the menu bar, inspect recent trends, and choose a fan preset or adjust a temperature–RPM curve.
 
-**Public download: [v1.18.22](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
+**Public download: [v1.18.23](https://show-mac.cc/en/#download)** · **macOS 11+** · **Intel & Apple Silicon**
 
-**1.18.22 · build 289** abbreviates **By model** token totals using K/M/B in English and Chinese magnitude units in Chinese; hover for exact counts. Agent filtering, sortable statistics and weighted cache hit rate remain available. Provider icons, grouped allowance windows, native card dragging, separate **Electricity / Token** tabs and menu bar usage/allowance are retained. Chinese totals use 万 / 百万 / 千万 / 亿 / 万亿; English keeps K/M/B. The bundled MIT-licensed Tokscale core retains all 60 local history sources. See the [release notes](docs/releases/v1.18.22.md).
+**1.18.23 · build 290** adds **Closed-lid mode** for MacBooks on external power, with controls in Settings and the menu bar popover. Unplugging, quitting or critical thermal pressure restores sleep. An independent watchdog and boot recovery protect interrupted sessions. Off by default; physical MacBook lid testing is still pending. All Token statistics, agent filters/sorting, menu bar customization and fan scenes are retained. See the [release notes](docs/releases/v1.18.23.md).
 
 <img src="docs/screenshots/v1.18.19/en/overview-dark.png" width="1000" alt="ShowMac 1.18.19 Live metrics UI preview with the compact electricity and token card and sample readings">
 
@@ -22,10 +22,10 @@ A native macOS utility for temperature, fan speed, sensor readings and performan
 2. Download the ZIP for your Mac, extract it, and move **showmac.app** to **Applications**.
 3. Launch the app and click its menu bar item. Monitoring starts in the menu bar; the console does not open automatically.
 
-| Mac | v1.18.22 archive | Control support |
+| Mac | v1.18.23 archive | Control support |
 | --- | --- | --- |
-| Intel | `showmac-1.18.22-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
-| Apple Silicon | `showmac-1.18.22-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-setting controls are unavailable |
+| Intel | `showmac-1.18.23-macOS-x86_64.zip` | Fan controls; Turbo Boost depends on an existing approved extension |
+| Apple Silicon | `showmac-1.18.23-macOS-arm64.zip` | Experimental, capability-gated fan controls; Turbo Boost and power-optimization controls are unavailable; closed-lid mode is supported on eligible MacBooks |
 
 The prebuilt app needs no Xcode, Swift or Python. Read-only monitoring does not require administrator authorization. Hardware control requests authorization when first needed. Packages are currently ad-hoc signed and not notarized; macOS may report an unverified developer. See the [Intel install guide](docs/INSTALL.txt) and [Apple Silicon guide](docs/INSTALL-arm64.txt).
 
@@ -72,6 +72,12 @@ Open **Scenes & apps** from Thermal control or the menu bar fan-control settings
 A matching foreground app takes priority. Switching to an unrelated app keeps the matched workload scene while that app is running. When all linked apps quit, ShowMac returns to the mode selected before enabling automation. Rules and the enabled state survive relaunch; matching still depends on which apps are running. Choosing a mode or editing a curve manually pauses automation. Re-enable the switch to resume. A timed session ending or rejected control also pauses switching; it does not repeatedly request authorization. Only application identities are read—no window contents or Accessibility permission.
 
 Before applying control, quit other fan controllers to avoid competing commands. On Intel, Turbo Boost control reuses an already installed, macOS-approved `com.rugarciap.DisableTurboBoost` extension. ShowMac does not bundle or download that driver.
+
+### Keep working with the lid closed
+
+Open **Settings → Closed-lid mode**, or click the laptop button at the bottom of the menu bar popover. Connect a MacBook to external power to enable it; macOS administrator authorization is required the first time. It can keep background tasks running without an external display. System sleep is blocked while enabled; display sleep keeps its existing settings. Unplug, turn off the switch, quit ShowMac, or reach critical thermal pressure to stop. Every app launch starts with this mode off. Keep vents clear and turn it off before packing your Mac.
+
+ShowMac prepares a boot recovery job before changing the system `disablesleep` setting. An independent watchdog restores sleep when the app or control helper exits; if both are forcibly terminated, the next boot also restores it. Temporary recovery files are removed after restoration. Fan scenes, Turbo Boost and display sleep timers are unchanged. Desktop Macs cannot enable this mode. It uses system commands; physical closed-lid behavior still needs validation on each supported Mac/macOS combination.
 
 ### Build your menu bar
 

@@ -14,7 +14,10 @@ public struct ControlRequest:Codable {
         self.command=command;self.profile=profile;self.curve=curve;self.duration=duration;self.label=label;self.powerPlan=powerPlan;self.powerBackup=powerBackup;self.continuous=continuous
     }
     public func validate() throws {
-        guard ["hello","status","profile","auto","turbo-disable","turbo-enable","test-fans","shutdown","power-optimize","power-restore"].contains(command) else { throw ScopeError.message("未知控制命令") }
+        guard ["hello","status","profile","auto","turbo-disable","turbo-enable","test-fans","shutdown","power-optimize","power-restore","clamshell-start","clamshell-stop"].contains(command) else { throw ScopeError.message("未知控制命令") }
+        if command.hasPrefix("clamshell-") {
+            guard profile==nil,curve==nil,duration==nil,continuous==nil,label==nil else {throw ScopeError.message("无效的合盖运行命令")}
+        }
         if command=="power-optimize" {guard let powerPlan else{throw ScopeError.message("缺少优化方案")};try powerPlan.validate()}
         if command=="power-restore" {guard let powerBackup else{throw ScopeError.message("缺少恢复记录")};try powerBackup.validate()}
         if powerPlan != nil,command != "power-optimize" {throw ScopeError.message("电源方案命令不匹配")}
@@ -51,6 +54,7 @@ public struct ControlReply:Codable {
     public var turbo:Int?
     public var power:PowerOutcome?
     public var fanStatus:FanSessionStatus?
+    public var clamshell:ClamshellStatus?
     public init(ok:Bool,message:String,session:String?=nil,profile:String?=nil,label:String?=nil,turbo:Int?=nil,fanStatus:FanSessionStatus?=nil) {
         self.ok=ok;self.message=message;self.session=session;self.profile=profile;self.label=label;self.turbo=turbo
         self.fanStatus=fanStatus

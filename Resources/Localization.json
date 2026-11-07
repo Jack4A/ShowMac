@@ -7280,5 +7280,77 @@
   },
   "点击筛选该 Agent，再次点击显示全部": {
     "en": "Click to filter this agent; click again to show all"
+  },
+  "合盖运行": {
+    "en": "Closed-lid mode"
+  },
+  "像台式机一样，合盖后继续运行任务。": {
+    "en": "Keep tasks running with the lid closed, like a desktop Mac."
+  },
+  "仅接电时生效；拔电、关闭开关或退出 ShowMac 后恢复休眠。请保持通风，放入包前关闭。": {
+    "en": "Works on external power. Unplug, turn off, or quit ShowMac to restore sleep. Keep vents clear and turn off before packing your Mac."
+  },
+  "合盖运行仅适用于 MacBook": {
+    "en": "Closed-lid mode is available on MacBooks only"
+  },
+  "连接电源后可开启合盖运行": {
+    "en": "Connect external power to enable closed-lid mode"
+  },
+  "系统热压力过高，合盖运行已停止": {
+    "en": "Critical thermal pressure; closed-lid mode has stopped"
+  },
+  "此系统无法确认合盖运行状态": {
+    "en": "Closed-lid mode is unavailable on this system"
+  },
+  "合盖运行已关闭": {
+    "en": "Closed-lid mode is off"
+  },
+  "其他程序已禁止系统休眠，请先关闭其防休眠功能": {
+    "en": "Another app has disabled system sleep. Turn off its sleep override first."
+  },
+  "系统未确认合盖运行生效": {
+    "en": "The system did not confirm closed-lid mode"
+  },
+  "尚未确认恢复系统休眠，正在重试": {
+    "en": "Sleep restoration is unconfirmed; retrying"
+  },
+  "系统休眠设置已变化，合盖运行已停止": {
+    "en": "Sleep settings changed; closed-lid mode has stopped"
+  },
+  "合盖运行需要系统授权": {
+    "en": "Closed-lid mode requires system authorization"
+  },
+  "系统拒绝更改合盖运行状态": {
+    "en": "The system denied the closed-lid mode change"
+  },
+  "无效的合盖运行命令": {
+    "en": "Invalid closed-lid mode request"
+  },
+  "无法建立合盖运行会话": {
+    "en": "Could not create a closed-lid mode session"
+  },
+  "合盖运行会话已被占用": {
+    "en": "Another closed-lid mode session is running"
+  },
+  "合盖运行中 · 仅接电": {
+    "en": "Closed-lid mode on · External power only"
+  },
+  "合盖运行未启动，请检查是否存在其他运行会话": {
+    "en": "Closed-lid mode did not start. Check for another running session."
+  },
+  "合盖运行会话已中断，系统休眠已恢复": {
+    "en": "Closed-lid mode was interrupted; system sleep is restored"
+  },
+  "正在确认合盖运行状态…": {
+    "en": "Confirming closed-lid mode…"
+  },
+  "无法建立合盖运行恢复保护": {
+    "en": "Could not prepare closed-lid mode recovery"
+  },
+  "无法移除合盖运行恢复保护": {
+    "en": "Could not remove closed-lid mode recovery"
+  },
+  "开启期间阻止系统休眠，屏幕仍可熄灭。": {
+    "en": "System sleep is blocked while enabled. The display can still sleep."
   }
 }

@@ -26,6 +26,11 @@ func expectThrows(_ expression:@autoclosure () throws ->Any,file:StaticString=#f
     static func main() {
         let core=CoreTests(),cooling=CoolingTests(),history=HistoryTests(),curve=CurveTests()
         let checks:[(String,() throws ->Void)]=[
+            ("Clamshell mode rejects desktops, battery power, unknown states and external owners",ClamshellTests().testPreflightAndOtherOwners),
+            ("Clamshell runtime ownership verifies activation and restores on power or thermal changes",ClamshellTests().testVerifiedLifetimeAndRestoration),
+            ("Partial clamshell activation and AC changes roll back",ClamshellTests().testPartialAcquisitionRollsBack),
+            ("Clamshell restoration stays retryable and respects external restoration",ClamshellTests().testRestoreFailuresRemainRetryable),
+            ("Clamshell commands are typed, cross-architecture and backwards compatible",ClamshellTests().testProtocolAndOldReplies),
             ("Reported quota periods expire without fabricated resets",AgentQuotaTests().testProviderWindowsAndExpiration),
             ("Invalid percentages and context windows are not account quota",AgentQuotaTests().testInvalidAndContextValuesAreNotQuota),
             ("Claude quota capture retains numeric metadata only",AgentQuotaTests().testClaudeStatusLineMetadataOnly),

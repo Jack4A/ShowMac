@@ -74,7 +74,7 @@ public enum FanControlPolicy {
     public static func validate(_ request:ControlRequest,appleSilicon:Bool) throws {
         try request.validate()
         guard appleSilicon else{return}
-        let allowed=["hello","status","auto","test-fans","shutdown"]
+        let allowed=["hello","status","auto","test-fans","shutdown","clamshell-start","clamshell-stop"]
         guard allowed.contains(request.command) || (request.command=="profile" && request.profile=="custom") else {
             throw ScopeError.message("Apple Silicon 当前仅支持独立风扇控制，不支持 Intel 睿频或电源设置控制")
         }

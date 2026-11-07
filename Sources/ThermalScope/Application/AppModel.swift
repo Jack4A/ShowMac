@@ -13,6 +13,7 @@ struct TimelineEvent: Identifiable {
 @MainActor final class AppModel: ObservableObject {
     let processes=ProcessObserver()
     let optimization=PowerOptimizationModel()
+    let clamshell=ClamshellModeModel()
     let diagnostics=DiagnosisStore()
     let updates=AppUpdateController()
     let navigation=DiagnosticNavigation()
@@ -224,6 +225,9 @@ struct TimelineEvent: Identifiable {
         optimization.perform={ [weak self] request,completion in
             self?.control(request,completion:completion)
         }
+        clamshell.perform={ [weak self] request,completion in
+            self?.control(request,completion:completion)
+        }
         if menuItems.isEmpty { menuItems=[.temperature] }
         let savedInterval=UserDefaults.standard.double(forKey:"sampleInterval")
         if savedInterval==2 || savedInterval==5 { interval=savedInterval }
@@ -290,6 +294,7 @@ struct TimelineEvent: Identifiable {
         if !isFanControlPreview {electricity.record(sample,telemetry:telemetry,publish:visualUpdatesEnabled)}
         widgetPublisher.record(sample,mode:coolingStatus,language:AppLocalization.shared.resolvedLanguage,history:metricHistory)
         optimization.record(sample,telemetry:telemetry)
+        clamshell.refresh()
         diagnostics.receive(sample,telemetry:telemetry,processes:processes,power:optimization)
         let observedMode:String?
         if let activeProfile {
@@ -333,6 +338,7 @@ struct TimelineEvent: Identifiable {
         if !poll { busy=false;pendingFanStrategy=nil }
         switch result {
         case .success(let reply):
+            clamshell.receive(reply.clamshell)
             if !authorizationReady {authorizationReady=true}
             fanControl.update(reply.ok && reply.session != nil ? reply.fanStatus:nil,publish:visualUpdatesEnabled)
             let previous=coolingToken

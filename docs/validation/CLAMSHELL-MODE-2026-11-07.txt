@@ -1,0 +1,26 @@
+ShowMac 1.18.23 / 290 — closed-lid mode
+
+Opt-in MacBook-only mode, external-power only. A native authorized helper uses a
+fixed pmset invocation and verifies the effective SleepDisabled IOPMrootDomain
+property. Direct property writes on newer XNU require an Apple-only entitlement
+and are not used. The implementation does not create private entitlements.
+
+Before enabling, a root-owned fixed recovery script and LaunchDaemon are prepared.
+The independent guard holds an exclusive root lock, watches the originating app,
+parent helper, stop pipe, power source and critical thermal pressure, and retries
+restoration until confirmed. Success removes the temporary recovery files. If both
+processes are forcibly killed, launchd restores sleep on the next boot. Other
+preexisting sleep overrides are rejected. No fan scene or display timer is changed.
+
+143 core fixture checks passed, including desktop/battery/unknown power/foreign
+owner preflight, verified activation, unplug and thermal stop reasons, partial-write
+rollback, restore retry, protocol compatibility and both architecture allowlists.
+The localized UI check passed activation/rejection, unplug restoration and control
+gating; four English/Chinese light/dark captures were inspected. 1250 localization
+keys passed. Website routing/statistics tests and SQLite schema test passed.
+
+Local SDK 27 development app targets macOS 12; production source/CI remains macOS
+11. Native installation and production CI/publication are subsequent steps. This
+checkpoint does not claim physical MacBook lid, power-removal, crash or reboot
+validation. Local host is a desktop Mac (Mac16,10), so those physical checks remain
+pending. No live power settings or root recovery files were changed by fixture QA.

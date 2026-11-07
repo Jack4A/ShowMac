@@ -90,6 +90,14 @@ if args.count==2 && args[1]=="fan-probe" {
     do {let data=try JSONEncoder().encode(values);FileHandle.standardOutput.write(data);print()} catch {fail(error.localizedDescription)}
     exit(0)
 }
+if args.count==5 && args[1]=="clamshell-guard" {
+    do {try runClamshellGuard(args)} catch {
+        var reply=ControlReply(ok:false,message:error.localizedDescription)
+        reply.clamshell=ClamshellStatus(message:error.localizedDescription,failed:true)
+        try? ControlChannel(fd:STDOUT_FILENO).send(reply)
+    }
+    exit(0)
+}
 if args.count==4 && args[1]=="serve" {
     do { try runControlSession(args) } catch { fail(error.localizedDescription) }
     exit(0)

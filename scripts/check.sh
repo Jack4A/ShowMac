@@ -22,7 +22,7 @@ python3 -m unittest discover -s Tests/Performance -v
 python3 -m unittest discover -s Tests/Release -v
 "$APP/Contents/MacOS/ThermalScope" --hidden-view-update-check
 "$APP/Contents/MacOS/ThermalScope" --localization-check
-for flag in --status-cards-check --curve-warning-check --menu-sensor-check --menu-composition-check --menu-customization-check --app-update-check --fan-scenes-check --electricity-check --token-features-check; do
+for flag in --status-cards-check --curve-warning-check --menu-sensor-check --menu-composition-check --menu-customization-check --app-update-check --fan-scenes-check --electricity-check --token-features-check --clamshell-mode-check; do
     "$APP/Contents/MacOS/ThermalScope" "$flag" --ui-check
 done
 "$APP/Contents/MacOS/ThermalScope" --cpu-warning-check

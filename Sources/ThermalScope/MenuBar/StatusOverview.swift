@@ -124,6 +124,7 @@ struct StatusOverview:View {
             Spacer(minLength:4)
             AppUpdateBadge(updates:model.updates)
             freshness
+            ClamshellStatusButton(mode:model.clamshell,busy:model.busy)
             Button(action:onSettings) {Image(systemName:AppSymbols.resolve("gearshape"))}.help(L("设置")).accessibilityLabel(L("设置"))
             Button(action:onActions) {Image(systemName:AppSymbols.resolve("ellipsis"))}.help(L("更多操作")).accessibilityLabel(L("更多操作"))
         }.buttonStyle(.borderless).appControlSize(.small).frame(minHeight:24)

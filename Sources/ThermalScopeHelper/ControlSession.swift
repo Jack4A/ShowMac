@@ -17,7 +17,9 @@ final class SessionControl {
     private let fanHardware=SMC()
     private let owner:Int32
     private let uid:UInt32
-    init(owner:Int32,uid:UInt32) {self.owner=owner;self.uid=uid}
+    private let clamshell:ClamshellController
+    init(owner:Int32,uid:UInt32) {self.owner=owner;self.uid=uid;clamshell=ClamshellController(owner:owner,uid:uid)}
+    func shutdown() {try? clamshell.stop();try? stop()}
     func shouldStop()->Bool {
         condition.lock();let stop=cancelled;condition.unlock()
         return stop || ts_should_stop() != 0 || ts_owner_alive(owner,uid) != 1
@@ -28,7 +30,8 @@ final class SessionControl {
         if running,applied,let progress {
             status=FanSessionStatus(remainingSeconds:progress.deadline.isFinite ? max(0,progress.deadline-ts_continuous_seconds()):0,targets:progress.targets,protectionActive:progress.protectionActive,continuous:progress.deadline.isInfinite)
         } else {status=nil}
-        return ControlReply(ok:failure==nil,message:failure ?? (running ? "控制已确认生效":"风扇由系统管理"),session:session,profile:profile,label:label,fanStatus:status)
+        var reply=ControlReply(ok:failure==nil,message:failure ?? (running ? "控制已确认生效":"风扇由系统管理"),session:session,profile:profile,label:label,fanStatus:status)
+        reply.clamshell=clamshell.status();return reply
     }
     func stop(ignorePreviousFailure:Bool=false) throws {
         condition.lock();defer{condition.unlock()}
@@ -86,7 +89,10 @@ final class SessionControl {
             var reply=status();reply.ok=true;reply.power=outcome
             reply.message=request.command=="power-optimize" ? (outcome.changed ? "优化设置已确认生效":"所选设置已满足"):(outcome.skipped>0 ? "恢复已结束；外部更改保留":"原设置已恢复")
             return reply
-        case "shutdown":try stop();return status()
+        case "clamshell-start","clamshell-stop":
+            if request.command=="clamshell-start" {try clamshell.start()} else {try clamshell.stop()}
+            var reply=status();reply.ok=true;reply.message=clamshell.status().message;return reply
+        case "shutdown":try clamshell.stop();try stop();return status()
         case "auto":
             try stop(ignorePreviousFailure:true)
             let hardware=fanHardware,fans=hardware.fans()
@@ -132,9 +138,9 @@ func runControlSession(_ args:[String]) throws {
     let input=ControlChannel(fd:STDIN_FILENO),output=ControlChannel(fd:STDOUT_FILENO)
     DispatchQueue.global(qos:.utility).async {
         while ts_owner_alive(owner,uid)==1 && ts_should_stop()==0 {usleep(200000)}
-        try? controller.stop();exit(0)
+        controller.shutdown();exit(0)
     }
-    defer{try? controller.stop()}
+    defer{controller.shutdown()}
     while let data=try input.readLine(timeout:86400) {
         guard ts_owner_alive(owner,uid)==1 else {break}
         let reply:ControlReply

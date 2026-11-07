@@ -33,6 +33,7 @@ struct PreferencesPage:View {
                     }
                 }
             }.subtlePanel(padding:18)
+            if !AppDistribution.isAppStore {ClamshellModeSettings(mode:model.clamshell,busy:model.busy)}
             AppDisclosureGroup(L("系统小组件"),isExpanded:$showWidgets,inset:18) {
                 WidgetSettings(model:model).padding(.top,10)
             }.font(AppTypography.body).subtlePanel(padding:0)

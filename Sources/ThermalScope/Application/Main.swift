@@ -438,6 +438,7 @@ import WidgetUI
             print("Widget schema \(snapshot.schema); actual sample \(snapshot.date); \(snapshot.fans.count) fans; no hardware writes.")
             return
         }
+        if args.contains("--clamshell-mode-check") {ClamshellModeCheck.run();return}
         if args.count==2 && args[1]=="--power-probe" {
             do {
                 let encoder=JSONEncoder();encoder.outputFormatting=[.prettyPrinted,.sortedKeys]
